@@ -119,7 +119,8 @@ Response examples:
 {"itemId":"LEH-20200305700","dueDate":"2020-06-13 04:00:00","userId":"876579559"}
 
 Response with problem:
-{"problems":[{"detail":"Invalid item barcode : LEH-2020030570a","type":"","value":"CheckOut Failed","element":""}]}
+{"problems":[{"detail":"Invalid item barcode : LEH-2020030570a",
+"type":"","value":"CheckOut Failed","element":""}]}
 ```
 
 ### CheckinItem
@@ -141,7 +142,8 @@ Response examples:
 {"itemId":"LEH-20200305700"}
 
 Response with a problem:
-{"problems":[{"detail":"Failed to find incoming or outgoing by external item barcode LEH-20200305699","type":"Unknown Item"}]}
+{"problems":[{"detail":"Failed to find incoming or outgoing by external item barcode 
+LEH-20200305699","type":"Unknown Item"}]}
 ```
 
 
