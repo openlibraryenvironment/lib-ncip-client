@@ -9,6 +9,7 @@ mvn package
 * [ ] Feedback?
 * [ ] Write tests
 * [ ] More testing
+* [ ] Anything to add to the repo, pom for CI?
 
 ## usage
 This initial version of the 'NCIP Client' supports four NCIP2 services:
