@@ -1,4 +1,3 @@
-### Readme in progress...
 
 # lib-ncip-client
 Client for the NISO Circulation Interchange Protocol (NCIP) 
@@ -18,7 +17,7 @@ This initial version of the 'NCIP Client' supports four NCIP2 services:
 * CheckInItem
 * CheckOutItem
 
-The users, agency IDs, URLs, pickup location, application profiles, etc... used in the code below are just examples.
+
 
 ### LookupUser
 ```java
@@ -74,7 +73,16 @@ System.out.println(response);
 
 ### CheckinItem
 ```java
-
+NCIP2Client ncip2Client = new NCIP2Client();
+ncip2Client.setEndpoint("https://test.ncip.lehigh.edu/ncip");
+CheckinItem checkinItem = new CheckinItem()
+                  .setItemId("LEH-20200301608")
+                  .setToAgency("01TULI_INST")
+                  .setFromAgency("01TULI_INST")
+                  .includeBibliographicDescription()
+                  .setApplicationProfileType("EZBORROW");
+JSONObject response = ncip2Client.send(checkinItem);
+System.out.println(response);
 
 ```
 
@@ -83,4 +91,4 @@ There are four objects representing each of the four services.  For the most par
 
 The NCIP2Client object understands how to ask each object for the NCIP2 xml and how to send the request to an NCIP2 server and how to ask for the NCIP Response object based on the XML returned.  I see this library expanding in the future by creating other Clients (e.g. NCIP1Client) and methods on the objects to support those clients.
 
-The developer using this library can always create one of the four objects and will just need to vary the client object as others are needed.
+The developer using this library can always create one of the four objects and will just need to vary the client object as others are added.
