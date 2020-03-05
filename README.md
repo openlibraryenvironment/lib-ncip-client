@@ -18,7 +18,6 @@ This initial version of the 'NCIP Client' supports four NCIP2 services:
 * CheckOutItem
 
 
-
 ### LookupUser
 ```java
 NCIP2Client ncip2Client = new NCIP2Client();
@@ -33,6 +32,43 @@ LookupUser lookupUser = new LookupUser()
                   .setApplicationProfileType("EZBORROW");
 JSONObject response = ncip2Client.send(lookupUser);
 System.out.println(response);
+```
+Response examples:
+```json
+{
+	"firstName": "Jane",
+	"lastName": "Doe",
+	"privileges": [{
+			"value": "true",
+			"key": "Courtesy Notice"
+		}, {
+			"value": "false",
+			"key": "Delivery"
+		},
+		{
+			"value": "true",
+			"key": "Paging"
+		}, {
+			"value": "STAFF",
+			"key": "Profile"
+		}, {
+			"value": "OK",
+			"key": "status"
+		}
+	],
+	"electronicAddresses": [{
+		"value": "notreal@lehigh.edu",
+		"key": "electronic mail address"
+	}, {
+		"value": "6105551212",
+		"key": "TEL"
+	}],
+	"userId": "876579559"
+}
+
+Response example when there is a problem:
+{"problems":[{"detail":"User does not exist","type":"","value":"85551212","element":"USER"}]}
+
 ```
 ### AcceptItem
 ```java
@@ -54,6 +90,13 @@ AcceptItem acceptItem = new AcceptItem()
 JSONObject response = ncip2Client.send(acceptItem);
 System.out.println(response);
 ```
+Response examples:
+```json
+{"itemId":"LEH-20200305699","requestId":"25388"}
+
+Response with a problem:
+{"problems":[{"detail":"Item Barcode Already Exist","type":"","value":"LEH-20200305699","element":"Item"}]}
+```
 
 ### CheckoutItem
 ```java
@@ -71,6 +114,14 @@ JSONObject response = ncip2Client.send(checkoutItem);
 System.out.println(response);
 ```
 
+Response examples:
+```json
+{"itemId":"LEH-20200305700","dueDate":"2020-06-13 04:00:00","userId":"876579559"}
+
+Response with problem:
+{"problems":[{"detail":"Invalid item barcode : LEH-2020030570a","type":"","value":"CheckOut Failed","element":""}]}
+```
+
 ### CheckinItem
 ```java
 NCIP2Client ncip2Client = new NCIP2Client();
@@ -85,6 +136,15 @@ JSONObject response = ncip2Client.send(checkinItem);
 System.out.println(response);
 
 ```
+Response examples:
+```json
+{"itemId":"LEH-20200305700"}
+
+Response with a problem:
+{"problems":[{"detail":"Failed to find incoming or outgoing by external item barcode LEH-20200305699","type":"Unknown Item"}]}
+```
+
+
 
 ## design & future expansion
 There are four objects representing each of the four services.  For the most part, the values in these objects will be needed across other variations of this client like NCIP1 or something else custom that may have to be written.
