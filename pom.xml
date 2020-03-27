@@ -12,12 +12,6 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>org.projectlombok</groupId><!-- remove? -->
-			<artifactId>lombok</artifactId>
-			<version>1.18.12</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
 			<groupId>org.extensiblecatalog.ncip.v2</groupId>
 			<artifactId>binding-jar</artifactId>
 			<version>2.0.0</version>
