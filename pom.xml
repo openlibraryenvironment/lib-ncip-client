@@ -114,7 +114,13 @@
         	<url>https://repository.folio.org/repository/maven-snapshots/</url>
         	<layout>default</layout>
       	 </snapshotRepository>
-    	</distributionManagement>
+    	 </distributionManagement>
+	 <scm>
+		<url>https://github.com/openlibraryenvironment/lib-ncip-client.git</url>
+		<connection>scm:git:git://github.com/openlibraryenvironment/lib-ncip-client.git</connection>
+		<developerConnection>scm:git:git@github.com:openlibraryenvironment/lib-ncip-client.git</developerConnection>
+		<tag>HEAD</tag>
+	 </scm>
 	<repositories>
 		<repository>
 			<id>folio-nexus</id>
@@ -122,7 +128,6 @@
 			<url>https://repository.folio.org/repository/maven-folio</url>
 		</repository>
 	</repositories>
-	
 	<build>
 		<resources>
 			<resource>
