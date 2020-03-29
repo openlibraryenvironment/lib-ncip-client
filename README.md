@@ -19,7 +19,7 @@ This initial version of the 'NCIP Client' supports four NCIP2 services:
 * CheckOutItem
 
 
-#### If you want to call mod-ncip directly in FOLIO (instead of through an edge module)...authentication has to take place.  I created a client that can be used for NCIP calls that will authenticate with FOLIO.  All of the code is the same as below...just use this FolioNcipClient (instead of NCIP2Client) like this:
+#### If you want to call mod-ncip directly in FOLIO (instead of through an edge module)...authentication has to take place. Use the FolioNcipClient (instead of NCIP2Client) which will authenticate with FOLIO:
 ```java
 FolioNcipClient folioClient = new FolioNcipClient("https://folio-snapshot-load-okapi.aws.indexdata.com","diku_admin","thedikupassword","diku");
 		
