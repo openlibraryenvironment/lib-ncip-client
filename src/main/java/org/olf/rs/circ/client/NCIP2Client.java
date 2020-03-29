@@ -38,6 +38,11 @@ public class NCIP2Client implements CirculationClient {
 	public NCIP2Client() throws IOException, ToolkitException {
 		xcToolkitUtil = XCToolkitUtil.getInstance();
 	}
+	
+	public NCIP2Client(String endpoint) throws IOException, ToolkitException {
+		xcToolkitUtil = XCToolkitUtil.getInstance();
+		this.endpoint = endpoint;
+	}
 
 	public void setEndpoint(String newEndpoint) {
 		endpoint = newEndpoint;

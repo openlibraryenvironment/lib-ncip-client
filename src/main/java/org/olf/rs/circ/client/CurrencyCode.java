@@ -1,9 +1,6 @@
 package org.olf.rs.circ.client;
 
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-
 import java.util.concurrent.CopyOnWriteArrayList;
-import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.SchemeValuePair;
 import org.extensiblecatalog.ncip.v2.service.ServiceException;
 
@@ -15,7 +12,7 @@ import java.util.List;
  */
 public class CurrencyCode extends SchemeValuePair {
 
-    private static final Logger LOG = Logger.getLogger(CurrencyCode.class);
+    
 
     private static final List<CurrencyCode> VALUES_LIST = new CopyOnWriteArrayList<CurrencyCode>();
 

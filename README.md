@@ -19,10 +19,14 @@ This initial version of the 'NCIP Client' supports four NCIP2 services:
 * CheckOutItem
 
 
+#### Note: If you want to call mod-ncip directly in FOLIO (instead of through an edge module)...authentication has to take place. Use the FolioNcipClient (instead of NCIP2Client) which will authenticate with FOLIO:
+```java
+FolioNcipClient folioClient = new FolioNcipClient("https://folio-snapshot-load-okapi.aws.indexdata.com","diku_admin","thedikupassword","diku");
+		
+```
 ### LookupUser
 ```java
-NCIP2Client ncip2Client = new NCIP2Client();
-ncip2Client.setEndpoint("https://test.ncip.lehigh.edu/ncip");
+NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
 LookupUser lookupUser = new LookupUser()
                   .setUserId("876579559")
                   .includeUserAddressInformation()
@@ -73,8 +77,7 @@ Response example when there is a problem:
 ```
 ### AcceptItem
 ```java
-NCIP2Client ncip2Client = new NCIP2Client();
-ncip2Client.setEndpoint("https://test.ncip.lehigh.edu/ncip");
+NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
 AcceptItem acceptItem = new AcceptItem()
                   .setItemId("LEH-20200305633")
                   .setRequestId("LEH-20200305633")
@@ -101,8 +104,7 @@ Response with a problem:
 
 ### CheckoutItem
 ```java
-NCIP2Client ncip2Client = new NCIP2Client();
-ncip2Client.setEndpoint("https://test.ncip.lehigh.edu/ncip");
+NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
 CheckoutItem checkoutItem = new CheckoutItem()
                   .setUserId("905808497")
                   .setItemId("LEH-20200305217")
@@ -126,8 +128,7 @@ Response with problem:
 
 ### CheckinItem
 ```java
-NCIP2Client ncip2Client = new NCIP2Client();
-ncip2Client.setEndpoint("https://test.ncip.lehigh.edu/ncip");
+NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
 CheckinItem checkinItem = new CheckinItem()
                   .setItemId("LEH-20200301608")
                   .setToAgency("01TULI_INST")
