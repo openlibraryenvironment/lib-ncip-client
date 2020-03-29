@@ -1,7 +1,6 @@
 package org.olf.rs.circ.client;
 
 import java.util.HashMap;
-import java.util.Iterator;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemResponseData;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;

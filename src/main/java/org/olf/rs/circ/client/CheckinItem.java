@@ -1,46 +1,20 @@
 package org.olf.rs.circ.client;
 
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
+
+
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-
-import javax.xml.datatype.DatatypeConfigurationException;
-import javax.xml.datatype.DatatypeFactory;
-import javax.xml.datatype.XMLGregorianCalendar;
-
-import org.extensiblecatalog.ncip.v2.binding.BindingError;
-import org.extensiblecatalog.ncip.v2.binding.BindingException;
-import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
-import org.extensiblecatalog.ncip.v2.service.BibliographicDescription;
 import org.extensiblecatalog.ncip.v2.service.CheckInItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.CheckInItemResponseData;
-import org.extensiblecatalog.ncip.v2.service.CheckOutItemInitiationData;
-import org.extensiblecatalog.ncip.v2.service.CheckOutItemResponseData;
-import org.extensiblecatalog.ncip.v2.service.CreateItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
-import org.extensiblecatalog.ncip.v2.service.ItemDescription;
 import org.extensiblecatalog.ncip.v2.service.ItemId;
-import org.extensiblecatalog.ncip.v2.service.ItemOptionalFields;
-import org.extensiblecatalog.ncip.v2.service.LookupUserInitiationData;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
-import org.extensiblecatalog.ncip.v2.service.PickupLocation;
-import org.extensiblecatalog.ncip.v2.service.Problem;
-import org.extensiblecatalog.ncip.v2.service.RequestId;
-import org.extensiblecatalog.ncip.v2.service.RequestedActionType;
 import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
-import org.extensiblecatalog.ncip.v2.service.UserId;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class CheckinItem extends NCIP2Service implements NCIPCircTransaction {
@@ -79,8 +53,15 @@ public class CheckinItem extends NCIP2Service implements NCIPCircTransaction {
 		this.fromAgency = fromAgency;
 		return this;
 	}
+	
+	//convenience methods
+	public CheckinItem includeBibliographicDescription() {
+		itemOptionalFields.add(Constants.BIBLIOGRAPHIC_DESCRIPTION);
+		return this;
+	}
 
 	public NCIPInitiationData generateNCIP2Object() {
+		// TODO Auto-generated method stub
 		CheckInItemInitiationData checkinItemInitiationData = new CheckInItemInitiationData();
 		InitiationHeader initiationHeader = new InitiationHeader();
 		ApplicationProfileType applicationProfileType = new ApplicationProfileType(null, applicationProfileTypeString);
@@ -100,12 +81,16 @@ public class CheckinItem extends NCIP2Service implements NCIPCircTransaction {
 			switch (iter.next()) {
 			case Constants.BIBLIOGRAPHIC_DESCRIPTION:
 				checkinItemInitiationData.setBibliographicDescriptionDesired(true);
+				break;
 			case Constants.ITEM_USE_RESTRICTION:
 				checkinItemInitiationData.setItemUseRestrictionTypeDesired(true);
+				break;
 			case Constants.CIRCULATION_STATUS:
 				checkinItemInitiationData.setCirculationStatusDesired(true);
+				break;
 			case Constants.LOCATION:
 				checkinItemInitiationData.setLocationDesired(true);
+				break;
 			}
 		}
 

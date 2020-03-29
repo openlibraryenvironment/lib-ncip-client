@@ -24,48 +24,41 @@ import org.extensiblecatalog.ncip.v2.service.ValidationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class NCIP2Client implements CirculationClient {
+public class FolioNcipClient implements CirculationClient {
 	
-	private static final Logger logger = Logger.getLogger(NCIP2Client.class);
+	private static final Logger logger = Logger.getLogger(FolioNcipClient.class);
 	private String endpoint;
 	private String userid;
 	private String password;
+	private String tenant;
 	private HashMap<String, String> httpHeader = new HashMap<String, String>();
-	private XCToolkitUtil xcToolkitUtil;
+	private XCToolkitUtil xcToolkitUtil; 
 	//TODO ADD TIMEOUT PREFERENCE ?
 	//TODO ADD RETRY ATTEMPT PREFERENCE ?
 	
-	public NCIP2Client() throws IOException, ToolkitException {
+	public FolioNcipClient() throws IOException, ToolkitException {
 		xcToolkitUtil = XCToolkitUtil.getInstance();
 	}
 	
-	public NCIP2Client(String endpoint) throws IOException, ToolkitException {
+	public FolioNcipClient(String endpoint, String userid, String password, String tenant) throws IOException, ToolkitException {
 		xcToolkitUtil = XCToolkitUtil.getInstance();
 		this.endpoint = endpoint;
+		this.userid = userid;
+		this.password = password;
+		this.tenant = tenant;
 	}
 
-	public void setEndpoint(String newEndpoint) {
-		endpoint = newEndpoint;
-	}
-
-	public void setUserid(String newUserid) {
-		userid = newUserid;
-	}
-
-	public void setPassword(String newPassword) {
-		password = newPassword;
-	}
-
-	public void addHttpHeader(String key, String value) {
-		 this.httpHeader.put(key, value);
-	}
-	
 	
 	public JSONObject send(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
 		//generates XC NCIP Objects:
 		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
 		//transforms the object into NCIP XML:
 		InputStream requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
+		
+		JSONObject authObject = new JSONObject();
+		authObject.put("tenant", tenant);
+		authObject.put("username", userid);
+		authObject.put("password", password);
 		
 		String requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
 		logger.info(requestBody);
@@ -74,10 +67,32 @@ public class NCIP2Client implements CirculationClient {
 		//call to NCIP server
 		try {
 			CloseableHttpClient client = HttpClients.custom().build();
+			
+			HttpUriRequest authRequest = RequestBuilder.post()
+					.setUri(endpoint + "/authn/login")
+					.setEntity(new StringEntity(authObject.toString()))
+					.setHeader("Content-Type", "application/json")
+					.setHeader("Accept","application/json")
+					.setHeader("x-okapi-tenant",tenant)
+					.build();
+			HttpResponse authResponse = client.execute(authRequest);
+			HttpEntity authEntity = authResponse.getEntity();
+			responseString = EntityUtils.toString(authEntity, "UTF-8");
+			//TODO FOLIO passes back password
+			//remove logging response?
+			//FOLIO Client will not typically be used
+			//Will ususally use NCIP2Client to FOLIO through the edge mod
+			logger.info("---> responseString: " + responseString);
+			if (authResponse.getStatusLine().getStatusCode() > 399) throw new Exception("UNABLE TO AUTHENTICATE: " + responseString);
+			 
+			String token = authResponse.getFirstHeader("x-okapi-token").getValue();
+			
 			HttpUriRequest request = RequestBuilder.post()
-					.setUri(this.endpoint)
+					.setUri(this.endpoint + "/ncip")
 					.setEntity(new StringEntity(requestBody,"UTF-8"))
 					.setHeader("Content-Type", "application/xml")
+					.setHeader("x-okapi-token",token)
+					.setHeader("x-okapi-tenant",tenant)
 					.build();
 			
 			 HttpResponse response = client.execute(request);
@@ -109,5 +124,45 @@ public class NCIP2Client implements CirculationClient {
 		}
 		return responseObject;
 	}
+	
+	
+
+	public void addHttpHeader(String key, String value) {
+		 this.httpHeader.put(key, value);
+	}
+	
+	public String getEndpoint() {
+		return endpoint;
+	}
+
+	public void setEndpoint(String endpoint) {
+		this.endpoint = endpoint;
+	}
+
+	public String getUserid() {
+		return userid;
+	}
+
+	public void setUserid(String userid) {
+		this.userid = userid;
+	}
+
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getTenant() {
+		return tenant;
+	}
+
+	public void setTenant(String tenant) {
+		this.tenant = tenant;
+	}
+
+
 
 }
