@@ -1,6 +1,9 @@
 package org.olf.rs.circ.client;
 
 import java.util.HashMap;
+import java.util.Iterator;
+
+import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemResponseData;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
@@ -21,8 +24,20 @@ import org.extensiblecatalog.ncip.v2.service.RequestedActionType;
 import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
 import org.extensiblecatalog.ncip.v2.service.UserId;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
-public class AcceptItem extends NCIP2Service implements NCIPCircTransaction {
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Helper;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.MethodValueResolver;
+
+public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 
 	private String requestIdString;
 	private String useridString;
@@ -33,6 +48,7 @@ public class AcceptItem extends NCIP2Service implements NCIPCircTransaction {
 	private String requestedActionTypeString;
 	private String applicationProfileTypeString;
 	private HashMap<String, HashMap> itemOptionalFields = new HashMap<String, HashMap>();
+	private static final Logger logger = Logger.getLogger(AcceptItem.class);
 
 	public AcceptItem() {
 		itemOptionalFields.put(Constants.BIBLIOGRAPHIC_DESCRIPTION, new HashMap<String, String>());
@@ -130,6 +146,9 @@ public class AcceptItem extends NCIP2Service implements NCIPCircTransaction {
 		return this;
 	}
 
+	/*
+	 * This method generates the NCIP2 Request XML
+	 */
 	public NCIPInitiationData generateNCIP2Object() {
 		AcceptItemInitiationData acceptItemInitationData = new AcceptItemInitiationData();
 		InitiationHeader initiationHeader = new InitiationHeader();
@@ -215,5 +234,87 @@ public class AcceptItem extends NCIP2Service implements NCIPCircTransaction {
 		returnJson.put(Constants.REQUEST_ID, requestId);
 		return returnJson;
 	}
+	
+	/**
+	 * The method generates the NCIP1 request XML
+	 *
+	 */
+	@Override
+	public String generateNCIP1Object() {
+		// TODO Auto-generated method stub
+		logger.info("generating NCIP 1 request XML");
+		Handlebars handlebars = new Handlebars();
+		try {
+			Template template = handlebars.compile("/templates/acceptItem"); 
+			Context context = Context.newBuilder(this).resolver(MethodValueResolver.INSTANCE).build();
+		    String output =  template.apply(context);
+		    logger.info(output);
+		    return output;
+		}
+		catch(Exception e) {
+			logger.fatal("failed to generate the NCIP1 request xml");
+			logger.fatal(e.getLocalizedMessage());
+		}
+		return null;
+	}
+
+
+
+
+	@Override
+	public JSONObject constructResponseNcip1Response(String responseData) {
+		JSONObject returnJson = new JSONObject();
+        try {
+            Document document = Jsoup.parse(responseData,"",Parser.xmlParser());
+          
+            Elements problems = document.select("NCIPMessage > AcceptItemResponse > Problem");
+            if (problems != null && !problems.isEmpty()) {
+            	return constructeNcipOneProblems(problems);
+            }
+            
+            String  requestId = document.select("NCIPMessage > AcceptItemResponse > UniqueRequestId > RequestIdentifierValue").text();
+            String  itemId = document.select("NCIPMessage > AcceptItemResponse > UniqueItemId > ItemIdentifierValue").text();
+            returnJson.put("requestId", requestId);
+            returnJson.put("itemId", itemId);
+        } catch(Exception e) {
+        	logger.fatal("failed to parse the NCIP XML Response: " + responseData);
+        	logger.fatal(e.getLocalizedMessage());
+        }
+		return returnJson;
+	}
+	
+	public String getAuthor() {
+		return (String) this.itemOptionalFields.get(Constants.BIBLIOGRAPHIC_DESCRIPTION).get(Constants.AUTHOR);
+	}
+	
+	public String getTitle() {
+		return (String) this.itemOptionalFields.get(Constants.BIBLIOGRAPHIC_DESCRIPTION).get(Constants.TITLE);
+	}
+	
+	public String getCallNo() {
+		return (String) this.itemOptionalFields.get(Constants.ITEM_DESCRIPTION).get(Constants.CALL_NUMBER);
+	}
+	
+	public String getFromAgency() {
+		return fromAgency;
+	}
+	
+	public String getToAgency() {
+		return toAgency;
+	}
+	
+	public String getRequestId() {
+		return requestIdString;
+	}
+	
+	public String getItemId() {
+		return itemIdString;
+	}
+	
+	public String getUserId() {
+		return useridString;
+	}
+	
+
 
 }

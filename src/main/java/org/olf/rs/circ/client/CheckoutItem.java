@@ -21,8 +21,18 @@ import org.extensiblecatalog.ncip.v2.service.RequestId;
 import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
 import org.extensiblecatalog.ncip.v2.service.UserId;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
-public class CheckoutItem extends NCIP2Service implements NCIPCircTransaction {
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+
+public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	
 	private static final Logger logger = Logger.getLogger(CheckoutItem.class);
 	protected String toAgency;
@@ -43,7 +53,10 @@ public class CheckoutItem extends NCIP2Service implements NCIPCircTransaction {
 		applicationProfileTypeString = profileType;
 		return this;
 	}
-	
+	/*
+	 * Sets desired due date.  Desired due date is NOT always supported by the NCIP 
+	 * responder.
+	 */
 	public CheckoutItem setDesiredDueDate(String dueDate) {
 		desiredDueDate = dueDate;
 		return this;
@@ -77,10 +90,10 @@ public class CheckoutItem extends NCIP2Service implements NCIPCircTransaction {
 	}
 	
 
-
-
+	/*
+	 * This method generates the NCIP2 Request XML
+	 */
 	public NCIPInitiationData generateNCIP2Object() {
-		// TODO Auto-generated method stub
 		CheckOutItemInitiationData checkoutItemInitiationData = new CheckOutItemInitiationData();
 		InitiationHeader initiationHeader = new InitiationHeader();
 		ApplicationProfileType applicationProfileType = new ApplicationProfileType(null,applicationProfileTypeString);
@@ -117,7 +130,6 @@ public class CheckoutItem extends NCIP2Service implements NCIPCircTransaction {
 			}
 			Calendar cal = new GregorianCalendar();
 			cal.setTime(date);
-			
 			checkoutItemInitiationData.setDesiredDateDue((GregorianCalendar) cal);
 		}
 
@@ -125,11 +137,12 @@ public class CheckoutItem extends NCIP2Service implements NCIPCircTransaction {
 		checkoutItemInitiationData.setUserId(userid);
 		checkoutItemInitiationData.setRequestId(requestId);
 		checkoutItemInitiationData.setInitiationHeader(initiationHeader);
-
 		return checkoutItemInitiationData;
 	}
 	
-	
+	/*
+	 * This method generates the NCIP2 response data in the format of a JSONObject
+	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
 		CheckOutItemResponseData checkoutItemResponse = (CheckOutItemResponseData)responseData;
 		JSONObject returnJson = new JSONObject();
@@ -150,6 +163,57 @@ public class CheckoutItem extends NCIP2Service implements NCIPCircTransaction {
 		return  returnJson;
 	}
 
+	
+	/**
+	 * The method generates the NCIP1 request XML
+	 *
+	 */
+	@Override
+	public String generateNCIP1Object() {
+		// TODO Auto-generated method stub
+		logger.info("generating NCIP 1 request XML");
+		Handlebars handlebars = new Handlebars();
+		try {
+			Template template = handlebars.compile("/templates/checkoutitem"); 
+			Context context = Context.newBuilder(this).resolver(FieldValueResolver.INSTANCE).build();
+		    String output =  template.apply(context);
+		    logger.info(output);
+		    return output;
+		}
+		catch(Exception e) {
+			logger.fatal("failed to generate the NCIP1 request xml");
+			logger.fatal(e.getLocalizedMessage());
+		}
+		return null;
+	}
+
+
+	/*
+	 * This method generates the NCIP1 response data in the format of a JSONObject
+	 */
+	@Override
+	public JSONObject constructResponseNcip1Response(String responseData) {
+		JSONObject returnJson = new JSONObject();
+        try {
+            Document document = Jsoup.parse(responseData,"",Parser.xmlParser());
+            
+            Elements problems = document.select("NCIPMessage > CheckOutItemResponse > Problem");
+            if (problems != null && !problems.isEmpty()) {
+            	return constructeNcipOneProblems(problems);
+            }
+            
+            String  itemId = document.select("NCIPMessage > CheckOutItemResponse > UniqueItemId > ItemIdentifierValue").text();
+            String  userId = document.select("NCIPMessage > CheckOutItemResponse > UniqueUserId > UserIdentifierValue").text();
+            String dueDate = document.select("NCIPMessage > CheckOutItemResponse > DateDue").text();
+            returnJson.put("itemId", itemId);
+            returnJson.put("dueDate", dueDate);
+            returnJson.put("userId", userId);
+        } catch(Exception e) {
+        	logger.fatal("failed to parse the NCIP XML Response: " + responseData);
+        	logger.fatal(e.getLocalizedMessage());
+        }
+		return returnJson;
+	}
 	
 
 }

@@ -19,8 +19,20 @@ import org.extensiblecatalog.ncip.v2.service.UserId;
 import org.extensiblecatalog.ncip.v2.service.UserPrivilege;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
-public class LookupUser extends NCIP2Service implements NCIPCircTransaction {
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+
+
+
+public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	
 	private static final Logger logger = Logger.getLogger(LookupUser.class);
 	protected String toAgency;
@@ -28,7 +40,6 @@ public class LookupUser extends NCIP2Service implements NCIPCircTransaction {
 	private String useridString;
 	List<String> userElementTypes = new ArrayList<>();
 	private String applicationProfileTypeString;
-
 
 
 	public LookupUser() {
@@ -40,13 +51,11 @@ public class LookupUser extends NCIP2Service implements NCIPCircTransaction {
 		return this;
 	}
 	
-
 	public LookupUser setUserId(String userId) {
 		useridString = userId;
 		return this;
 	}
 
-	
 	public LookupUser addUserElement(String userElement) {
 		userElementTypes.add(userElement);
 		return this;
@@ -90,23 +99,9 @@ public class LookupUser extends NCIP2Service implements NCIPCircTransaction {
 		return this;
 	}
 	
-	//TODO
-	//DOES RESHARE NEED THIS INFO RETURNED?
-	//DURING TESTING IT DIDN'T SEEM LIKE ALL NCIP
-	//SERVERS SUPPORT RETURNING THESE ELEMENTS
-	//EVEN THOUGH IT IS PART OF THE PROTOCOL
-	//FISCAL INFORMATION IS ALSO SUPPORTED
-	/*public LookupUser includeRequestedItems() {
-		this.addUserElement(Constants.REQUESTED_ITEMS);
-		return this;
-	}
-	
-	public LookupUser includeLoanedItems() {
-		this.addUserElement(Constants.LOANED_ITEMS);
-		return this;
-	} */
-	
-
+	/*
+	 * This method generates the NCIP2 Request XML
+	 */
 	public NCIPInitiationData generateNCIP2Object() {
 		LookupUserInitiationData lookupUserInitationData = new LookupUserInitiationData();
 		InitiationHeader initiationHeader = new InitiationHeader();
@@ -199,10 +194,8 @@ public class LookupUser extends NCIP2Service implements NCIPCircTransaction {
 			}
 		}
 		return jsonArray;
-		
-		
-		
 	}
+	
 	
 	private String getUserIdString(LookupUserResponseData lookupUserResponse,JSONObject returnJson) {
 		if (lookupUserResponse.getUserId() != null) 
@@ -221,6 +214,9 @@ public class LookupUser extends NCIP2Service implements NCIPCircTransaction {
 				JSONObject json = new JSONObject();
 				String type = priv.getAgencyUserPrivilegeType().getValue();
 				String value = priv.getUserPrivilegeStatus().getUserPrivilegeStatusType().getValue();
+				//TRANSLATE STATUS FROM ACTIVE TO OK - TO BE CONSISTENT
+				//SOME SERVERS (ALMA) RETURN ACTIVE, OTHERS (OLE) RETURN OK
+				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("active")) value = "OK";
 				json.put("key", type);
 				json.put("value", value);
 				jsonArray.put(json);
@@ -233,7 +229,136 @@ public class LookupUser extends NCIP2Service implements NCIPCircTransaction {
 		return jsonArray;
 
 	}
+	
+	/**
+	 * The method parses the NCIP1 LookUp User response
+	 * and creates the return JSON Object
+	 *
+	 */
+	@Override
+	public JSONObject constructResponseNcip1Response(String responseData) {
+		JSONObject returnJson = new JSONObject();
+        try {
+            Document document = Jsoup.parse(responseData,"",Parser.xmlParser());
+            
+            Elements problems = document.select("NCIPMessage > LookupUserResponse > Problem");
+            if (problems != null && !problems.isEmpty()) {
+            	return constructeNcipOneProblems(problems);
+            }
+            
+            Elements links = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields");
+            Element name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > UnstructuredPersonalUserName").get(0);
+            returnJson.put("electronicAddresses", gatherNcipOneElectronicAddress(document));
+            returnJson.put("privileges", getNcipOnePrivileges(document));
+            String nameString = name.text();
+            returnJson = gatherUnstructuredName(nameString, returnJson);
+            returnJson.put("userId",  document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > VisibleUserId > VisibleUserIdentifier").get(0).text());
+        } catch(Exception e) {
+        	logger.fatal("failed to parse the NCIP XML Response: " + responseData);
+        	logger.fatal(e.getLocalizedMessage());
+        }
+		return returnJson;
+	}
+	
+	/**
+	 * The method generates the NCIP1 request XML
+	 *
+	 */
+	@Override
+	public String generateNCIP1Object() {
+		// TODO Auto-generated method stub
+		logger.info("generating NCIP 1 request XML");
+		Handlebars handlebars = new Handlebars();
+		try {
+			Template template = handlebars.compile("/templates/lookupUser"); 
+			Context context = Context.newBuilder(this).resolver(FieldValueResolver.INSTANCE).build();
+		    String output =  template.apply(context);
+		    //logger.info(output);
+		    return output;
+		}
+		catch(Exception e) {
+			logger.fatal("failed to generate the NCIP1 request xml");
+			logger.fatal(e.getLocalizedMessage());
+		}
+		return null;
+	}
 
+	/**
+	 * The method parses the NCIP1 LookUpUser response
+	 * privilege elements
+	 *
+	 */
+	private JSONArray getNcipOnePrivileges(Element xmlDocElement) {
+		JSONArray jsonArray = new JSONArray();
+		Elements privs = xmlDocElement.select("NCIPMessage > LookupUserResponse > UserOptionalFields > UserPrivilege");
+		Iterator privIterator = privs.iterator();
+		while (privIterator.hasNext()) {
+			Element priv = (Element) privIterator.next();
+			JSONObject json = new JSONObject();
+			try {
+				String type = priv.select("AgencyUserPrivilegeType > Value").text();
+				String value = priv.select("UserPrivilegeStatus > UserPrivilegeStatusType > Value").text();
+				json.put("key", type);
+				json.put("value", value);
+				jsonArray.put(json);
+			}
+			catch(Exception e) {
+				logger.fatal("failed parsing the user privileges in the NCIP-1 response: " + xmlDocElement.toString());
+				logger.fatal(e.getLocalizedMessage());
+			}
+		}
+		return jsonArray;
+	}
+	
+	/**
+	 * The method parses the NCIP1 LookUpUser response
+	 * email address elements
+	 *
+	 */
+	private JSONArray gatherNcipOneElectronicAddress(Element xmlDocElement) {
+		
+		JSONArray jsonArray = new JSONArray();
+		Elements addresses = xmlDocElement.select("NCIPMessage > LookupUserResponse > UserOptionalFields > UserAddressInformation > ElectronicAddress");
+		Iterator addressIterator = addresses.iterator();
+		while (addressIterator.hasNext()) {
+			Element address = (Element) addressIterator.next();
+			JSONObject json = new JSONObject();
+			try {
+				String type = address.select("ElectronicAddressType > Value").text();
+				String value = address.select("ElectronicAddressData").text();
+				json.put("key", type);
+				json.put("value", value);
+				jsonArray.put(json);
+			}
+			catch(Exception e) {
+				//OK NOT AN EMAIL ADDRESS
+			}
+		}
+		return jsonArray;
+	}
+	
+	/**
+	 * The method parses the unstructured name from the NCIP1 LookupUser response
+	 * into first name and last name
+	 *
+	 */
+	private JSONObject gatherUnstructuredName(String name, JSONObject returnJson) {
+		
+		try {
+			String[] values = name.split(",");
+			returnJson.put("lastName", values[0]);
+			returnJson.put("firstName", values[1]);
+		}
+		catch(Exception e) {
+			logger.info("Unstructured name returned from NCIP could not be parsed. ");
+			logger.info(name);
+			logger.info("Using entire string in last name field");
+			returnJson.put("lastName", name);
+			returnJson.put("firstName", " ");
+		}
+		//else...put the entire string in the last name field
+		return returnJson;
+	}
 
 }
 	
