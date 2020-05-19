@@ -50,7 +50,8 @@ public class NCIPClientWrapper {
 			this.circulationClient = new NCIP1Client(endpoint,false);
 		}
 		else if (protocol.equalsIgnoreCase(NCIP1_SOCKET)) {
-			if (this.socketTimeOut == 0)
+			//OVERRIDE DEFAULT TIMEOUT
+			if (this.socketTimeOut != 0)
 				this.circulationClient = new NCIP1Client(endpoint,true,socketTimeOut);
 			else
 				this.circulationClient = new NCIP1Client(endpoint,true);
