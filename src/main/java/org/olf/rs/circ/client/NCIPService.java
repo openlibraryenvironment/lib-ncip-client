@@ -6,16 +6,26 @@ import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
 import org.extensiblecatalog.ncip.v2.service.Problem;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
 public class NCIPService {
 	
+	
+	public JSONObject constructMissingElementProblem(String missingElement) {
+		JSONObject returnJson = new JSONObject();
+		JSONArray array = new JSONArray();
+		JSONObject problem = new JSONObject();
+		problem.put("type","Missing element");
+		problem.put("detail", "Missing element in request: " + missingElement);
+		problem.put("element",missingElement);
+		problem.put("value", "");
+		array.put(problem);
+		returnJson.put("problems", array);
+		return returnJson;
+	}
+	
 	public JSONObject constructProblem(NCIPResponseData responseData) {
-		
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
 		Iterator<Problem> i = responseData.getProblems().iterator();
@@ -44,11 +54,9 @@ public class NCIPService {
 			 String type = xmlElement.select("ProcessingErrorType > value").text();
 			 String element = xmlElement.select("ProcessingErrorElement > ElementName").text();
 			 String detail = xmlElement.select("ProcessingErrorElement > ProcessingErrorElement > ProcessingErrorValue").text();
-			 //String value = xmlElement.select("ProcessingErrorElement > ProcessingErrorElement > ElementName").text();
 			 problem.put("type",type);
 			 problem.put("detail",detail);
 			 problem.put("element",element);
-			 //problem.put("value", value);
 			 array.put(problem);
 		 }
 		returnJson.put("problems", array);

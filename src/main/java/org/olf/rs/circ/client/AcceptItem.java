@@ -145,6 +145,12 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		this.itemOptionalFields.get(Constants.ITEM_DESCRIPTION).put(Constants.CALL_NUMBER, callNumber);
 		return this;
 	}
+	
+	public JSONObject validateRequest() {
+		if (this.getRequestId() == null) return constructMissingElementProblem("Request ID");
+		if (this.requestedActionTypeString == null) return constructMissingElementProblem("Request Action Type");
+		return null;
+	}
 
 	/*
 	 * This method generates the NCIP2 Request XML
@@ -314,7 +320,5 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	public String getUserId() {
 		return useridString;
 	}
-	
-
 
 }

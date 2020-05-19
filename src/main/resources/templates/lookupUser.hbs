@@ -4,51 +4,27 @@
       <FromAgencyId>
         <UniqueAgencyId>
           <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
-          <Value>RSH</Value>
+          <Value>{{fromAgency}}</Value>
         </UniqueAgencyId>
       </FromAgencyId>
       <ToAgencyId>
         <UniqueAgencyId>
           <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
-          <Value>TNS</Value>
+          <Value>{{toAgency}}</Value>
         </UniqueAgencyId>
       </ToAgencyId>
     </InitiationHeader>
     <UniqueUserId>
       <UniqueAgencyId>
         <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
-        <Value>TNS</Value>
+        <Value>{{toAgency}}</Value>
       </UniqueAgencyId>
-      <UserIdentifierValue>N00351793</UserIdentifierValue>
+      <UserIdentifierValue>{{this.useridString}}</UserIdentifierValue>
     </UniqueUserId>
-    <UserElementType>
+    {{#each userElementTypes}}<UserElementType>
       <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
-      <Value>Authentication Input</Value>
-    </UserElementType>
-    <UserElementType>
-      <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
-      <Value>Block Or Trap</Value>
-    </UserElementType>
-    <UserElementType>
-      <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
-      <Value>Date Of Birth</Value>
-    </UserElementType>
-    <UserElementType>
-      <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
-      <Value>Name Information</Value>
-    </UserElementType>
-    <UserElementType>
-      <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
-      <Value>User Address Information</Value>
-    </UserElementType>
-    <UserElementType>
-      <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
-      <Value>User Language</Value>
-    </UserElementType>
-    <UserElementType>
-      <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
-      <Value>User Privilege</Value>
-    </UserElementType>
+      <Value>{{this}}</Value>
+    </UserElementType>{{/each}}
     <UserElementType>
       <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
       <Value>Visible User Id</Value>

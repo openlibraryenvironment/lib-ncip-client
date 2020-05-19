@@ -72,6 +72,11 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		itemOptionalFields.add(Constants.BIBLIOGRAPHIC_DESCRIPTION);
 		return this;
 	}
+	
+	public JSONObject validateRequest() {
+		if (this.itemIdString == null) return constructMissingElementProblem("Item ID");
+		return null;
+	}
 
 	/*
 	 * This method generates the NCIP2 Request XML
@@ -146,7 +151,7 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		Handlebars handlebars = new Handlebars();
 
 		try {
-			Template template = handlebars.compile("/templates/checkinitem"); 
+			Template template = handlebars.compile("/templates/checkinItem"); 
 			Context context = Context.newBuilder(this).resolver(FieldValueResolver.INSTANCE).build();
 		    String output =  template.apply(context);
 		    logger.info(output);

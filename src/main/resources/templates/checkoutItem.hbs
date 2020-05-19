@@ -4,36 +4,36 @@
       <FromAgencyId>
         <UniqueAgencyId>
           <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
-          <Value>EZB</Value>
+          <Value>{{this.fromAgency}}</Value>
         </UniqueAgencyId>
       </FromAgencyId>
       <ToAgencyId>
         <UniqueAgencyId>
           <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
-          <Value>TNS</Value>
+          <Value>{{this.toAgency}}</Value>
         </UniqueAgencyId>
       </ToAgencyId>
     </InitiationHeader>
     <UniqueUserId>
       <UniqueAgencyId>
         <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
-        <Value>TNS</Value>
+        <Value>{{this.toAgency}}</Value>
       </UniqueAgencyId>
-      <UserIdentifierValue>21207101033278</UserIdentifierValue>
+      <UserIdentifierValue>{{this.useridString}}</UserIdentifierValue>
     </UniqueUserId>
     <UniqueItemId>
       <UniqueAgencyId>
         <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
         <Value>TNS</Value>
       </UniqueAgencyId>
-      <ItemIdentifierValue>31207052000951</ItemIdentifierValue>
+      <ItemIdentifierValue>{{this.itemIdString}}</ItemIdentifierValue>
     </UniqueItemId>
     <UniqueRequestId>
       <UniqueAgencyId>
         <Scheme>http://www.relais-intl.com/ncip/schemes/agency.scm</Scheme>
         <Value>EZB</Value>
       </UniqueAgencyId>
-      <RequestIdentifierValue>NYU-11430402</RequestIdentifierValue>
+      <RequestIdentifierValue>{{this.requestIdString}}</RequestIdentifierValue>
     </UniqueRequestId>
   </CheckOutItem>
 </NCIPMessage>

@@ -10,6 +10,7 @@ public interface NCIPCircTransaction {
 	JSONObject constructResponseNcip2Response(NCIPResponseData responseData);
 	String generateNCIP1Object();
 	JSONObject constructResponseNcip1Response(String responseData);
+	JSONObject validateRequest();
 	
 
 	

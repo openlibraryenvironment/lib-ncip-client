@@ -27,7 +27,7 @@ import org.json.JSONObject;
 public class NCIP2Client implements CirculationClient {
 	
 	private static final Logger logger = Logger.getLogger(NCIP2Client.class);
-	private String endpoint;
+	protected String endpoint;
 	private String userid;
 	private String password;
 	private HashMap<String, String> httpHeader = new HashMap<String, String>();
@@ -61,7 +61,23 @@ public class NCIP2Client implements CirculationClient {
 	}
 	
 	
+	
+	
+	public String getEndpoint() {
+		return endpoint;
+	}
+
 	public JSONObject send(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
+		
+		if (this.getEndpoint() == null) {
+			logger.fatal("sendWithSockets called and endpoint is: " + this.getEndpoint());
+			JSONObject r = constructException("Missing Endpoint ", "NCIP Client endpoint is null","");
+			return r;
+		}
+		
+		JSONObject errors = transaction.validateRequest();
+		if (errors != null) return errors;
+		
 		//generates XC NCIP Objects:
 		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
 		//transforms the object into NCIP XML:
@@ -85,6 +101,7 @@ public class NCIP2Client implements CirculationClient {
 			 responseString = EntityUtils.toString(entity, "UTF-8");
 			 logger.info("NCIP2 request sent: ");
 			 logger.info(requestBody);
+			 logger.info("to: " + this.endpoint);
 			 logger.info("NCIP2 response received: ");
 			 logger.info(responseString);
 			 int responseCode = response.getStatusLine().getStatusCode();
@@ -108,6 +125,18 @@ public class NCIP2Client implements CirculationClient {
 			responseObject.put("problems", array);			
 		}
 		return responseObject;
+	}
+	
+	public JSONObject constructException(String httpResponse,String entireResponse,String element) {
+		JSONObject returnJson = new JSONObject();
+		JSONArray array = new JSONArray();
+		JSONObject problem = new JSONObject();
+		problem.put("type",httpResponse);
+		problem.put("detail", entireResponse);
+		problem.put("element", element);
+		array.put(problem);
+		returnJson.put("problems", array);
+		return returnJson;
 	}
 
 }
