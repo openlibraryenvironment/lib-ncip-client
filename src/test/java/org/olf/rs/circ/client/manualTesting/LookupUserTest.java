@@ -1,4 +1,4 @@
-package basicTests;
+package org.olf.rs.circ.client.manualTesting;
 
 import java.io.BufferedReader;
 import java.io.IOException;

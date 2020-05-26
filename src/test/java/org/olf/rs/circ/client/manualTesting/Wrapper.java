@@ -1,4 +1,4 @@
-package manualTesting;
+package org.olf.rs.circ.client.manualTesting;
 
 import java.util.Map;
 
