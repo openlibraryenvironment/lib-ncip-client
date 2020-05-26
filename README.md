@@ -38,16 +38,17 @@ You then instantiate the class that represents the service you are calling and c
 ```
 
 Response examples:
-```json
+```
 {
 		success=true,
 		firstName = Jane, 
-		lastName = Doe, privileges = {
-		Courtesy Notice = true,
-		Paging = true,
-		Delivery = false,
-		Profile = STAFF,
-		status = OK
+		lastName = Doe, 
+		privileges = {
+			Courtesy Notice = true,
+			Paging = true,
+			Delivery = false,
+			Profile = STAFF,
+			status = OK
 	}, electronicAddresses = {
 		emailAddress = indigit @lehigh.edu,
 		TEL = 6105551212
@@ -84,7 +85,7 @@ AcceptItem acceptItem = new AcceptItem()
 		Map<String, Object> map = wrapper.send(acceptItem);
 ```
 Response examples
-```json
+```
 {itemId=LEH-20200305633, requestId=LEH-20200305633,success=true}
 {success=false, problems=[{detail=Item Barcode Already Exist, type=, value=LEH-20200526430, element=Item}]}
 ```
@@ -103,7 +104,7 @@ CheckoutItem checkoutItem = new CheckoutItem()
 ```
 
 Response example
-```json
+```
 {itemId=LEH-20200305217, success=true, dueDate=2021-05-26 04:00:00, userId=5551212}
 
 ```
@@ -120,7 +121,7 @@ CheckinItem checkinItem = new CheckinItem()
 ```
 
 Response example:
-```json
+```
 {itemId=LEH-20200301608, success=true}
 ```
 
