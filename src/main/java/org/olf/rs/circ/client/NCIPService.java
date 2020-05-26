@@ -2,6 +2,7 @@ package org.olf.rs.circ.client;
 
 import java.util.Iterator;
 
+import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
 import org.extensiblecatalog.ncip.v2.service.Problem;
 import org.json.JSONArray;
@@ -9,8 +10,15 @@ import org.json.JSONObject;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
+import com.github.jknack.handlebars.Context;
+import com.github.jknack.handlebars.Handlebars;
+import com.github.jknack.handlebars.Template;
+import com.github.jknack.handlebars.context.FieldValueResolver;
+import com.github.jknack.handlebars.context.MethodValueResolver;
+
 public class NCIPService {
 	
+	private static final Logger logger = Logger.getLogger(NCIPService.class);
 	
 	public JSONObject constructMissingElementProblem(String missingElement) {
 		JSONObject returnJson = new JSONObject();
@@ -63,6 +71,28 @@ public class NCIPService {
 		return returnJson;
 	}
 	
+	
+	/**
+	 * The method generates the NCIP1 request XML
+	 * @param templateFileName path including file name to template file
+	 */
+	public String generateNCIP1Object(String templateFileName) {
+		logger.info("generating NCIP 1 request XML");
+		Handlebars handlebars = new Handlebars();
 
+		try {
+			Template template = handlebars.compile(templateFileName); 
+			Context context = Context.newBuilder(this).resolver(MethodValueResolver.INSTANCE,FieldValueResolver.INSTANCE).build();
+		    String output =  template.apply(context);
+		    //logger.info(output);
+		    return output;
+		}
+		catch(Exception e) {
+			logger.fatal("failed to generate the NCIP1 request xml");
+			logger.fatal(e.getLocalizedMessage());
+		}
+		return null;
+	}
+	
 
 }

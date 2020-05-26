@@ -54,8 +54,8 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		return this;
 	}
 	/*
-	 * Sets desired due date.  Desired due date is NOT always supported by the NCIP 
-	 * responder.
+	 * Sets desired due date.  Desired due date is NOT always supported by NCIP 
+	 * responders.
 	 */
 	public CheckoutItem setDesiredDueDate(String dueDate) {
 		desiredDueDate = dueDate;
@@ -94,7 +94,7 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		return null;
 	}
 
-	/*
+	/**
 	 * This method generates the NCIP2 Request XML
 	 */
 	public NCIPInitiationData generateNCIP2Object() {
@@ -108,7 +108,6 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		fromAgencyId.setAgencyId(new AgencyId(fromAgency));
 		initiationHeader.setToAgencyId(toAgencyId);
 		initiationHeader.setFromAgencyId(fromAgencyId);
-
 
 		UserId userid = new UserId();
 		userid.setAgencyId(new AgencyId(fromAgency));
@@ -144,21 +143,24 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		return checkoutItemInitiationData;
 	}
 	
-	/*
-	 * This method generates the NCIP2 response data in the format of a JSONObject
+	/**
+	 * This method generates a JSONObject using the NCIPResponsData object for CheckoutItem
 	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
 		CheckOutItemResponseData checkoutItemResponse = (CheckOutItemResponseData)responseData;
 		JSONObject returnJson = new JSONObject();
 		
 		//DEAL W/PROBLEMS IN THE RESPONSE
-		if (checkoutItemResponse.getProblems().size() > 0) {
+		if (checkoutItemResponse.getProblems() != null && checkoutItemResponse.getProblems().size() > 0) {
 			return constructProblem(responseData);
 		}
 
-		SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-		formatter.setCalendar(checkoutItemResponse.getDateDue());
-		String dueDateString = formatter.format(checkoutItemResponse.getDateDue().getTime());
+		String dueDateString = "";
+		if (checkoutItemResponse.getDateDue() != null) {
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			formatter.setCalendar(checkoutItemResponse.getDateDue());
+			dueDateString = formatter.format(checkoutItemResponse.getDateDue().getTime());
+		}
 
 		
 		returnJson.put("dueDate", dueDateString);
@@ -169,29 +171,14 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 
 	
 	/**
-	 * The method generates the NCIP1 request XML
+	 * Call to generate NCIP1 request XML using specific template file
 	 *
 	 */
 	@Override
 	public String generateNCIP1Object() {
-		// TODO Auto-generated method stub
-		logger.info("generating NCIP 1 request XML");
-		Handlebars handlebars = new Handlebars();
-		try {
-			Template template = handlebars.compile("/templates/checkoutItem"); 
-			Context context = Context.newBuilder(this).resolver(FieldValueResolver.INSTANCE).build();
-		    String output =  template.apply(context);
-		    logger.info(output);
-		    return output;
-		}
-		catch(Exception e) {
-			logger.fatal("failed to generate the NCIP1 request xml");
-			logger.fatal(e.getLocalizedMessage());
-		}
-		return null;
+		return generateNCIP1Object("/templates/checkoutItem");
 	}
-
-
+	
 	/*
 	 * This method generates the NCIP1 response data in the format of a JSONObject
 	 */

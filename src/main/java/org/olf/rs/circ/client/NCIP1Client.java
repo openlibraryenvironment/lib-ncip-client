@@ -20,14 +20,18 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-
+/**
+ * This class sends a POST request to NCIP v1 servers.
+ * If useSockets is set to true, it will use java.net.Socket (not http)
+ * to call the services.
+ * @author mis306
+ *
+ */
 public class NCIP1Client implements CirculationClient {
 	
 	private static final Logger logger = Logger.getLogger(NCIP1Client.class);
 	protected String endpoint;
-	private String userid;
-	private String password;
-	private boolean useSockets = true;
+	private boolean useSockets = false;
 	private int socketTimeout = 30*1000;
 
 	public NCIP1Client() throws IOException {
@@ -52,6 +56,10 @@ public class NCIP1Client implements CirculationClient {
 		this.socketTimeout = timeout;
 	}
 	
+	/**
+	 * Send NCIP request using java.net.Socket
+	 *
+	 */
 	public JSONObject sendWithSockets(NCIPCircTransaction transaction) throws Exception  {
 		
 		if (this.getEndpoint() == null) {
@@ -60,6 +68,8 @@ public class NCIP1Client implements CirculationClient {
 			return r;
 		}
 		
+		JSONObject errors = transaction.validateRequest();
+		if (errors != null) return errors;
 		
 		JSONObject responseObject = new JSONObject();
 		String requestBody = transaction.generateNCIP1Object();
@@ -146,6 +156,10 @@ public class NCIP1Client implements CirculationClient {
 		return returnJson;
 	}
 
+	/**
+	 * If useSockets is set to false, send NCIP request using http,
+	 * otherwise call sendWithSockets
+	 */
 	public JSONObject send(NCIPCircTransaction transaction) throws Exception {
 		
 		if (this.getEndpoint() == null) {
@@ -155,6 +169,9 @@ public class NCIP1Client implements CirculationClient {
 		}
 		
 		if (this.useSockets) return sendWithSockets(transaction);
+		
+		JSONObject errors = transaction.validateRequest();
+		if (errors != null) return errors;
 		
 		JSONObject responseObject = new JSONObject();
 		String requestBody = transaction.generateNCIP1Object();
@@ -178,9 +195,8 @@ public class NCIP1Client implements CirculationClient {
 			 logger.info("NCIP1 response received: ");
 			 logger.info(responseString);
 			 int responseCode = response.getStatusLine().getStatusCode();
-			 //TODO
 			 if (responseCode > 399) {
-				JSONObject r = constructException("HTTP Response " + responseCode, responseString,"exception calling ncip 1 server with http");
+				JSONObject r = constructException("HTTP Response " + responseCode, responseString,"exception calling NCIP 1 server with http");
 				return r;
 			  }
 		}
@@ -218,16 +234,7 @@ public class NCIP1Client implements CirculationClient {
 
 	public String getEndpoint() {
 		return endpoint;
-	}
-
-	public String getUserid() {
-		return userid;
-	}
-
-	public String getPassword() {
-		return password;
-	}
-	
+	}	
 	
 	@Override
 	public void setEndpoint(String endpoint) {

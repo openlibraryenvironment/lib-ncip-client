@@ -28,8 +28,6 @@ public class NCIP2Client implements CirculationClient {
 	
 	private static final Logger logger = Logger.getLogger(NCIP2Client.class);
 	protected String endpoint;
-	private String userid;
-	private String password;
 	private HashMap<String, String> httpHeader = new HashMap<String, String>();
 	private XCToolkitUtil xcToolkitUtil;
 	//TODO ADD TIMEOUT PREFERENCE ?
@@ -48,14 +46,6 @@ public class NCIP2Client implements CirculationClient {
 		endpoint = newEndpoint;
 	}
 
-	public void setUserid(String newUserid) {
-		userid = newUserid;
-	}
-
-	public void setPassword(String newPassword) {
-		password = newPassword;
-	}
-
 	public void addHttpHeader(String key, String value) {
 		 this.httpHeader.put(key, value);
 	}
@@ -70,7 +60,7 @@ public class NCIP2Client implements CirculationClient {
 	public JSONObject send(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
 		
 		if (this.getEndpoint() == null) {
-			logger.fatal("sendWithSockets called and endpoint is: " + this.getEndpoint());
+			logger.fatal("NCIP2Client send calls but endpoint is missing");
 			JSONObject r = constructException("Missing Endpoint ", "NCIP Client endpoint is null","");
 			return r;
 		}
@@ -138,5 +128,23 @@ public class NCIP2Client implements CirculationClient {
 		returnJson.put("problems", array);
 		return returnJson;
 	}
+
+	public HashMap<String, String> getHttpHeader() {
+		return httpHeader;
+	}
+
+	public void setHttpHeader(HashMap<String, String> httpHeader) {
+		this.httpHeader = httpHeader;
+	}
+
+	public XCToolkitUtil getXcToolkitUtil() {
+		return xcToolkitUtil;
+	}
+
+	public void setXcToolkitUtil(XCToolkitUtil xcToolkitUtil) {
+		this.xcToolkitUtil = xcToolkitUtil;
+	}
+	
+	
 
 }

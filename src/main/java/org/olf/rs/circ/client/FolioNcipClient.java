@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
-
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -32,7 +31,7 @@ public class FolioNcipClient implements CirculationClient {
 	private String password;
 	private String tenant;
 	private HashMap<String, String> httpHeader = new HashMap<String, String>();
-	private XCToolkitUtil xcToolkitUtil; 
+	private XCToolkitUtil xcToolkitUtil;
 	//TODO ADD TIMEOUT PREFERENCE ?
 	//TODO ADD RETRY ATTEMPT PREFERENCE ?
 	

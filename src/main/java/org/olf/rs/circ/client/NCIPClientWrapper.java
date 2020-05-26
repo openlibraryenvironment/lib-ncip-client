@@ -36,7 +36,6 @@ public class NCIPClientWrapper {
 	public static final String NCIP2 = "NCIP2";
 	public static final String NCIP1_SOCKET = "NCIP1_SOCKET";
 	private static final Logger logger = Logger.getLogger(NCIPClientWrapper.class);
-	private int socketTimeOut = 0;
 	
 	public CirculationClient circulationClient = null;
 	
@@ -50,11 +49,7 @@ public class NCIPClientWrapper {
 			this.circulationClient = new NCIP1Client(endpoint,false);
 		}
 		else if (protocol.equalsIgnoreCase(NCIP1_SOCKET)) {
-			//OVERRIDE DEFAULT TIMEOUT
-			if (this.socketTimeOut != 0)
-				this.circulationClient = new NCIP1Client(endpoint,true,socketTimeOut);
-			else
-				this.circulationClient = new NCIP1Client(endpoint,true);
+			this.circulationClient = new NCIP1Client(endpoint,true);
 		}
 		else if (protocol.equalsIgnoreCase(NCIP2)) {
 			this.circulationClient = new NCIP2Client(endpoint);
@@ -64,22 +59,39 @@ public class NCIPClientWrapper {
 		}
 		
 	}
-	
-	public void setTimeout(int socketTimeout) {
-		this.socketTimeOut = socketTimeout;
+	/**
+	 * Override the default socketTimeout
+	 */
+	public void setTimeout(int socketTimeout) throws Exception {
+		try {
+			((NCIP1Client)this.circulationClient).setSocketTimeout(socketTimeout);
+		}
+		catch(Exception e) {
+			throw new Exception("Protocol must be NCIP1 to set socketTimeout Value");
+		}
 	}
 	
 	public Map<String, Object> send(NCIPCircTransaction transaction) {
 		try {
 			JSONObject jsonObject = this.circulationClient.send(transaction);
-			return toMap(jsonObject);
+			
+			Map<String, Object> responseAsMap = toMap(jsonObject);
+			if (responseAsMap.containsKey("problems")) {
+				responseAsMap.put("success", false);
+			}
+			else {
+				responseAsMap.put("success", true);
+			}
+			return responseAsMap;
 		}
 		catch(Exception e) {
 			logger.fatal(e.getLocalizedMessage());
 			logger.fatal(e.getMessage());
 			logger.fatal(e.toString());
 			JSONObject errorDetails = constructException(e.getLocalizedMessage(), e.getMessage(), e.toString());
-			return toMap(errorDetails);
+			Map<String, Object> responseAsMap = toMap(errorDetails);
+			responseAsMap.put("success", false);
+			return responseAsMap;
 		}
 	
 	}

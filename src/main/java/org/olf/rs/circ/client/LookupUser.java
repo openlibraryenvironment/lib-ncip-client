@@ -147,7 +147,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		
 		
 		//DEAL W/PROBLEMS IN THE RESPONSE 
-		if (responseData.getProblems().size() > 0) {
+		if (responseData.getProblems() != null && responseData.getProblems().size() > 0) {
 			return constructProblem(responseData);
 		}
 				
@@ -217,7 +217,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	private JSONArray gatherElectronicAddress(LookupUserResponseData lookupUserResponse) {
 		
 		JSONArray jsonArray = new JSONArray();
-		if (lookupUserResponse.getUserOptionalFields().getUserAddressInformations() == null) return jsonArray;
+		if (lookupUserResponse.getUserOptionalFields() == null || lookupUserResponse.getUserOptionalFields().getUserAddressInformations() == null) return jsonArray;
 		Iterator<UserAddressInformation> iterator = lookupUserResponse.getUserOptionalFields().getUserAddressInformations().iterator();
 		while (iterator.hasNext()) {
 			UserAddressInformation address = (UserAddressInformation) iterator.next();
@@ -260,7 +260,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	
 	private JSONArray getPrivileges(LookupUserResponseData lookupUserResponse) {
 		JSONArray jsonArray = new JSONArray();
-		if (lookupUserResponse.getUserOptionalFields() == null) return jsonArray;
+		if (lookupUserResponse.getUserOptionalFields() == null || lookupUserResponse.getUserOptionalFields().getUserPrivileges() == null) return jsonArray;
 		Iterator<UserPrivilege> iterator = lookupUserResponse.getUserOptionalFields().getUserPrivileges().iterator();
 		while (iterator.hasNext()) {
 			UserPrivilege priv = (UserPrivilege) iterator.next();
@@ -313,28 +313,15 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
         }
 		return returnJson;
 	}
+
 	
 	/**
-	 * The method generates the NCIP1 request XML
+	 * Call to generate NCIP1 request XML using specific template file
 	 *
 	 */
 	@Override
 	public String generateNCIP1Object() {
-		// TODO Auto-generated method stub
-		logger.info("generating NCIP 1 request XML");
-		Handlebars handlebars = new Handlebars();
-		try {
-			Template template = handlebars.compile("/templates/lookupUser"); 
-			Context context = Context.newBuilder(this).resolver(FieldValueResolver.INSTANCE).build();
-		    String output =  template.apply(context);
-		    //logger.info(output);
-		    return output;
-		}
-		catch(Exception e) {
-			logger.fatal("failed to generate the NCIP1 request xml");
-			logger.fatal(e.getLocalizedMessage());
-		}
-		return null;
+		return generateNCIP1Object("/templates/lookupUser");
 	}
 
 	/**

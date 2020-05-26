@@ -72,13 +72,15 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		itemOptionalFields.add(Constants.BIBLIOGRAPHIC_DESCRIPTION);
 		return this;
 	}
-	
+	/**
+	 * Looks for key elements required to call CheckinItem
+	 */	
 	public JSONObject validateRequest() {
 		if (this.itemIdString == null) return constructMissingElementProblem("Item ID");
 		return null;
 	}
 
-	/*
+	/**
 	 * This method generates the NCIP2 Request XML
 	 */
 	public NCIPInitiationData generateNCIP2Object() {
@@ -125,13 +127,15 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		return checkinItemInitiationData;
 	}
 
-
+	/**
+	 * This method generates a JSONObject using the NCIPResponsData object for CheckinItem
+	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
 		CheckInItemResponseData checkinItemResponse = (CheckInItemResponseData) responseData;
 		JSONObject returnJson = new JSONObject();
 
 		// DEAL W/PROBLEMS IN THE RESPONSE
-		if (checkinItemResponse.getProblems().size() > 0) {
+		if (checkinItemResponse.getProblems() != null && checkinItemResponse.getProblems().size() > 0) {
 			return constructProblem(responseData);
 		}
 
@@ -146,27 +150,13 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 	 */
 	@Override
 	public String generateNCIP1Object() {
-		// TODO Auto-generated method stub
-		logger.info("generating NCIP 1 request XML");
-		Handlebars handlebars = new Handlebars();
-
-		try {
-			Template template = handlebars.compile("/templates/checkinItem"); 
-			Context context = Context.newBuilder(this).resolver(FieldValueResolver.INSTANCE).build();
-		    String output =  template.apply(context);
-		    logger.info(output);
-		    return output;
-		}
-		catch(Exception e) {
-			logger.fatal("failed to generate the NCIP1 request xml");
-			logger.fatal(e.getLocalizedMessage());
-		}
-		return null;
+		return generateNCIP1Object("/templates/checkinItem");
 	}
 	
 
-
-
+	/**
+	 * This method generates a JSONObject using the CheckinItem NCIP1 Response XML
+	 */
 	@Override
 	public JSONObject constructResponseNcip1Response(String responseData) {
 		JSONObject returnJson = new JSONObject();
@@ -178,7 +168,7 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
             	return constructeNcipOneProblems(problems);
             }
             
-            String  itemId = document.select("NCIPMessage > CheckInItem > UniqueItemId > ItemIdentifierValue").text();
+            String  itemId = document.select("NCIPMessage > CheckInItemResponse > UniqueItemId > ItemIdentifierValue").text();
             returnJson.put("itemId", itemId);
         } catch(Exception e) {
         	logger.fatal("failed to parse the NCIP XML Response: " + responseData);

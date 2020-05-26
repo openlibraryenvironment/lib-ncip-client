@@ -1,8 +1,6 @@
 package org.olf.rs.circ.client;
 
 import java.util.HashMap;
-import java.util.Iterator;
-
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemResponseData;
@@ -26,13 +24,10 @@ import org.extensiblecatalog.ncip.v2.service.UserId;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
-
 import com.github.jknack.handlebars.Context;
 import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
@@ -146,16 +141,20 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		return this;
 	}
 	
+	/**
+	 * Looks for key elements required to call AcceptItem
+	 */
 	public JSONObject validateRequest() {
 		if (this.getRequestId() == null) return constructMissingElementProblem("Request ID");
-		if (this.requestedActionTypeString == null) return constructMissingElementProblem("Request Action Type");
+		if (this.getRequestedActionTypeString() == null) return constructMissingElementProblem("Request Action Type");
 		return null;
 	}
 
-	/*
+	/**
 	 * This method generates the NCIP2 Request XML
 	 */
-	public NCIPInitiationData generateNCIP2Object() {
+	public NCIPInitiationData generateNCIP2Object()  {
+			
 		AcceptItemInitiationData acceptItemInitationData = new AcceptItemInitiationData();
 		InitiationHeader initiationHeader = new InitiationHeader();
 		ApplicationProfileType applicationProfileType = new ApplicationProfileType(null, applicationProfileTypeString);
@@ -223,16 +222,18 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		return acceptItemInitationData;
 	}
 
+	/**
+	 * This method generates a JSONObject using the NCIPResponsData object for AcceptItem
+	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
 		AcceptItemResponseData acceptItem = (AcceptItemResponseData) responseData;
 		JSONObject returnJson = new JSONObject();
 		
 		// DEAL W/PROBLEMS IN THE RESPONSE
-		if (acceptItem.getProblems().size() > 0) {
+		if (acceptItem.getProblems() != null && acceptItem.getProblems().size() > 0) {
 			return constructProblem(responseData);
 		}
 
-		System.out.println(acceptItem.getRequestId().getRequestIdentifierValue());
 		String itemId = acceptItem.getItemId().getItemIdentifierValue();
 		String requestId = acceptItem.getRequestId().getRequestIdentifierValue();
 
@@ -242,31 +243,18 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	}
 	
 	/**
-	 * The method generates the NCIP1 request XML
+	 * Call to generate NCIP1 request XML using specific template file
 	 *
 	 */
 	@Override
 	public String generateNCIP1Object() {
-		// TODO Auto-generated method stub
-		logger.info("generating NCIP 1 request XML");
-		Handlebars handlebars = new Handlebars();
-		try {
-			Template template = handlebars.compile("/templates/acceptItem"); 
-			Context context = Context.newBuilder(this).resolver(MethodValueResolver.INSTANCE).build();
-		    String output =  template.apply(context);
-		    logger.info(output);
-		    return output;
-		}
-		catch(Exception e) {
-			logger.fatal("failed to generate the NCIP1 request xml");
-			logger.fatal(e.getLocalizedMessage());
-		}
-		return null;
+		return generateNCIP1Object("/templates/acceptItem");
 	}
 
 
-
-
+	/**
+	 * This method generates a JSONObject using the AcceptItem NCIP1 Response XML
+	 */
 	@Override
 	public JSONObject constructResponseNcip1Response(String responseData) {
 		JSONObject returnJson = new JSONObject();
@@ -320,5 +308,12 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	public String getUserId() {
 		return useridString;
 	}
+
+	public String getRequestedActionTypeString() {
+		return requestedActionTypeString;
+	}
+
+	
+	
 
 }
