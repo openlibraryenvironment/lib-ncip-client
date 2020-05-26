@@ -27,27 +27,28 @@ You then instantiate the class that represents the service you are calling and c
 
 ### LookupUser
 ```java
-		LookupUser lookupUser = new LookupUser()
-							  .setToAgency("TST")
-							  .setFromAgency("RSH")
-							  .setUserId("5551212")
-							  .includeNameInformation()
-							  .includeUserAddressInformation()
-							  .includeUserPrivilege();
-		Map<String, Object> map = wrapper.send(lookupUser);
+LookupUser lookupUser = new LookupUser()
+			  .setToAgency("TST")
+			  .setFromAgency("RSH")
+			  .setUserId("5551212")
+			  .includeNameInformation()
+			  .includeUserAddressInformation()
+			  .includeUserPrivilege();
+Map<String, Object> map = wrapper.send(lookupUser);
 ```
 
 Response examples:
-```json
+```
 {
 		success=true,
 		firstName = Jane, 
-		lastName = Doe, privileges = {
-		Courtesy Notice = true,
-		Paging = true,
-		Delivery = false,
-		Profile = STAFF,
-		status = OK
+		lastName = Doe, 
+		privileges = {
+			Courtesy Notice = true,
+			Paging = true,
+			Delivery = false,
+			Profile = STAFF,
+			status = OK
 	}, electronicAddresses = {
 		emailAddress = indigit @lehigh.edu,
 		TEL = 6105551212
@@ -69,22 +70,22 @@ Response examples:
 ### AcceptItem
 ```java
 AcceptItem acceptItem = new AcceptItem()
-							  .setItemId("LEH-20200305633")
-							  .setRequestId("LEH-20200305633")
-							  .setUserId("5551212")
-							  .setAuthor("Jane Doe") 
-							  .setTitle("One Fish Two Fish")
-							  .setIsbn("983847293847")
-							  .setCallNumber("505.c")
-							  .setPickupLocation("FAIRCHILD")
-							  .setToAgency("Relais")
-							  .setFromAgency("Relais")
-							  .setRequestedActionTypeString("Hold For Pickup")
-							  .setApplicationProfileType("EZBORROW");
-		Map<String, Object> map = wrapper.send(acceptItem);
+			  .setItemId("LEH-20200305633")
+			  .setRequestId("LEH-20200305633")
+			  .setUserId("5551212")
+			  .setAuthor("Jane Doe") 
+			  .setTitle("One Fish Two Fish")
+			  .setIsbn("983847293847")
+			  .setCallNumber("505.c")
+			  .setPickupLocation("FAIRCHILD")
+			  .setToAgency("Relais")
+			  .setFromAgency("Relais")
+			  .setRequestedActionTypeString("Hold For Pickup")
+			  .setApplicationProfileType("EZBORROW");
+Map<String, Object> map = wrapper.send(acceptItem);
 ```
 Response examples
-```json
+```
 {itemId=LEH-20200305633, requestId=LEH-20200305633,success=true}
 {success=false, problems=[{detail=Item Barcode Already Exist, type=, value=LEH-20200526430, element=Item}]}
 ```
@@ -92,18 +93,18 @@ Response examples
 ### CheckoutItem
 ```java
 CheckoutItem checkoutItem = new CheckoutItem()
-							  .setUserId("5551212")
-							  .setItemId("LEH-20200305217")
-							  .setRequestId("LEH-20200305217")
-							  .setToAgency("TST")
-							  .setFromAgency("RSH")
-							  .setApplicationProfileType("EZBORROW")
-		  Map<String, Object> map = wrapper.send(checkoutItem);
+			  .setUserId("5551212")
+			  .setItemId("LEH-20200305217")
+			  .setRequestId("LEH-20200305217")
+			  .setToAgency("TST")
+			  .setFromAgency("RSH")
+			  .setApplicationProfileType("EZBORROW")
+Map<String, Object> map = wrapper.send(checkoutItem);
 		  
 ```
 
 Response example
-```json
+```
 {itemId=LEH-20200305217, success=true, dueDate=2021-05-26 04:00:00, userId=5551212}
 
 ```
@@ -111,16 +112,16 @@ Response example
 ### CheckinItem
 ```java
 CheckinItem checkinItem = new CheckinItem()
-                  .setItemId("LEH-20200301608")
-                  .setToAgency("TST")
-                  .setFromAgency("RSH")
-                  .includeBibliographicDescription()
-                  .setApplicationProfileType("EZBORROW");
-		  Map<String, Object> map = wrapper.send(checkinItem);
+			  .setItemId("LEH-20200301608")
+			  .setToAgency("TST")
+			  .setFromAgency("RSH")
+			  .includeBibliographicDescription()
+			  .setApplicationProfileType("EZBORROW");
+Map<String, Object> map = wrapper.send(checkinItem);
 ```
 
 Response example:
-```json
+```
 {itemId=LEH-20200301608, success=true}
 ```
 
