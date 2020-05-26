@@ -27,9 +27,7 @@ import org.json.JSONObject;
 public class NCIP2Client implements CirculationClient {
 	
 	private static final Logger logger = Logger.getLogger(NCIP2Client.class);
-	private String endpoint;
-	private String userid;
-	private String password;
+	protected String endpoint;
 	private HashMap<String, String> httpHeader = new HashMap<String, String>();
 	private XCToolkitUtil xcToolkitUtil;
 	//TODO ADD TIMEOUT PREFERENCE ?
@@ -48,20 +46,28 @@ public class NCIP2Client implements CirculationClient {
 		endpoint = newEndpoint;
 	}
 
-	public void setUserid(String newUserid) {
-		userid = newUserid;
-	}
-
-	public void setPassword(String newPassword) {
-		password = newPassword;
-	}
-
 	public void addHttpHeader(String key, String value) {
 		 this.httpHeader.put(key, value);
 	}
 	
 	
+	
+	
+	public String getEndpoint() {
+		return endpoint;
+	}
+
 	public JSONObject send(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
+		
+		if (this.getEndpoint() == null) {
+			logger.fatal("NCIP2Client send calls but endpoint is missing");
+			JSONObject r = constructException("Missing Endpoint ", "NCIP Client endpoint is null","");
+			return r;
+		}
+		
+		JSONObject errors = transaction.validateRequest();
+		if (errors != null) return errors;
+		
 		//generates XC NCIP Objects:
 		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
 		//transforms the object into NCIP XML:
@@ -85,6 +91,7 @@ public class NCIP2Client implements CirculationClient {
 			 responseString = EntityUtils.toString(entity, "UTF-8");
 			 logger.info("NCIP2 request sent: ");
 			 logger.info(requestBody);
+			 logger.info("to: " + this.endpoint);
 			 logger.info("NCIP2 response received: ");
 			 logger.info(responseString);
 			 int responseCode = response.getStatusLine().getStatusCode();
@@ -109,5 +116,35 @@ public class NCIP2Client implements CirculationClient {
 		}
 		return responseObject;
 	}
+	
+	public JSONObject constructException(String httpResponse,String entireResponse,String element) {
+		JSONObject returnJson = new JSONObject();
+		JSONArray array = new JSONArray();
+		JSONObject problem = new JSONObject();
+		problem.put("type",httpResponse);
+		problem.put("detail", entireResponse);
+		problem.put("element", element);
+		array.put(problem);
+		returnJson.put("problems", array);
+		return returnJson;
+	}
+
+	public HashMap<String, String> getHttpHeader() {
+		return httpHeader;
+	}
+
+	public void setHttpHeader(HashMap<String, String> httpHeader) {
+		this.httpHeader = httpHeader;
+	}
+
+	public XCToolkitUtil getXcToolkitUtil() {
+		return xcToolkitUtil;
+	}
+
+	public void setXcToolkitUtil(XCToolkitUtil xcToolkitUtil) {
+		this.xcToolkitUtil = xcToolkitUtil;
+	}
+	
+	
 
 }

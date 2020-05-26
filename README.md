@@ -5,52 +5,141 @@ Client for the NISO Circulation Interchange Protocol (NCIP)
 ## building the project
 mvn package
 
-## to do
-* [ ] Feedback?
-* [ ] Write tests
-* [ ] More testing
-* [ ] Anything to add to the repo, pom for CI?
 
-## dependencies
-```xml
-<dependency>
-	<groupId>org.json</groupId>
-	<artifactId>json</artifactId>
-	<version>20190722</version>
-</dependency>
-<dependency>
-	<groupId>org.apache.httpcomponents</groupId>
-	<artifactId>httpclient</artifactId>
-	<version>4.5.3</version>
-</dependency>
-<dependency>
-	<groupId>org.apache.httpcomponents</groupId>
-	<artifactId>httpcore</artifactId>
-	<version>4.4.6</version>
-</dependency>
-<dependency>
-	<groupId>org.slf4j</groupId>
-	<artifactId>slf4j-api</artifactId>
-	<version>1.7.18</version>
-</dependency>
-<dependency>
-	<groupId>commons-io</groupId>
-	<artifactId>commons-io</artifactId>
-	<version>2.6</version>
-</dependency>
-```
-
-## usage
-This initial version of the 'NCIP Client' supports four NCIP2 services:
+## Usage
+This initial version of the 'NCIP Client' supports four NCIP services:
 * LookupUser
 * AcceptItem
 * CheckInItem
 * CheckOutItem
 
+The client supports both NCIP1 and NCIP2. When sending requests to an NCIP1 server, you have the option to use the java.net.Socket class instead of http to support NCIP1 servers that return responses which the http response classes cannot parse.
 
-#### Note: If you want to call mod-ncip directly in FOLIO (instead of through an edge module)...authentication has to take place. Use the FolioNcipClient (instead of NCIP2Client) which will authenticate with FOLIO:
+The latest version of this library includes a NCIPClientWrapper class which you can use to send requests to any protocol version.  You indicate the version when you instantiate the class.  For example
+
 ```java
-FolioNcipClient folioClient = new FolioNcipClient("https://folio-snapshot-load-okapi.aws.indexdata.com","diku_admin","thedikupassword","diku");
+NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.edu/ncip", NCIPClientWrapper.NCIP2);
+NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.edu/ncip", NCIPClientWrapper.NCIP1);
+NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.edu/ncip", NCIPClientWrapper.NCIP1_SOCKET);
+```
+
+You then instantiate the class that represents the service you are calling and call the send method on the client.  The response is a java.util.Map which includes a boolean (success) to indicate whether the call was successful:
+
+### LookupUser
+```java
+LookupUser lookupUser = new LookupUser()
+			  .setToAgency("TST")
+			  .setFromAgency("RSH")
+			  .setUserId("5551212")
+			  .includeNameInformation()
+			  .includeUserAddressInformation()
+			  .includeUserPrivilege();
+Map<String, Object> map = wrapper.send(lookupUser);
+```
+
+Response examples:
+```
+{
+		success=true,
+		firstName = Jane, 
+		lastName = Doe, 
+		privileges = {
+			Courtesy Notice = true,
+			Paging = true,
+			Delivery = false,
+			Profile = STAFF,
+			status = OK
+	}, electronicAddresses = {
+		emailAddress = indigit @lehigh.edu,
+		TEL = 6105551212
+	}, physicalAddresses = {
+		CAMPUS = {
+			"lineTwo": "",
+			"postalCode": "",
+			"locality": "",
+			"lineOne": "30 - Test Library",
+			"region": ""
+		}
+	}, userId = 5551212
+}
+
+
+{success=false, problems=[{detail=User does not exist, type=, value=8765791559, element=USER}]}
+```
+
+### AcceptItem
+```java
+AcceptItem acceptItem = new AcceptItem()
+			  .setItemId("LEH-20200305633")
+			  .setRequestId("LEH-20200305633")
+			  .setUserId("5551212")
+			  .setAuthor("Jane Doe") 
+			  .setTitle("One Fish Two Fish")
+			  .setIsbn("983847293847")
+			  .setCallNumber("505.c")
+			  .setPickupLocation("FAIRCHILD")
+			  .setToAgency("Relais")
+			  .setFromAgency("Relais")
+			  .setRequestedActionTypeString("Hold For Pickup")
+			  .setApplicationProfileType("EZBORROW");
+Map<String, Object> map = wrapper.send(acceptItem);
+```
+Response examples
+```
+{itemId=LEH-20200305633, requestId=LEH-20200305633,success=true}
+{success=false, problems=[{detail=Item Barcode Already Exist, type=, value=LEH-20200526430, element=Item}]}
+```
+
+### CheckoutItem
+```java
+CheckoutItem checkoutItem = new CheckoutItem()
+			  .setUserId("5551212")
+			  .setItemId("LEH-20200305217")
+			  .setRequestId("LEH-20200305217")
+			  .setToAgency("TST")
+			  .setFromAgency("RSH")
+			  .setApplicationProfileType("EZBORROW")
+Map<String, Object> map = wrapper.send(checkoutItem);
+		  
+```
+
+Response example
+```
+{itemId=LEH-20200305217, success=true, dueDate=2021-05-26 04:00:00, userId=5551212}
+
+```
+
+### CheckinItem
+```java
+CheckinItem checkinItem = new CheckinItem()
+			  .setItemId("LEH-20200301608")
+			  .setToAgency("TST")
+			  .setFromAgency("RSH")
+			  .includeBibliographicDescription()
+			  .setApplicationProfileType("EZBORROW");
+Map<String, Object> map = wrapper.send(checkinItem);
+```
+
+Response example:
+```
+{itemId=LEH-20200301608, success=true}
+```
+
+You can also use the NCIP1Client or NCIP2Client directly (without the wrapper class).  The examples below all use NCIP2.  To send NCIP1 or NCIP1 w/socket requests use the NCIP1 Client:
+```java
+NCIP1Client ncip1Client = new NCIP1Client("https://test.ncip.lehigh.edu/ncip");
+```
+
+or to use sockets:
+
+```java
+NCIP1Client ncip1Client = new NCIP1Client("https://test.ncip.lehigh.edu/ncip",true);
+```
+
+Everything else can remain the same.
+
+## 
+
 		
 ```
 ### LookupUser
@@ -177,11 +266,3 @@ Response with a problem:
 LEH-20200305699","type":"Unknown Item"}]}
 ```
 
-
-
-## design & future expansion
-There are four objects representing each of the four services.  For the most part, the values in these objects will be needed across other variations of this client like NCIP1 or something else custom that may have to be written.
-
-The NCIP2Client object understands how to ask each object for the NCIP2 xml and how to send the request to an NCIP2 server and how to ask for the NCIP Response object based on the XML returned.  I see this library expanding in the future by creating other Clients (e.g. NCIP1Client) and methods on the objects to support those clients.
-
-The developer using this library can always create one of the four objects and will just need to vary the client object as others are added.
