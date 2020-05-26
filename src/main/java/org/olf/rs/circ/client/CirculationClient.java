@@ -10,6 +10,6 @@ import org.json.JSONObject;
 public interface CirculationClient {
 	
 	void setEndpoint(String endpoint);
-	JSONObject send(NCIPCircTransaction service) throws ServiceException, ValidationException, IOException, URISyntaxException, Exception;
+	JSONObject send(NCIPCircTransaction service) throws ServiceException, ValidationException, IOException;
 
 }

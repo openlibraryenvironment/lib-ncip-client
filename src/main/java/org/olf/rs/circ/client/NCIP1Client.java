@@ -160,7 +160,7 @@ public class NCIP1Client implements CirculationClient {
 	 * If useSockets is set to false, send NCIP request using http,
 	 * otherwise call sendWithSockets
 	 */
-	public JSONObject send(NCIPCircTransaction transaction) throws Exception {
+	public JSONObject send(NCIPCircTransaction transaction)  {
 		
 		if (this.getEndpoint() == null) {
 			logger.fatal("send called and endpoint is: " + this.getEndpoint());
@@ -168,7 +168,21 @@ public class NCIP1Client implements CirculationClient {
 			return r;
 		}
 		
-		if (this.useSockets) return sendWithSockets(transaction);
+		try {
+			if (this.useSockets) return sendWithSockets(transaction);
+		}
+		catch(Exception e) {
+			JSONObject responseObject = new JSONObject();
+			JSONArray array = new JSONArray();
+			JSONObject problem = new JSONObject();
+			problem.put("detail","NCIP1 with socket Client failed to call NCIP server or parse returned results");
+			problem.put("element",e.getCause());
+			problem.put("value", e.getLocalizedMessage());
+			array.put(problem);
+			responseObject.put("problems", array);			
+			logger.info(responseObject.toString());
+			return responseObject;
+		}
 		
 		JSONObject errors = transaction.validateRequest();
 		if (errors != null) return errors;

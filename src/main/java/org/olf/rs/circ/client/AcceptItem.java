@@ -146,7 +146,8 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	 */
 	public JSONObject validateRequest() {
 		if (this.getRequestId() == null) return constructMissingElementProblem("Request ID");
-		if (this.getRequestedActionTypeString() == null) return constructMissingElementProblem("Request Action Type");
+		//SEEMS TO WORK WITHOUT IT 
+		//if (this.getRequestedActionTypeString() == null) return constructMissingElementProblem("Request Action Type");
 		return null;
 	}
 

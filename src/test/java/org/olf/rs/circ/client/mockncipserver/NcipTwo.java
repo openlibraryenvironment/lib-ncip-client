@@ -60,24 +60,6 @@ public class NcipTwo {
 		
 	}
 	
-	@Test
-	public void acceptItemMissingRequestAction() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint);
-		AcceptItem acceptItem = new AcceptItem();
-		acceptItem.setUserId("9999999");
-		acceptItem.setTitle("ABC Book");
-		acceptItem.setToAgency("ABC");
-		acceptItem.setFromAgency("DEF");
-		acceptItem.setItemId("123456");
-		acceptItem.setRequestId("TST-123456");
-		JSONObject response = ncipTwoClient.send(acceptItem);		
-		assertTrue(response.has("problems"));
-		JSONArray problems = response.getJSONArray("problems");
-		String errorType = problems.getJSONObject(0).getString("type");
-		String element = problems.getJSONObject(0).getString("element");
-		assertTrue(errorType.contains("Missing element"));
-		assertTrue(element.contains("Action"));
-	}
 	
 	@Test
 	public void acceptItemMissingRequestId() throws Exception {

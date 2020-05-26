@@ -125,7 +125,8 @@ public class NcipOneWithSocket {
 				.setIsbn("5551212980")
 				.setPickupLocation("DELIVERY")
 				.setToAgency("ABC")
-				.setFromAgency("DEF");
+				.setFromAgency("DEF")
+				.setRequestActionType("Hold for pickup");
 		JSONObject response = ncipOneClient.send(acceptItem);
 		assertEquals(response.getString("itemId").trim(),"100556043-10");
 	}
@@ -142,7 +143,8 @@ public class NcipOneWithSocket {
 				.setIsbn("5551212980")
 				.setPickupLocation("DELIVERY")
 				.setToAgency("ABC")
-				.setFromAgency("DEF");
+				.setFromAgency("DEF")
+				.setRequestActionType("Hold for pickup");
 		JSONObject response = ncipOneClient.send(acceptItem);
 		assertTrue(response.has("problems"));
 	}
