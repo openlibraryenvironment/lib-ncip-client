@@ -84,6 +84,8 @@ AcceptItem acceptItem = new AcceptItem()
 			  .setApplicationProfileType("EZBORROW");
 Map<String, Object> map = wrapper.send(acceptItem);
 ```
+Note: The NCIP1 Client sends pickupLocation through the initiationHeader 'toAgency' ID.
+<br><br>
 Response examples
 ```
 {itemId=LEH-20200305633, requestId=LEH-20200305633,success=true}
