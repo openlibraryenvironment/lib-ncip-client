@@ -26,6 +26,8 @@ public class Wrapper {
 		AcceptItem acceptItem = new AcceptItem()
 											.setToAgency("TST")
 											.setFromAgency("RSH")
+											.setPickupLocation("TNSGI")
+											.setAuthor("Jane Doe")
 											.setUserId("ABCEZMVS1")
 											.setTitle("Test Title")
 											.setRequestActionType("Hold For Pickup")

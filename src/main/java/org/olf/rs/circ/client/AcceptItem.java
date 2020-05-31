@@ -313,6 +313,9 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	public String getRequestedActionTypeString() {
 		return requestedActionTypeString;
 	}
+	public String getPickupLocationString() {
+		return pickupLocationString;
+	}
 
 	
 	

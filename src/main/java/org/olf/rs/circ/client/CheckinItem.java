@@ -145,7 +145,7 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 	}
 
 	/**
-	 * The method generates the NCIP1 request XML
+	 * Call to generate NCIP1 request XML using specific template file
 	 *
 	 */
 	@Override
