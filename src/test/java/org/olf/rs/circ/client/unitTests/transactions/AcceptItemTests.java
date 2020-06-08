@@ -74,6 +74,7 @@ public class AcceptItemTests {
 		acceptItem.setToAgency("DEF");
 		acceptItem.setItemId("ABC-2387402374");
 		acceptItem.setRequestId("ABC-20200501");
+		acceptItem.setPickupLocation("MAINLIBRARY");
 		String acceptItemXML = acceptItem.generateNCIP1Object();
 		Document document = Jsoup.parse(acceptItemXML,"",Parser.xmlParser());
 		String  fromAgencyId = document.select("AcceptItem > InitiationHeader > FromAgencyId > UniqueAgencyId > Value").text();
@@ -81,7 +82,7 @@ public class AcceptItemTests {
 		String  itemId = document.select("AcceptItem > UniqueItemId > ItemIdentifierValue").text();
 		String  requestId = document.select("AcceptItem > UniqueRequestId > RequestIdentifierValue").text();
 		assertEquals(fromAgencyId,"ABC");
-		assertEquals(toAgencyId,"DEF");
+		assertEquals(toAgencyId,"MAINLIBRARY");
 		assertEquals(itemId,"ABC-2387402374");
 		assertEquals(requestId,"ABC-20200501");
 		
