@@ -76,7 +76,10 @@ public class NCIPClientWrapper {
 			JSONObject jsonObject = this.circulationClient.send(transaction);
 			
 			Map<String, Object> responseAsMap = toMap(jsonObject);
-			if (responseAsMap.containsKey("problems")) {
+			if (responseAsMap == null || responseAsMap.isEmpty()) {
+				responseAsMap.put("success", false);
+			}
+			else if (responseAsMap.containsKey("problems")) {
 				responseAsMap.put("success", false);
 			}
 			else {
