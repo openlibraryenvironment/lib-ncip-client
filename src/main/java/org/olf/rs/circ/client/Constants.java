@@ -27,6 +27,7 @@ public class Constants {
 	public static final String USER_LANGUAGE_INFORMATION= "User Language Information";
 	public static final String USER_PRIVILEGE = "User Privilege";
 	public static final String USERID = "User Id";
+	public static final String BLOCKED = "BLOCKED";
 
 
 

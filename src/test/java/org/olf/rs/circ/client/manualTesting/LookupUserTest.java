@@ -26,13 +26,13 @@ public class LookupUserTest {
         
 		NCIP1Client client = new NCIP1Client("http://placeholder.ncip.edu:5994/ncip");
 		LookupUser lookupUser = new LookupUser()
-											.setUserId("N0023423423454")
-											.includeUserAddressInformation()
-											.includeUserPrivilege()
-											.includeNameInformation()
-											.setToAgency("TNS")
-											.setFromAgency("RSH");
-											//.setApplicationProfileType("E-ZBorrow");  not needed for new school
+								.setUserId("N0023423423454")
+								.includeUserAddressInformation()
+								.includeUserPrivilege()
+								.includeNameInformation()
+								.setToAgency("TNS")
+								.setFromAgency("RSH");
+								//.setApplicationProfileType("E-ZBorrow"); 
 		JSONObject response = client.send(lookupUser);
 		System.out.println(response);
 		

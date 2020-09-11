@@ -20,12 +20,12 @@ public class CheckoutItemTest {
 
 		NCIP1Client client = new NCIP1Client("http://placeholder.ncip.edu:5994/ncip");
 		CheckoutItem checkoutItem = new CheckoutItem()
-											.setUserId("21207101074550")
-											.setItemId("100556447-10")
-											.setRequestId("NYU-202005041220")
-											.setToAgency("TNS")
-											.setFromAgency("RSH");
-											//.setApplicationProfileType("EZBORROW");
+							.setUserId("21207101074550")
+							.setItemId("100556447-10")
+							.setRequestId("NYU-202005041220")
+							.setToAgency("TNS")
+							.setFromAgency("RSH");
+							//.setApplicationProfileType("EZBORROW");
 		JSONObject response = client.send(checkoutItem);
 		System.out.println(response);
 		

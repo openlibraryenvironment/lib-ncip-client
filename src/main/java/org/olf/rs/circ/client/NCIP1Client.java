@@ -133,13 +133,19 @@ public class NCIP1Client implements CirculationClient {
 	    logger.info("NCIP1 SOCKET response received: ");
 		logger.info(entireResponse.toString()); 
 		
-		if (error) {
+		if (error || entireResponse.toString() == null) {
 			JSONObject r = constructException(httpResponse,entireResponse.toString(),"exception calling ncip server with socket");
 			return r;
 		}
 
-		JSONObject r = transaction.constructResponseNcip1Response(stringBuffer.toString());
-		return r;
+		try {
+			JSONObject r = transaction.constructResponseNcip1Response(stringBuffer.toString());
+			return r;
+		}
+		catch(Exception e) {
+			JSONObject r = constructException(httpResponse,entireResponse.toString(),"exception calling ncip server with socket");
+			return r;
+		}
 		
 	}
 	
@@ -223,9 +229,15 @@ public class NCIP1Client implements CirculationClient {
 			array.put(problem);
 			responseObject.put("problems", array);			
 		}
-		responseObject = transaction.constructResponseNcip1Response(responseString);
-		logger.info(responseObject.toString());
-		return responseObject;
+		try {
+			responseObject = transaction.constructResponseNcip1Response(responseString);
+			logger.info(responseObject.toString());
+			return responseObject;
+		}
+		catch(Exception e) {
+			JSONObject r = constructException("","unable to parse response from NCIP1 return",e.getLocalizedMessage());
+			return r;
+		}
 	}
 
 

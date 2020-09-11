@@ -78,6 +78,19 @@ public class NCIPClientWrapperTests {
 	}
 	
 	@Test
+	public void testToMapTwo() throws Exception {
+		
+		NCIPClientWrapper ncipOneClientWrapper = new NCIPClientWrapper("http://google.com",NCIPClientWrapper.NCIP1);
+		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "lightNcipRespone.json";
+		String jsonAsString = readLineByLine(mockFileName);
+		JSONObject mockResponseAsJson = new JSONObject(jsonAsString);
+		Map<String, Object> map = ncipOneClientWrapper.toMap(mockResponseAsJson);
+		assertEquals(((Map)map.get( "privileges" )).get( "STATUS" ),"OK");
+		assertEquals((String)map.get( "firstName" ),"JANE");
+		
+	}
+	
+	@Test
 	public void testConstructException() throws Exception {
 		
 		NCIPClientWrapper ncipOneClientWrapper = new NCIPClientWrapper("http://google.com",NCIPClientWrapper.NCIP1);

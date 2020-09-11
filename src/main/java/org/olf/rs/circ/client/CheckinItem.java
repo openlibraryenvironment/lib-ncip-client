@@ -173,6 +173,7 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
         } catch(Exception e) {
         	logger.fatal("failed to parse the NCIP XML Response: " + responseData);
         	logger.fatal(e.getLocalizedMessage());
+        	throw e;
         }
 		return returnJson;
 	}
