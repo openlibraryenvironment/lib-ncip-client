@@ -242,14 +242,14 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	
 	private boolean isEmailPattern(String email) {
 		if (email == null || email.isEmpty()) return false;
-        String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email);
-        if (matcher.matches()) {
-        	return true;
-        }
-        return false;
-	}
+		String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(email);
+		if (matcher.matches()) {
+			return true;
+		}
+		return false;
+		}
 	
 	
 	private String getUserIdString(LookupUserResponseData lookupUserResponse,JSONObject returnJson) {
