@@ -51,6 +51,18 @@ public class LookupUserTests {
 	}
 	
 	@Test
+	public void testConstructNcip1BlockedResponse() throws Exception {
+		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipOneLookupUserXmlResponseBlockedExample.xml";
+		String xmlAsString = readLineByLine(mockFileName);
+		LookupUser lookupUser = new LookupUser();
+		JSONObject lookupUserResponse = lookupUser.constructResponseNcip1Response(xmlAsString);
+		assertEquals(lookupUserResponse.getString("firstName").trim(),"Jane");
+		String status = getValueByKey(lookupUserResponse.getJSONArray("privileges"),"STATUS");
+		assertEquals(status,"BLOCKED");
+		assertEquals(lookupUserResponse.get("userId"),"N55551212");
+	}
+	
+	@Test
 	public void testConstructNcip2Response() throws Exception {
 		LookupUser lookupUser = new LookupUser();
 		LookupUserResponseData lookupUserResponseData = new LookupUserResponseData();
@@ -85,7 +97,19 @@ public class LookupUserTests {
 		assertEquals(jsonObject.get("lastName"),"Doe");
 		assertEquals(getValueByKey(jsonObject.getJSONArray("privileges"),"status"),"OK");
 	}
+	
 
+	@Test(expected=Exception.class) 
+	public void testConstructNcip2ResponseWithNull() throws Exception {
+		LookupUser lookupUser = new LookupUser();
+		JSONObject jsonObject = lookupUser.constructResponseNcip2Response(null);
+	}
+
+	@Test(expected=Exception.class) 
+	public void testConstructNcip1ResponseWithNull() throws Exception {
+		LookupUser lookupUser = new LookupUser();
+		JSONObject jsonObject = lookupUser.constructResponseNcip1Response(null);
+	}
 
 	
 	@Test

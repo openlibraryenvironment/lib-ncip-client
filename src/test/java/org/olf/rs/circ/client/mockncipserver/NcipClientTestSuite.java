@@ -8,7 +8,12 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-
+/**
+ * This collection of tests require a running 'mock ncip server'.
+ * The endpoint has to be set in the tests.
+ * 
+ *
+ */
 
 
 @RunWith(Suite.class)

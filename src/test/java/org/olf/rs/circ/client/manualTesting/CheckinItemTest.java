@@ -22,11 +22,11 @@ public class CheckinItemTest {
 		NCIP1Client client = new NCIP1Client("http://placeholder.ncip.edu:5994/ncip");
 		//NCIP2Client ncip2Client = new NCIP2Client("http://localhost:8080/ncip");
 		CheckinItem checkinItem = new CheckinItem()
-											.setItemId("31207063743771")
-											.setToAgency("TNS")
-											.setFromAgency("RSH")
-											.includeBibliographicDescription();
-											//.setApplicationProfileType("EZBORROW");
+						.setItemId("31207063743771")
+						.setToAgency("TNS")
+						.setFromAgency("RSH")
+						.includeBibliographicDescription();
+						//.setApplicationProfileType("EZBORROW");
 		JSONObject response = client.send(checkinItem);
 		System.out.println(response);
 		

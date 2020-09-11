@@ -241,14 +241,15 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	}
 	
 	private boolean isEmailPattern(String email) {
-        String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
-        Pattern pattern = Pattern.compile(regex);
-        Matcher matcher = pattern.matcher(email);
-        if (matcher.matches()) {
-        	return true;
-        }
-        return false;
-	}
+		if (email == null || email.isEmpty()) return false;
+		String regex = "^([_a-zA-Z0-9-]+(\\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\\.[a-zA-Z0-9-]+)*(\\.[a-zA-Z]{1,6}))?$";
+		Pattern pattern = Pattern.compile(regex);
+		Matcher matcher = pattern.matcher(email);
+		if (matcher.matches()) {
+			return true;
+		}
+		return false;
+		}
 	
 	
 	private String getUserIdString(LookupUserResponseData lookupUserResponse,JSONObject returnJson) {
@@ -270,7 +271,10 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 				String value = priv.getUserPrivilegeStatus().getUserPrivilegeStatusType().getValue();
 				//TRANSLATE STATUS FROM ACTIVE TO OK - TO BE CONSISTENT
 				//SOME SERVERS (ALMA) RETURN ACTIVE, OTHERS (OLE) RETURN OK
-				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("active")) value = "OK";
+				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("ACTIVE")) value = "OK";
+				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("DELINQUENT")) value = Constants.BLOCKED;
+				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("BARRED")) value = Constants.BLOCKED;
+				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("EXPIRED")) value = Constants.BLOCKED;
 				json.put("key", type);
 				json.put("value", value);
 				jsonArray.put(json);
@@ -310,6 +314,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
         } catch(Exception e) {
         	logger.fatal("failed to parse the NCIP XML Response: " + responseData);
         	logger.fatal(e.getLocalizedMessage());
+        	throw e;
         }
 		return returnJson;
 	}

@@ -170,7 +170,10 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		RequestId requestId = new RequestId();
 		requestId.setAgencyId(new AgencyId(fromAgency));
 		requestId.setRequestIdentifierValue(requestIdString);
-		RequestedActionType requestActionType = new RequestedActionType(null, requestedActionTypeString);
+		if (requestedActionTypeString != null) {
+			RequestedActionType requestActionType = new RequestedActionType(null, requestedActionTypeString);
+			acceptItemInitationData.setRequestedActionType(requestActionType);
+		}
 		UserId userid = new UserId();
 		userid.setAgencyId(new AgencyId(fromAgency));
 		userid.setUserIdentifierValue(useridString);
@@ -218,7 +221,7 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		acceptItemInitationData.setUserId(userid);
 		acceptItemInitationData.setInitiationHeader(initiationHeader);
 		acceptItemInitationData.setRequestId(requestId);
-		acceptItemInitationData.setRequestedActionType(requestActionType);
+
 		acceptItemInitationData.setItemOptionalFields(itemOptionalFields);
 		return acceptItemInitationData;
 	}
@@ -274,6 +277,7 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
         } catch(Exception e) {
         	logger.fatal("failed to parse the NCIP XML Response: " + responseData);
         	logger.fatal(e.getLocalizedMessage());
+        	throw e;
         }
 		return returnJson;
 	}

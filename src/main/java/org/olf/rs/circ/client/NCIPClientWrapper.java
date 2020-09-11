@@ -117,7 +117,7 @@ public class NCIPClientWrapper {
 	        	Iterator i = ((JSONArray) value).iterator();
 	        	while (i.hasNext()) {
 	        		JSONObject priv = (JSONObject) i.next();
-	        		privMap.put(priv.getString("key"), priv.get("value"));
+	        		privMap.put(priv.optString("key",""), priv.optString("value",""));
 	        	}
 	        	value = privMap;
 	        }
@@ -160,4 +160,3 @@ public class NCIPClientWrapper {
 		return returnJson;
 	}
 }
-//

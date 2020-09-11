@@ -20,15 +20,15 @@ public class AcceptItemTest {
 
 		NCIP1Client client = new NCIP1Client("http://placeholder.ncip.edu:5994/ncip");
 		AcceptItem acceptItem = new AcceptItem()
-											.setItemId("NYU-20200512106")
-											.setRequestId("NYU-20200512106")
-											.setUserId("21207101074550")
-											.setAuthor("Jane Doe") 
-											.setTitle("one fish, two fish")
-											.setCallNumber("500.abc")
-											.setToAgency("TNS")
-											.setFromAgency("RSH");
-											//.setApplicationProfileType("EZBORROW");
+				.setItemId("NYU-20200512106")
+				.setRequestId("NYU-20200512106")
+				.setUserId("21207101074550")
+				.setAuthor("Jane Doe") 
+				.setTitle("one fish, two fish")
+				.setCallNumber("500.abc")
+				.setToAgency("TNS")
+				.setFromAgency("RSH");
+				//.setApplicationProfileType("EZBORROW");
 		JSONObject response = client.send(acceptItem);
 		System.out.println(response);
 		
