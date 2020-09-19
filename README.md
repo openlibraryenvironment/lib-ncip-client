@@ -143,7 +143,7 @@ Everything else can remain the same.
 ## 
 
 		
-```
+
 ### LookupUser
 ```java
 NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
