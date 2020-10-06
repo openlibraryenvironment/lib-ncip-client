@@ -23,6 +23,16 @@ NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.
 NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.edu/ncip", NCIPClientWrapper.NCIP1_SOCKET);
 ```
 
+*Calls to the WMS NCIP Client need a few additional values:
+The Client needs:
+* apiKey
+* apiSecret
+* a different endpoint for lookup user
+
+The checkin and checkout services for the WMS NCIP Client also need:
+<br>
+* registryId
+
 You then instantiate the class that represents the service you are calling and call the send method on the client.  The response is a java.util.Map which includes a boolean (success) to indicate whether the call was successful:
 
 ### LookupUser
