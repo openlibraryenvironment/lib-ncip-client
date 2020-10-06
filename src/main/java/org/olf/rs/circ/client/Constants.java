@@ -28,7 +28,11 @@ public class Constants {
 	public static final String USER_PRIVILEGE = "User Privilege";
 	public static final String USERID = "User Id";
 	public static final String BLOCKED = "BLOCKED";
-
+	public static final String OCLC_OAUTH = "https://oauth.oclc.org/token?grant_type=client_credentials&scope=";
+	public static final String NCIP_SCOPE = "WMS_NCIP";
+	public static final String IDM_SCOPE = "SCIM:read_user";
+	public static final String OCLC_HOST_NAME = "https://oauth.oclc.org";
+	public static final String DEFAULT_TIMEOUT = "3000";
 
 
 }

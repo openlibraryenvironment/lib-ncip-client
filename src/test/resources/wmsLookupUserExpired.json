@@ -1,0 +1,78 @@
+{
+    "totalResults": 1,
+    "itemsPerPage": 1,
+    "startIndex": 1,
+    "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+    ],
+    "Resources": [
+        {
+            "schemas": [
+                "urn:ietf:params:scim:schemas:core:2.0:User",
+                "urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101",
+                "urn:mace:oclc.org:eidm:schema:persona:persona:20180305",
+                "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101",
+                "urn:mace:oclc.org:eidm:schema:persona:wsillinfo:20180101"
+            ],
+            "id": "edc4f07f-95c5-44a6-b727-96df836fa534",
+            "externalId": "doe_expired",
+            "userName": "NOT SUPPORTED",
+            "name": {
+                "familyName": "Expired",
+                "givenName": "Jane",
+                "middleName": "",
+                "honorificPrefix": "",
+                "honorificSuffix": ""
+            },
+            "emails": [
+                {
+                    "value": "notreal@oclc.org",
+                    "type": "home",
+                    "primary": true
+                }
+            ],
+            "urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101": {
+                "correlationInfo": [
+                    {
+                        "sourceSystem": "urn:mace:oclc:idm:128807",
+                        "idAtSource": "4356bf34-2c6b-4e08-bb46-130b598e034e"
+                    }
+                ]
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:persona:20180305": {
+                "oclcPPID": "abdefgs95c5-44a6-b727-96df836fa534",
+                "institutionId": "128807",
+                "oclcNamespace": "urn:oclc:platform:1799",
+                "oclcUsername": "doe_expired",
+                "oclcExpirationDate": "2017-11-01T00:00:00Z",
+                "nameInfoCanSelfEdit": false
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101": {
+                "circulationInfo": {
+                    "barcode": "doe_expired",
+                    "borrowerCategory": "ADULT",
+                    "homeBranch": "129479",
+                    "circRegistrationDate": "2017-11-13",
+                    "isCircBlocked": false,
+                    "isCollectionExempt": false,
+                    "isFineExempt": false,
+                    "isVerified": true,
+                    "storeCheckoutHistory": false
+                }
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:wsillinfo:20180101": {
+                "illInfo": {
+                    "illPatronType": "",
+                    "illPickupLocation": "",
+                    "isBlocked": false,
+                    "isApproved": false
+                }
+            },
+            "meta": {
+                "resourceType": "User",
+                "created": "2017-11-13T15:00:43Z",
+                "location": "https://128807.share.worldcat.org/idaas/scim/v2/Users/abdefgs95c5-44a6-b727-96df836fa534"
+            }
+        }
+    ]
+}

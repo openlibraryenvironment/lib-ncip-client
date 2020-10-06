@@ -1,0 +1,118 @@
+{
+    "totalResults": 1,
+    "itemsPerPage": 1,
+    "startIndex": 1,
+    "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:ListResponse"
+    ],
+    "Resources": [
+        {
+            "schemas": [
+                "urn:ietf:params:scim:schemas:core:2.0:User",
+                "urn:mace:oclc.org:eidm:schema:persona:additionalinfo:20180501",
+                "urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101",
+                "urn:mace:oclc.org:eidm:schema:persona:notes:20180101",
+                "urn:mace:oclc.org:eidm:schema:persona:persona:20180305",
+                "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101",
+                "urn:mace:oclc.org:eidm:schema:persona:wsillinfo:20180101"
+            ],
+            "id": "abcdefg-7ef1-47ea-aa75-52dd439aaf1a",
+            "externalId": "2200555",
+            "userName": "NOT SUPPORTED",
+            "name": {
+                "familyName": "Doe",
+                "givenName": "Jane"
+            },
+            "emails": [
+                {
+                    "value": "notreal@oclc.org",
+                    "primary": true
+                }
+            ],
+            "addresses": [
+                {
+                    "streetAddress": "9999999 Main Street",
+                    "locality": "Bath",
+                    "region": "",
+                    "postalCode": "18014",
+                    "primary": true
+                },
+                {
+                    "streetAddress": "25 NotReal Street",
+                    "locality": "Boston",
+                    "region": "MA",
+                    "postalCode": "04849",
+                    "type": "work",
+                    "primary": false
+                }
+            ],
+            "urn:mace:oclc.org:eidm:schema:persona:additionalinfo:20180501": {
+                "oclcKeyValuePairs": [
+                    {
+                        "businessContext": "Circulation_Info",
+                        "key": "customdata1",
+                        "value": "My custom data 1"
+                    }
+                ]
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:correlationinfo:20180101": {
+                "correlationInfo": [
+                    {
+                        "sourceSystem": "urn:mace:oclc:idm:128807",
+                        "idAtSource": "2200555"
+                    },
+                    {
+                        "sourceSystem": "urn:mace:oclc:idm:128807",
+                        "idAtSource": "09b8a7b1-22d9-446d-bdbd-78eb91ede6b1"
+                    },
+                    {
+                        "sourceSystem": "urn:mace:oclc:idm:128807",
+                        "idAtSource": "84d1c261-9386-4b08-ac1f-cb911fe064a3"
+                    }
+                ]
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:notes:20180101": {
+                "notes": [
+                    {
+                        "note": "Jane paid her bill",
+                        "authorIdentity": "MTI4ODA3IHVybjpvY2xjOnBsYXRmb3JtOjE3OTkgY2I2NTg1MWEtZjQ0OS00NDM4LThhYWUtMzQ4YjBhYTE2NDNi",
+                        "modifiedDate": "2018-06-26T14:29:58Z"
+                    }
+                ]
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:persona:20180305": {
+                "oclcPPID": "abcdefg-7ef1-47ea-aa75-52dd439aaf1a",
+                "institutionId": "128807",
+                "oclcNamespace": "urn:oclc:platform:1799",
+                "oclcUsername": "2200555",
+                "oclcExpirationDate": "2022-09-07T00:00:00Z",
+                "nameInfoCanSelfEdit": false
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101": {
+                "circulationInfo": {
+                    "barcode": "2200555",
+                    "borrowerCategory": "ADULT",
+                    "homeBranch": "128963",
+                    "circRegistrationDate": "2011-02-25",
+                    "isCircBlocked": false,
+                    "isCollectionExempt": false,
+                    "isFineExempt": false,
+                    "isVerified": true,
+                    "storeCheckoutHistory": false
+                }
+            },
+            "urn:mace:oclc.org:eidm:schema:persona:wsillinfo:20180101": {
+                "illInfo": {
+                    "isBlocked": false,
+                    "isApproved": false
+                }
+            },
+            "meta": {
+                "resourceType": "User",
+                "created": "2011-11-28T15:27:33Z",
+                "lastModified": "2020-09-08T19:05:52Z",
+                "location": "https://128807.share.worldcat.org/idaas/scim/v2/Users/abcdefg-7ef1-47ea-aa75-52dd439aaf1a"
+            }
+        }
+    ]
+}

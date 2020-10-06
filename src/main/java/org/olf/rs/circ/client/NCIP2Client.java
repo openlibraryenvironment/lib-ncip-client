@@ -108,9 +108,9 @@ public class NCIP2Client implements CirculationClient {
 		catch(Exception e) {
 			JSONArray array = new JSONArray();
 			JSONObject problem = new JSONObject();
-			problem.put("detail","NCIP2 Client failed to call NCIP server or parse returned results");
+			problem.put("type","NCIP2 Client failed to call NCIP server or parse returned results");
 			problem.put("element",e.getCause());
-			problem.put("value", e.getLocalizedMessage());
+			problem.put("detail", e.getLocalizedMessage());
 			array.put(problem);
 			responseObject.put("problems", array);			
 		}

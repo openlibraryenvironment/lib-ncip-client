@@ -2,11 +2,15 @@ package org.olf.rs.circ.client;
 
 
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
@@ -37,6 +41,7 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 
 public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	
+	protected String registryId; //WMS ONLY - NOT NEEDED FOR LOOKUP USER - FUTURE USE
 	private static final Logger logger = Logger.getLogger(LookupUser.class);
 	protected String toAgency;
 	protected String fromAgency;
@@ -74,6 +79,16 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		return this;
 	}
 	
+	/**
+	 * setRegistryId
+	 * @param string - registry ID.  Not yet used for lookupUser - future use
+	 * @return Instance object
+	 */
+	public LookupUser setRegistryId(String registryId) {
+		this.registryId = registryId;
+		return this;
+	}
+	
 	//Convenience methods
 	public LookupUser includeNameInformation() {
 		this.addUserElement(Constants.NAME_INFORMATION);
@@ -104,6 +119,10 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	
 	public JSONObject validateRequest() {
 		return null;
+	}
+	
+	public String getUserid() {
+		return this.useridString;
 	}
 	
 	/*
@@ -141,6 +160,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 
 		return lookupUserInitationData;
 	}
+	
 	
 
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
@@ -224,7 +244,10 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			try {
 				JSONObject json = new JSONObject();
 				if (address.getElectronicAddress() == null) continue;
-				String type =  address.getElectronicAddress().getElectronicAddressType().getValue();
+				String type =  "unknown";
+				if (address.getElectronicAddress().getElectronicAddressType() != null) {
+					type = address.getElectronicAddress().getElectronicAddressType().getValue();
+				}
 				String value =  address.getElectronicAddress().getElectronicAddressData();
 				//MAKING EMAIL 'KEY' CONSISTENT
 				if (isEmailPattern(value)) type = "emailAddress";
@@ -351,6 +374,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			catch(Exception e) {
 				logger.fatal("failed parsing the user privileges in the NCIP-1 response: " + xmlDocElement.toString());
 				logger.fatal(e.getLocalizedMessage());
+				throw e;
 			}
 		}
 		return jsonArray;
@@ -434,7 +458,107 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		return returnJson;
 	}
 
+	public JSONObject constructWMSResponse(JSONObject responseAsJson) {
+		JSONObject returnJson = new JSONObject();
+		JSONArray resourcesArray = responseAsJson.getJSONArray("Resources");
+		if (resourcesArray.isEmpty()) {
+			logger.info("patron not found");
+			logger.info("full response:");
+			logger.info(responseAsJson);
+			JSONObject problem = new JSONObject();
+			problem.put("detail", "NCIP2WMS Client did not return a matching patron");
+			problem.put("type", "Unknown User");
+			problem.put("element", "User");
+			JSONArray problems = new JSONArray();
+			problems.put(problem);
+			returnJson.put("problems", problems);
+			return returnJson;
+		}
+		JSONObject patronAsJson = resourcesArray.getJSONObject(0);
+		String userid = patronAsJson.optString("externalId");
+		String lastName = patronAsJson.getJSONObject("name").optString("familyName");
+		String firstName = patronAsJson.getJSONObject("name").optString("givenName");
+		boolean circBlocked = patronAsJson.getJSONObject("urn:mace:oclc.org:eidm:schema:persona:wmscircpatroninfo:20180101").getJSONObject("circulationInfo").optBoolean("isCircBlocked");
+		String expirationDate = patronAsJson.getJSONObject("urn:mace:oclc.org:eidm:schema:persona:persona:20180305").optString("oclcExpirationDate");
+		returnJson = new JSONObject();
+		returnJson.put("firstName", firstName);
+		returnJson.put("lastName", lastName);
+		returnJson.put("userId", userid);
+		returnJson.put("electronicAddresses", gatherElectronicAddress(patronAsJson));
+		returnJson.put("physicalAddresses", gatherPhysicalAddress(patronAsJson));
+		boolean expired = false;
+		try {
+			Calendar compareDate = Calendar.getInstance();
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+			java.util.Date date = (java.util.Date)formatter.parse(expirationDate);
+			if (date.compareTo(compareDate.getTime()) < 0) {
+				expired = true;
+			}
+		}
+		catch(Exception e) {
+			logger.info("unable to inspect expiration date or expiration not included in response");
+		}
+	
+		JSONArray jsonArray = new JSONArray();
+		JSONObject perms = new JSONObject();
+		perms.put("key", "status");
+		perms.put("value", (circBlocked || expired) ? "BLOCKED":"OK");
+		jsonArray.put(perms);
+		returnJson.put("privileges", jsonArray);
+		return returnJson;
+	}
+	
+	private JSONArray gatherElectronicAddress(JSONObject patronAsJson) {
+		JSONArray emails = new JSONArray();
+		JSONArray emailArray = new JSONArray();
+		if (!patronAsJson.has("emails")) return emailArray;
+		emails = patronAsJson.getJSONArray("emails");
 
+		for (int i = 0; i < emails.length(); i++) {
+			JSONObject address = emails.getJSONObject(i);
+			JSONObject json = new JSONObject();
+			json.put("key", "emailAddress");
+			json.put("value", address.opt("value"));
+			emailArray.put(json);
+		}
+		return emailArray;
+	}
+
+
+	private JSONArray gatherPhysicalAddress(JSONObject patronAsJson) {
+		JSONArray jsonArray = new JSONArray();
+		if (!patronAsJson.has("addresses")) return jsonArray;
+		JSONArray addresses = patronAsJson.getJSONArray("addresses");
+		for (int i = 0; i < addresses.length(); i++) {
+			try {
+				JSONObject json = new JSONObject();
+				JSONObject providedAddress = addresses.getJSONObject(i);
+				String type =  providedAddress.optString("type");
+				if (type.isEmpty()) type = "unknown-type";
+				JSONObject addressAsJson = new JSONObject();
+				addressAsJson.put("lineOne", providedAddress.optString("streetAddress"));
+				addressAsJson.put("locality", providedAddress.optString("locality"));
+				addressAsJson.put("region", providedAddress.optString("region"));
+				addressAsJson.put("postalCode", providedAddress.optString("postalCode"));
+				json.put("key",type);
+				json.put("value",addressAsJson);
+				jsonArray.put(json);
+			}
+			catch(Exception e) {
+				logger.error("Unable to parse physical address");
+				logger.error(e.toString());
+			}
+		}
+		return jsonArray;
+	}
+
+	@Override
+	public NCIPInitiationData modifyForWMS(NCIPInitiationData initData) {
+		throw new NotImplementedException();
+	}
+	
+
+	
 
 }
 	

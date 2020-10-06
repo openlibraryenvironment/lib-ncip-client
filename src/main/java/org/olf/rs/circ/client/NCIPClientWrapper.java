@@ -35,12 +35,50 @@ public class NCIPClientWrapper {
 	public static final String NCIP1 = "NCIP1";
 	public static final String NCIP2 = "NCIP2";
 	public static final String NCIP1_SOCKET = "NCIP1_SOCKET";
+	public static final String WMS = "WMS";
 	private static final Logger logger = Logger.getLogger(NCIPClientWrapper.class);
-	
+	private String apiKey;
+	private String apiSecret;
+	private String idmEndpoint;
+
+	public String getIdmEndpoint() {
+		return idmEndpoint;
+	}
+	public void setIdmEndpoint(String idmEndpoint) {
+		this.idmEndpoint = idmEndpoint;
+	}
+	public String getApiKey() {
+		return apiKey;
+	}
+	public void setApiKey(String apiKey) {
+		this.apiKey = apiKey;
+	}
+	public String getApiSecret() {
+		return apiSecret;
+	}
+	public void setApiSecret(String apiSecret) {
+		this.apiSecret = apiSecret;
+	}
+
 	public CirculationClient circulationClient = null;
-	
-	
-	
+
+	/*
+	 * @param endpoint endpoint for the NCIP server 
+	 * @param protocol specifics the type of NCIP server (e.g. NCIP1, NCIP1_SOCKET, NCIP2, WMS)
+	 * @param apiKey apiKey for NCIP (or IDM server) authentication
+	 * @param apiSecret apiSecret for NCIP (or IDM server) authentication
+	 */
+	public NCIPClientWrapper(String endpoint, String protocol, String apiKey, String apiSecret) throws Exception {
+		this(endpoint,protocol);
+		this.apiKey = apiKey;
+		this.apiSecret = apiSecret;
+	}
+
+
+	/*
+	 * @param endpoint endpoint for the NCIP server (or IDM server for WMS LookupUser)
+	 * @param protocol specifics the type of NCIP server (e.g. NCIP1, NCIP1_SOCKET, NCIP2, WMS)
+	 */
 	public NCIPClientWrapper(String endpoint,String protocol) throws Exception {
 		
 		
@@ -54,8 +92,11 @@ public class NCIPClientWrapper {
 		else if (protocol.equalsIgnoreCase(NCIP2)) {
 			this.circulationClient = new NCIP2Client(endpoint);
 		}
+		else if (protocol.equalsIgnoreCase(WMS)) {
+			this.circulationClient = new NCIP2WMSClient(endpoint,this.apiKey,this.apiSecret,this.idmEndpoint);
+		}
 		else {
-			throw new Exception("Protocol must be NCIP1, NCIP2 OR NCIP1_SOCKET");
+			throw new Exception("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET or WMS");
 		}
 		
 	}
@@ -73,6 +114,17 @@ public class NCIPClientWrapper {
 	
 	public Map<String, Object> send(NCIPCircTransaction transaction) {
 		try {
+
+			//IF THIS IS A WMS CLIENT - SET THE USERID AND PASSWORD
+			try {
+				((NCIP2WMSClient)this.circulationClient).setApiKey(apiKey);
+				((NCIP2WMSClient)this.circulationClient).setApiSecret(apiSecret);
+			}
+			catch(Exception e) {
+				//FINE IF THIS FAILS, THE OTHER CLIENTS
+				//DO NOT NEED THESE VALUES SET
+			}
+
 			JSONObject jsonObject = this.circulationClient.send(transaction);
 			
 			Map<String, Object> responseAsMap = toMap(jsonObject);

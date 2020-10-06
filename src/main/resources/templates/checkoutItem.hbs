@@ -24,14 +24,14 @@
     <UniqueItemId>
       <UniqueAgencyId>
         <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
-        <Value>TNS</Value>
+        <Value>{{this.toAgency}}</Value>
       </UniqueAgencyId>
       <ItemIdentifierValue>{{this.itemIdString}}</ItemIdentifierValue>
     </UniqueItemId>
     <UniqueRequestId>
       <UniqueAgencyId>
         <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
-        <Value>EZB</Value>
+        <Value>{{this.fromAgency}}</Value>
       </UniqueAgencyId>
       <RequestIdentifierValue>{{this.requestIdString}}</RequestIdentifierValue>
     </UniqueRequestId>

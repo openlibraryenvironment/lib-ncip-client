@@ -7,10 +7,12 @@ import org.json.JSONObject;
 public interface NCIPCircTransaction {
 
 	NCIPInitiationData generateNCIP2Object();
+	NCIPInitiationData modifyForWMS(NCIPInitiationData initData);
 	JSONObject constructResponseNcip2Response(NCIPResponseData responseData);
 	String generateNCIP1Object();
 	JSONObject constructResponseNcip1Response(String responseData);
 	JSONObject validateRequest();
+	JSONObject constructWMSResponse(JSONObject responseJson);
 	
 
 	
