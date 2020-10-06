@@ -1,6 +1,8 @@
 package org.olf.rs.circ.client;
 
 import java.util.HashMap;
+
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemResponseData;
@@ -9,6 +11,7 @@ import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
 import org.extensiblecatalog.ncip.v2.service.BibliographicDescription;
 import org.extensiblecatalog.ncip.v2.service.BibliographicItemId;
 import org.extensiblecatalog.ncip.v2.service.BibliographicItemIdentifierCode;
+
 import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
 import org.extensiblecatalog.ncip.v2.service.ItemDescription;
@@ -225,6 +228,11 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		acceptItemInitationData.setItemOptionalFields(itemOptionalFields);
 		return acceptItemInitationData;
 	}
+	
+	public NCIPInitiationData modifyForWMS(NCIPInitiationData initData) {
+		((AcceptItemInitiationData)initData).getItemId().setAgencyId(new AgencyId(applicationProfileTypeString));
+	   return initData;
+	}
 
 	/**
 	 * This method generates a JSONObject using the NCIPResponsData object for AcceptItem
@@ -319,6 +327,11 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	}
 	public String getPickupLocationString() {
 		return pickupLocationString;
+	}
+
+	@Override
+	public JSONObject constructWMSResponse(JSONObject responseJson) {
+		throw new NotImplementedException();
 	}
 
 	

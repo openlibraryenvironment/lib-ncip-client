@@ -1,0 +1,7 @@
+{
+    "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:Error"
+    ],
+    "detail": "Unable to to handle the request.",
+    "status": "500"
+}

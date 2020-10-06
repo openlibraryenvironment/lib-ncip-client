@@ -7,6 +7,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
@@ -17,6 +18,7 @@ import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
 import org.extensiblecatalog.ncip.v2.service.ItemId;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
+import org.extensiblecatalog.ncip.v2.service.Problem;
 import org.extensiblecatalog.ncip.v2.service.RequestId;
 import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
 import org.extensiblecatalog.ncip.v2.service.UserId;
@@ -35,6 +37,7 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	
 	private static final Logger logger = Logger.getLogger(CheckoutItem.class);
+	protected String registryId; //WMS ONLY
 	protected String toAgency;
 	protected String fromAgency;
 	private String useridString;
@@ -86,6 +89,16 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 
 	public CheckoutItem setFromAgency(String fromAgency) {
 		this.fromAgency = fromAgency;
+		return this;
+	}
+	
+	/**
+	 * setRegistryId
+	 * @param string - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element
+	 * @return Instance object
+	 */
+	public CheckoutItem setRegistryId(String registryId) {
+		this.registryId = registryId;
 		return this;
 	}
 	
@@ -147,13 +160,21 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	 * This method generates a JSONObject using the NCIPResponsData object for CheckoutItem
 	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
-		CheckOutItemResponseData checkoutItemResponse = (CheckOutItemResponseData)responseData;
-		JSONObject returnJson = new JSONObject();
-		
-		//DEAL W/PROBLEMS IN THE RESPONSE
-		if (checkoutItemResponse.getProblems() != null && checkoutItemResponse.getProblems().size() > 0) {
+		CheckOutItemResponseData checkoutItemResponse = null;
+		try {
+			checkoutItemResponse = (CheckOutItemResponseData)responseData;
+			//DEAL W/PROBLEMS IN THE RESPONSE
+			if (checkoutItemResponse.getProblems() != null && checkoutItemResponse.getProblems().size() > 0) {
+				return constructProblem(responseData);
+			}
+		}
+		//WMS RETURNS A PROBLEM ELEMENT (INSTEAD OF NCIPResponseData)
+		catch(ClassCastException e) {
 			return constructProblem(responseData);
 		}
+		JSONObject returnJson = new JSONObject();
+		
+		
 
 		String dueDateString = "";
 		if (checkoutItemResponse.getDateDue() != null) {
@@ -169,6 +190,12 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		return  returnJson;
 	}
 
+	
+	public NCIPInitiationData modifyForWMS(NCIPInitiationData initData) {
+		((CheckOutItemInitiationData)initData).getItemId().setAgencyId(new AgencyId(registryId));
+		((CheckOutItemInitiationData)initData).getUserId().setAgencyId(new AgencyId(registryId));
+	   return initData;
+	}
 	
 	/**
 	 * Call to generate NCIP1 request XML using specific template file
@@ -205,6 +232,15 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
         	throw e;
         }
 		return returnJson;
+	}
+
+	/**
+	 * Not implemented because the WMS response for CheckoutItem
+	 * is constructed with the constructResponseNcip2Response method 
+	 */
+	@Override
+	public JSONObject constructWMSResponse(JSONObject responseJson) {
+		throw new NotImplementedException();
 	}
 	
 

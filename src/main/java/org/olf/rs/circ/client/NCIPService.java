@@ -51,6 +51,19 @@ public class NCIPService {
 		return returnJson;
 	}
 	
+	public JSONObject constructProblem(Problem ncipProblem) {
+		JSONObject returnJson = new JSONObject();
+		JSONArray array = new JSONArray();
+		JSONObject problem = new JSONObject();
+		problem.put("type",ncipProblem.getProblemType().getValue());
+		problem.put("detail",ncipProblem.getProblemDetail());
+		problem.put("element",ncipProblem.getProblemElement());
+		problem.put("value", ncipProblem.getProblemValue());
+		array.put(problem);
+		returnJson.put("problems", array);
+		return returnJson;
+	}
+	
 	public JSONObject constructeNcipOneProblems(Elements document) {
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
@@ -94,5 +107,6 @@ public class NCIPService {
 		return null;
 	}
 	
+
 
 }

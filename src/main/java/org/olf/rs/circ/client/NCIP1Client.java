@@ -107,6 +107,8 @@ public class NCIP1Client implements CirculationClient {
 			    BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			    String line;
 			    while ((line = rd.readLine()) != null) {
+					logger.info("READING RESPONSE LINES");
+					logger.info(line);
 			    	entireResponse.append(line);
 			    	if (error == false && line.contains("HTTP") && (line.contains("40") || line.contains("50"))) {
 			    		error = true;
@@ -133,7 +135,7 @@ public class NCIP1Client implements CirculationClient {
 	    logger.info("NCIP1 SOCKET response received: ");
 		logger.info(entireResponse.toString()); 
 		
-		if (error || entireResponse.toString() == null) {
+		if (error || entireResponse.toString() == null || entireResponse.toString().isEmpty()) {
 			JSONObject r = constructException(httpResponse,entireResponse.toString(),"exception calling ncip server with socket");
 			return r;
 		}
@@ -181,9 +183,9 @@ public class NCIP1Client implements CirculationClient {
 			JSONObject responseObject = new JSONObject();
 			JSONArray array = new JSONArray();
 			JSONObject problem = new JSONObject();
-			problem.put("detail","NCIP1 with socket Client failed to call NCIP server or parse returned results");
+			problem.put("type","NCIP1 with socket Client failed to call NCIP server or parse returned results");
 			problem.put("element",e.getCause());
-			problem.put("value", e.getLocalizedMessage());
+			problem.put("detail", e.getLocalizedMessage());
 			array.put(problem);
 			responseObject.put("problems", array);			
 			logger.info(responseObject.toString());
@@ -223,9 +225,9 @@ public class NCIP1Client implements CirculationClient {
 		catch(Exception e) {
 			JSONArray array = new JSONArray();
 			JSONObject problem = new JSONObject();
-			problem.put("detail","NCIP2 Client failed to call NCIP server or parse returned results");
+			problem.put("type","NCIP2 Client failed to call NCIP server or parse returned results");
 			problem.put("element",e.getCause());
-			problem.put("value", e.getLocalizedMessage());
+			problem.put("detail", e.getLocalizedMessage());
 			array.put(problem);
 			responseObject.put("problems", array);			
 		}

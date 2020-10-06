@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
@@ -31,6 +32,7 @@ import com.github.jknack.handlebars.context.MethodValueResolver;
 
 public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 
+	protected String registryId; //WMS ONLY
 	protected String toAgency;
 	protected String fromAgency;
 	private String applicationProfileTypeString;
@@ -67,7 +69,16 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		return this;
 	}
 	
-	//convenience methods
+	/**
+	 * setRegistryId
+	 * @param string - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element
+	 * @return Instance object
+	 */
+	public CheckinItem setRegistryId(String registryId) {
+		this.registryId = registryId;
+		return this;
+	}
+	
 	public CheckinItem includeBibliographicDescription() {
 		itemOptionalFields.add(Constants.BIBLIOGRAPHIC_DESCRIPTION);
 		return this;
@@ -126,16 +137,28 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 
 		return checkinItemInitiationData;
 	}
+	
+	public NCIPInitiationData modifyForWMS(NCIPInitiationData initData) {
+		((CheckInItemInitiationData)initData).getItemId().setAgencyId(new AgencyId(registryId));
+	   return initData;
+	}
 
 	/**
 	 * This method generates a JSONObject using the NCIPResponsData object for CheckinItem
 	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
-		CheckInItemResponseData checkinItemResponse = (CheckInItemResponseData) responseData;
+		CheckInItemResponseData checkinItemResponse = null;
 		JSONObject returnJson = new JSONObject();
 
-		// DEAL W/PROBLEMS IN THE RESPONSE
-		if (checkinItemResponse.getProblems() != null && checkinItemResponse.getProblems().size() > 0) {
+		try {
+			checkinItemResponse = (CheckInItemResponseData)responseData;
+			//DEAL W/PROBLEMS IN THE RESPONSE
+			if (checkinItemResponse.getProblems() != null && checkinItemResponse.getProblems().size() > 0) {
+				return constructProblem(responseData);
+			}
+		}
+		//WMS RETURNS A PROBLEM ELEMENT (INSTEAD OF NCIPResponseData)
+		catch(ClassCastException e) {
 			return constructProblem(responseData);
 		}
 
@@ -176,6 +199,15 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
         	throw e;
         }
 		return returnJson;
+	}
+
+	/**
+	 * Not implemented because the WMS response for CheckinItem
+	 * is constructed with the constructResponseNcip2Response method 
+	 */
+	@Override
+	public JSONObject constructWMSResponse(JSONObject responseJson) {
+		throw new NotImplementedException();
 	}
 
 }

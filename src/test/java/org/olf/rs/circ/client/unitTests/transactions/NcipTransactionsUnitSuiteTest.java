@@ -1,4 +1,4 @@
-package org.olf.rs.circ.client.unitTests.clients;
+package org.olf.rs.circ.client.unitTests.transactions;
 
 
 
@@ -13,11 +13,12 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  NCIP1ClientTests.class,
-  NCIP2ClientTests.class,
-  NCIPClientWrapperTests.class,
+  AcceptItemTests.class,
+  CheckinItemTests.class,
+  CheckoutItemTests.class,
+  LookupUserTests.class
 })
-public class NcipClientUnitTestSuite {
+public class NcipTransactionsUnitSuiteTest {
 	
 
 
