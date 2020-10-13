@@ -22,7 +22,7 @@ Each NCIP Client constructor needs an endpoint parameter (String) and a Map para
 * apiKey     - Required by WMS NCIP only
 * apiSecret  - Required by WMS NCIP only
 * oAuthEndpointOverride   - Used by WMS NCIP only to change the default oAuth endpoint (if it is something different than https://oauth.oclc.org/token?grant_type=client_credentials&scope=)
-* useSocket - Used by NCIP1 to indicate use socket instead of http (Aleph).  Set to true or false.
+* useSocket - Used by NCIP1 to indicate use socket instead of http (set to true for Aleph).  Defaults to false.
 * protocol - Use this when instantiating the NCIPClientWrapper to indicate which NCIPClient you want to use.  Valid values are:
 	* NCIP1
 	* NCIP2
