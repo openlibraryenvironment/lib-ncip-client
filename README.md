@@ -18,6 +18,7 @@ The client supports both NCIP1 and NCIP2. When sending requests to an NCIP1 serv
 
 Examples below of using each client type
 ### NCIP2
+* NCIP2 does not require any values in the inputParms Map.  You can send through null or an empty Map.
 ```java
 Map<String, Object> inputParms = new HashMap<String,Object>();
 NCIP2Client ncipTwoClient = new NCIP2Client(endpoint,inputParms);
@@ -54,25 +55,15 @@ NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(endpoint,inputParms);
 ### NCIPClientWrapper
 When using the NCIPClientWrapper class (which can be used for any of the NCIPClients above), add "protocol" to the input parameters to indicate which version of the client you want to use:
 ```java
-inputParms.put("apiKey", "yourapikey");
-inputParms.put("apiSecret", "yourapisecret");
+inputParms.put("apiKey", "yourapikey"); //only required for WMS
+inputParms.put("apiSecret", "yourapisecret"); //only required for WMS
 inputParms.put("protocol", NCIPClientWrapper.WMS);
 NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
 ```
 The NCIPClientWrapper instantiates the indicated client and returns a Map response (instead of a JSONObject)
 
 
-*Calls to the WMS NCIP Client need a few additional values:
-The Client needs:
-* apiKey
-* apiSecret
-* a different endpoint for lookup user
-
-The checkin and checkout services for the WMS NCIP Client also need:
-<br>
-* registryId
-
-You then instantiate the class that represents the service you are calling and call the send method on the client.  The response is a java.util.Map which includes a boolean (success) to indicate whether the call was successful:
+You then instantiate the class that represents the service you are calling and call the send method on the client.  The response is a java.util.Map (when using NCIPClientWrapper) which includes a boolean (success) to indicate whether the call was successful:
 
 ### LookupUser
 ```java
@@ -82,6 +73,7 @@ LookupUser lookupUser = new LookupUser()
 			  .setUserId("5551212")
 			  .includeNameInformation()
 			  .includeUserAddressInformation()
+			  .checkoutItem.setRegistryId("128807")
 			  .includeUserPrivilege();
 Map<String, Object> map = wrapper.send(lookupUser);
 ```
@@ -99,7 +91,7 @@ Response examples:
 			Profile = STAFF,
 			status = OK
 	}, electronicAddresses = {
-		emailAddress = indigit @lehigh.edu,
+		emailAddress = notreal@lehigh.edu,
 		TEL = 6105551212
 	}, physicalAddresses = {
 		CAMPUS = {
@@ -117,6 +109,7 @@ Response examples:
 ```
 
 ### AcceptItem
+* WMS NCIP does not support AcceptItem
 ```java
 AcceptItem acceptItem = new AcceptItem()
 			  .setItemId("LEH-20200305633")
@@ -176,26 +169,12 @@ Response example:
 {itemId=LEH-20200301608, success=true}
 ```
 
-You can also use the NCIP1Client or NCIP2Client directly (without the wrapper class).  The examples below all use NCIP2.  To send NCIP1 or NCIP1 w/socket requests use the NCIP1 Client:
-```java
-NCIP1Client ncip1Client = new NCIP1Client("https://test.ncip.lehigh.edu/ncip");
-```
-
-or to use sockets:
-
-```java
-NCIP1Client ncip1Client = new NCIP1Client("https://test.ncip.lehigh.edu/ncip",true);
-```
-
-Everything else can remain the same.
-
-## 
-
 		
 
 ### LookupUser
+* NCIP WMS - will use a different endpoint for LookupUser (vs CheckIn and CheckOut)
 ```java
-NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
+NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.notreal.edu/ncip",inputParms);
 LookupUser lookupUser = new LookupUser()
                   .setUserId("876579559")
                   .includeUserAddressInformation()
@@ -207,6 +186,7 @@ LookupUser lookupUser = new LookupUser()
 JSONObject response = ncip2Client.send(lookupUser);
 System.out.println(response);
 ```
+
 Response examples:
 ```json
 {
@@ -246,7 +226,7 @@ Response example when there is a problem:
 ```
 ### AcceptItem
 ```java
-NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
+NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.notreal.edu/ncip");
 AcceptItem acceptItem = new AcceptItem()
                   .setItemId("LEH-20200305633")
                   .setRequestId("LEH-20200305633")
