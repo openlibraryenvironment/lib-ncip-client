@@ -17,8 +17,20 @@ This initial version of the 'NCIP Client' supports four NCIP services:
 The client supports both NCIP1 and NCIP2. When sending requests to an NCIP1 server, you have the option to use the java.net.Socket class instead of http to support NCIP1 servers that return responses which the http response classes cannot parse.
 <br><br>
 Each NCIP Client constructor needs an endpoint parameter (String) and a Map parameter.  The map will contain values needed by each of the clients.
+<br><br>
+### Potential values to be used in the Map parameter
+* apiKey     - Required by WMS NCIP only
+* apiSecret  - Required by WMS NCIP only
+* oAuthEndpointOverride   - Used by WMS NCIP only to change the default oAuth endpoint (if it is something different than https://oauth.oclc.org/token?grant_type=client_credentials&scope=)
+* useSocket - Used by NCIP1 to indicate use socket instead of http (Aleph).  Set to true or false.
+* protocol - Use this when instantiating the NCIPClientWrapper to indicate which NCIPClient you want to use.  Valid values are:
+	* NCIP1
+	* NCIP2
+	* NCIP1_SOCKET
+	* WMS
+* socketTimeout  - Use if you want to change the default timeout for NCIP1 when NCIP1_SOCKET. The default is 30 seconds.
 
-Examples below of using each client type:
+Examples below using each client type:
 ### NCIP2
 * NCIP2 does not require any values in the inputParms Map.  You can send through null or an empty Map.
 ```java
@@ -62,6 +74,12 @@ inputParms.put("apiSecret", "yourapisecret"); //only required for WMS
 inputParms.put("protocol", NCIPClientWrapper.WMS);
 NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
 ```
+
+```java
+inputParms.put("protocol", NCIPClientWrapper.NCIP1_SOCKET);
+NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
+```
+
 The NCIPClientWrapper instantiates the indicated client and returns a Map response (instead of a JSONObject)
 
 
