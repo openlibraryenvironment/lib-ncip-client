@@ -4,7 +4,8 @@ Client for the NISO Circulation Interchange Protocol (NCIP)
 
 ## building the project
 mvn package
-
+## deploy the project to the repository
+mvn clean deploy -Pdeploy-ncip-client
 
 ## Usage
 This initial version of the 'NCIP Client' supports four NCIP services:
@@ -15,13 +16,51 @@ This initial version of the 'NCIP Client' supports four NCIP services:
 
 The client supports both NCIP1 and NCIP2. When sending requests to an NCIP1 server, you have the option to use the java.net.Socket class instead of http to support NCIP1 servers that return responses which the http response classes cannot parse.
 
-The latest version of this library includes a NCIPClientWrapper class which you can use to send requests to any protocol version.  You indicate the version when you instantiate the class.  For example
-
+Examples below of using each client type
+### NCIP2
 ```java
-NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.edu/ncip", NCIPClientWrapper.NCIP2);
-NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.edu/ncip", NCIPClientWrapper.NCIP1);
-NCIPClientWrapper wrapper = new NCIPClientWrapper("https://ncip.server.endpoint.edu/ncip", NCIPClientWrapper.NCIP1_SOCKET);
+Map<String, Object> inputParms = new HashMap<String,Object>();
+NCIP2Client ncipTwoClient = new NCIP2Client(endpoint,inputParms);
 ```
+
+### NCIP1 USING THE SOCKET CLASS
+```java
+Map<String, Object> inputParms = new HashMap<String,Object>();
+inputParms.put("useSocket", true);
+NCIP1Client ncipOneClient = new NCIP1Client(endpoint,inputParms);
+LookupUser lookupUser = new LookupUser()
+```
+
+### NCIP1
+```java
+Map<String, Object> inputParms = new HashMap<String,Object>(); 
+inputParms.put("useSocket", false);
+NCIP1Client ncipOneClient = new NCIP1Client(endpoint,inputParms);
+```
+
+### WMS NCIP
+* The AcceptItem service is not supported
+* The LookupUser service uses a different endpoint than the CheckIn and CheckOut services
+* Include a registryID value in the object the represents the service you are calling e.g. checkoutItem.setRegistryId("128807")
+```java
+Map<String,Object> inputParms = new HashMap<String,Object>();
+inputParms.put("apiKey", "yourapikey");
+inputParms.put("apiSecret", "yourapisecret");
+NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(endpoint,inputParms);
+```
+
+
+
+### NCIPClientWrapper
+When using the NCIPClientWrapper class (which can be used for any of the NCIPClients above), add "protocol" to the input parameters to indicate which version of the client you want to use:
+```java
+inputParms.put("apiKey", "yourapikey");
+inputParms.put("apiSecret", "yourapisecret");
+inputParms.put("protocol", NCIPClientWrapper.WMS);
+NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
+```
+The NCIPClientWrapper instantiates the indicated client and returns a Map response (instead of a JSONObject)
+
 
 *Calls to the WMS NCIP Client need a few additional values:
 The Client needs:
