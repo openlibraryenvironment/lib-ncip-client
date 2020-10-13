@@ -8,11 +8,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.olf.rs.circ.client.AcceptItem;
 import org.olf.rs.circ.client.LookupUser;
+import org.olf.rs.circ.client.NCIP1Client;
 import org.olf.rs.circ.client.NCIP2WMSClient;
+import org.olf.rs.circ.client.NCIPClientException;
 
 import static org.junit.Assert.*;
 
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -29,16 +33,12 @@ public class NCIP2WMSClientTests {
 		
 	}
 	
-	@Test
-	public void testSetEndpoint() throws Exception {
-		NCIP2WMSClient ncipClient = new NCIP2WMSClient();
-		ncipClient.setEndpoint("https://google.com");
-		assertEquals(ncipClient.getEndpoint(),"https://google.com");
-	}
+
 	
 	@Test
-	public void testAcceptItemNotSupported() throws Exception {
-		NCIP2WMSClient ncipClient = new NCIP2WMSClient();
+	public void testAcceptItemNotSupported() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		NCIP2WMSClient ncipClient = new NCIP2WMSClient("endpoint",inputParms);
 		AcceptItem acceptItem = new AcceptItem();
 		JSONObject response = ncipClient.send(acceptItem);
 		assertTrue(response.has("problems"));
@@ -52,8 +52,11 @@ public class NCIP2WMSClientTests {
 	}
 	
 	@Test
-	public void testNoEndpoint() throws Exception {
-		NCIP2WMSClient ncipClient = new NCIP2WMSClient();
+	public void testNoEndpoint() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "not a real api key");
+		inputParms.put("apiSecret", "not real");
+		NCIP2WMSClient ncipClient = new NCIP2WMSClient(null,inputParms);
 		LookupUser lookupUser = new LookupUser();
 		JSONObject response = ncipClient.send(lookupUser);
 		assertTrue(response.has("problems"));
@@ -63,9 +66,9 @@ public class NCIP2WMSClientTests {
 	}
 	
 	@Test
-	public void testNoApiKey() throws Exception {
-		NCIP2WMSClient ncipClient = new NCIP2WMSClient();
-		ncipClient.setEndpoint("http://google.com");
+	public void testNoApiKey() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		NCIP2WMSClient ncipClient = new NCIP2WMSClient("http://google.com",inputParms);
 		LookupUser lookupUser = new LookupUser();
 		JSONObject response = ncipClient.send(lookupUser);
 		assertTrue(response.has("problems"));
@@ -75,16 +78,36 @@ public class NCIP2WMSClientTests {
 	}
 	
 	@Test
-	public void testNoApiSecret() throws Exception {
-		NCIP2WMSClient ncipClient = new NCIP2WMSClient();
-		ncipClient.setEndpoint("http://google.com");
-		ncipClient.setApiKey("not a real api key");
+	public void testNoApiSecret() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "not a real api key");
+		NCIP2WMSClient ncipClient = new NCIP2WMSClient("http://google.com",inputParms);
 		LookupUser lookupUser = new LookupUser();
 		JSONObject response = ncipClient.send(lookupUser);
 		assertTrue(response.has("problems"));
 		JSONArray problems = response.getJSONArray("problems");
 		String details = problems.getJSONObject(0).getString("type");
 		assertTrue(details.contains("Missing credentials"));
+	}
+	
+	@Test
+	public void testSetVars() throws NCIPClientException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		NCIP2WMSClient ncipClient = new NCIP2WMSClient("http://google.com",inputParms);
+		Field field = ncipClient.getClass().getDeclaredField("endpoint");
+		field.setAccessible(true);
+		Object value = field.get(ncipClient);
+		assertEquals(value,"http://google.com");
+	}
+	@Test 
+	public void testCaseInsensitive() throws NCIPClientException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apikey", "not a real api key");
+		NCIP2WMSClient ncipClient = new NCIP2WMSClient("http://google.com",inputParms);
+		Field field = ncipClient.getClass().getDeclaredField("apiKey");
+		field.setAccessible(true);
+		Object value = field.get(ncipClient);
+		assertEquals(value,"not a real api key");
 	}
 	
 

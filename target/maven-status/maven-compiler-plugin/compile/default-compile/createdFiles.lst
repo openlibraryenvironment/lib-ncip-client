@@ -1,0 +1,15 @@
+org\olf\rs\circ\client\NCIPClientException.class
+org\olf\rs\circ\client\AcceptItem.class
+org\olf\rs\circ\client\CirculationClient.class
+org\olf\rs\circ\client\NCIP2WMSClient.class
+org\olf\rs\circ\client\CheckinItem.class
+org\olf\rs\circ\client\CurrencyCode.class
+org\olf\rs\circ\client\Constants.class
+org\olf\rs\circ\client\NCIPCircTransaction.class
+org\olf\rs\circ\client\NCIPService.class
+org\olf\rs\circ\client\NCIP2Client.class
+org\olf\rs\circ\client\CheckoutItem.class
+org\olf\rs\circ\client\NCIP1Client.class
+org\olf\rs\circ\client\NCIPClientWrapper.class
+org\olf\rs\circ\client\LookupUser.class
+org\olf\rs\circ\client\XCToolkitUtil.class

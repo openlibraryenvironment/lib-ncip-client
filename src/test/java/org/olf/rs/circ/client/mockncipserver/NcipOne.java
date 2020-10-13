@@ -2,7 +2,9 @@ package org.olf.rs.circ.client.mockncipserver;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 
 import org.extensiblecatalog.ncip.v2.service.ToolkitException;
 import org.hamcrest.CoreMatchers;
@@ -27,7 +29,7 @@ import static org.junit.Assert.*;
 
 public class NcipOne {
 	
-	String baseNcipEndpoint = "http://localhost:8889/api";
+	String baseNcipEndpoint = "http://localhost:8890/api";
 	
 	/**
 	 * @throws java.lang.Exception
@@ -39,7 +41,9 @@ public class NcipOne {
 	
 	@Test
 	public void lookupUserSuccess() throws Exception  {
-			NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/lookupUser",false);
+			Map<String, Object> inputParms = new HashMap<String,Object>();
+			inputParms.put("useSocket", false);
+			NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/lookupUser",inputParms);
 			LookupUser lookupUser = new LookupUser()
 					.setUserId("N00206454")
 					.includeUserAddressInformation()
@@ -58,7 +62,9 @@ public class NcipOne {
 	
 	@Test
 	public void lookUpUserNcipError() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/lookupUserError",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/lookupUserError",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("N00206454")
 				.includeUserAddressInformation()
@@ -76,7 +82,9 @@ public class NcipOne {
 	
 	@Test
 	public void lookupUserHttpError() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/incorrect",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/incorrect",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("N00206454")
 				.includeUserAddressInformation()
@@ -93,7 +101,9 @@ public class NcipOne {
 	
 	@Test
 	public void missingEndpoint() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client();
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(null,inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("N00206454")
 				.includeUserAddressInformation()
@@ -111,7 +121,9 @@ public class NcipOne {
 	
 	@Test
 	public void acceptItem() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/acceptitem",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/acceptitem",inputParms);
 		AcceptItem acceptItem = new AcceptItem()
 				.setItemId("54321")
 				.setRequestId("TST-54321")
@@ -129,7 +141,9 @@ public class NcipOne {
 	
 	@Test
 	public void acceptItemWithError() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/acceptitemError",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/acceptitemError",inputParms);
 		AcceptItem acceptItem = new AcceptItem()
 				.setItemId("54321")
 				.setRequestId("TST-54321")
@@ -147,7 +161,9 @@ public class NcipOne {
 	
 	@Test
 	public void checkoutItem() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkoutItem",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkoutItem",inputParms);
 		CheckoutItem checkoutItem = new CheckoutItem()
 				.setUserId("8377630")
 				.setItemId("54321")
@@ -161,7 +177,9 @@ public class NcipOne {
 	
 	@Test
 	public void checkoutItemWithError() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkoutItemError",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkoutItemError",inputParms);
 		CheckoutItem checkoutItem = new CheckoutItem()
 				.setUserId("8377630")
 				.setItemId("54321")
@@ -177,7 +195,9 @@ public class NcipOne {
 	
 	@Test
 	public void checkinItem() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkinItem",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkinItem",inputParms);
 		CheckinItem checkinItem = new CheckinItem();
 		checkinItem.setFromAgency("ABC");
 		checkinItem.setToAgency("DEF");
@@ -188,7 +208,9 @@ public class NcipOne {
 	
 	@Test
 	public void checkinItemWithError() throws Exception {
-		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkinItemError",false);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", false);
+		NCIP1Client ncipOneClient = new NCIP1Client(baseNcipEndpoint + "/ncipone/checkinItemError",inputParms);
 		CheckinItem checkinItem = new CheckinItem();
 		checkinItem.setFromAgency("ABC");
 		checkinItem.setToAgency("DEF");

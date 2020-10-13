@@ -47,7 +47,6 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	private String desiredDueDate;
 
 
-
 	public CheckoutItem() {
 		
 	}
@@ -80,8 +79,6 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		return this;
 	}
 
-	
-	
 	public CheckoutItem setToAgency(String toAgency) {
 		this.toAgency = toAgency;
 		return this;

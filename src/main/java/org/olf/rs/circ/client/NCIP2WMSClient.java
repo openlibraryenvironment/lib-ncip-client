@@ -4,12 +4,12 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
-import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
 import org.apache.http.entity.StringEntity;
@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
 import org.extensiblecatalog.ncip.v2.service.ServiceException;
-import org.extensiblecatalog.ncip.v2.service.ToolkitException;
 import org.extensiblecatalog.ncip.v2.service.ValidationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -29,46 +28,28 @@ import org.json.JSONObject;
 public class NCIP2WMSClient implements CirculationClient {
 
 	private static final Logger logger = Logger.getLogger(NCIP2WMSClient.class);
-	protected String endpoint;
+	private String endpoint;
 	private XCToolkitUtil xcToolkitUtil;
 	private String apiKey;
 	private String apiSecret;
-	private String idmEndpoint;
-	private String oAuthEndpointOveride;
+	private String oAuthEndpointOverride;
 
 
-
-	public NCIP2WMSClient() throws IOException, ToolkitException {
-		xcToolkitUtil = XCToolkitUtil.getInstance();
+	public NCIP2WMSClient(String endpoint, Map<String, Object> inputParms) throws NCIPClientException {
+		try {
+			xcToolkitUtil = XCToolkitUtil.getInstance();
+			CaseInsensitiveMap<String,Object> inputMap = new CaseInsensitiveMap<String,Object>();
+			inputMap.putAll(inputParms);
+			this.endpoint = endpoint;
+			this.apiSecret = (String) inputMap.get("apiSecret");
+			this.apiKey = (String) inputMap.get("apiKey");
+			this.oAuthEndpointOverride = (String) inputMap.get("oAuthEndpointOverride");
+		}
+		catch(Exception e) {
+			throw new NCIPClientException(e.getLocalizedMessage());
+		}
 	}
 
-	public NCIP2WMSClient(String endpoint, String apiKey, String apiSecret, String idmEndpoint) throws IOException, ToolkitException {
-		xcToolkitUtil = XCToolkitUtil.getInstance();
-		this.endpoint = endpoint;
-		this.apiSecret = apiSecret;
-		this.idmEndpoint = idmEndpoint;
-	}
-
-	public NCIP2WMSClient(String endpoint) throws IOException, ToolkitException {
-		xcToolkitUtil = XCToolkitUtil.getInstance();
-		this.endpoint = endpoint;
-	}
-
-	public void setEndpoint(String newEndpoint) {
-		this.endpoint = newEndpoint;
-	}
-
-	public String getEndpoint() {
-		return endpoint;
-	}
-	
-	public void setOAuthEndpointOveride(String newEndpoint) {
-		oAuthEndpointOveride = newEndpoint;
-	}
-
-	public String getOAuthEndpointOveride() {
-		return oAuthEndpointOveride;
-	}
 
 	private JSONObject authenticate(String apiKey, String apiSecret, String scope) {
 		String token = null;
@@ -79,7 +60,7 @@ public class NCIP2WMSClient implements CirculationClient {
 			byte[] authEncBytes = Base64.encodeBase64(authString.getBytes());
 			String authStringEnc = new String(authEncBytes);
 			
-			String authEndpoint = (getOAuthEndpointOveride() == null) ? Constants.OCLC_OAUTH  : getOAuthEndpointOveride();
+			String authEndpoint = (oAuthEndpointOverride == null) ? Constants.OCLC_OAUTH  : oAuthEndpointOverride;
 
 			HttpUriRequest request = RequestBuilder.post()
 					.setUri(authEndpoint + scope)
@@ -114,7 +95,7 @@ public class NCIP2WMSClient implements CirculationClient {
 	 * @return JSONObject results of NCIP call
 	 */
 
-	public JSONObject send(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
+	public JSONObject send(NCIPCircTransaction transaction) throws NCIPClientException {
 		
 		//MAKE SURE THIS IS NOT AN ACCEPT ITEM TRANSACTION
 		//WMS DOES NOT SUPPORT ACCEPT ITEM AS THIS TIME
@@ -122,7 +103,7 @@ public class NCIP2WMSClient implements CirculationClient {
 			return this.constructException("transaction type not supported", "NCIP2WMS does not support the AcceptItem message", transaction.getClass().toString());
 		}
 
-		if (this.getEndpoint() == null) {
+		if (endpoint == null) {
 			logger.fatal("NCIPWMSClient send called but endpoint is missing");
 			JSONObject r = constructException("Missing endpoint ", "NCIP Client endpoint is null","");
 			return r;
@@ -139,14 +120,19 @@ public class NCIP2WMSClient implements CirculationClient {
 		//THIS 'IF' CAN BE REMOVED
 		//callNcipService(transaction) WILL BE THE ONLY
 		//CALL NEEDED
-		JSONObject responseObject = new JSONObject();
-		if  (transaction.getClass() != LookupUser.class) {
-			responseObject = callNcipService(transaction);
-			return responseObject;
+		try {
+			JSONObject responseObject = new JSONObject();
+			if  (transaction.getClass() != LookupUser.class) {
+				responseObject = callNcipService(transaction);
+				return responseObject;
+			}
+			else {
+				responseObject = lookupUser(transaction);
+				return responseObject;
+			}
 		}
-		else {
-			responseObject = lookupUser(transaction);
-			return responseObject;
+		catch(Exception e) {
+			throw new NCIPClientException(e.getLocalizedMessage());
 		}
 
 		
@@ -164,40 +150,6 @@ public class NCIP2WMSClient implements CirculationClient {
 		return returnJson;
 	}
 
-	public XCToolkitUtil getXcToolkitUtil() {
-		return xcToolkitUtil;
-	}
-
-	public void setXcToolkitUtil(XCToolkitUtil xcToolkitUtil) {
-		this.xcToolkitUtil = xcToolkitUtil;
-	}
-
-	public String getApiKey() {
-		return apiKey;
-	}
-
-	public void setApiKey(String apiKey) {
-		this.apiKey = apiKey;
-	}
-
-	public String getApiSecret() {
-		return apiSecret;
-	}
-
-	public void setApiSecret(String apiSecret) {
-		this.apiSecret = apiSecret;
-	}
-
-	public String getIdmEndpoint() {
-		return idmEndpoint;
-	}
-
-	public void setIdmEndpoint(String idmEndpoint) {
-		this.idmEndpoint = idmEndpoint;
-	}
-
-
-	
 	private JSONObject callNcipService(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
 		String token = null;
 		JSONObject responseObject = new JSONObject();
@@ -269,7 +221,6 @@ public class NCIP2WMSClient implements CirculationClient {
 		String token = null;
 		JSONObject responseObject = new JSONObject();
 		try {
-			//todo what is this
 			JSONObject jsonObject = authenticate(apiKey,apiSecret,Constants.IDM_SCOPE);
 			if (jsonObject.optString("token",null) == null) return jsonObject;
 			token = jsonObject.optString("token");
@@ -285,7 +236,6 @@ public class NCIP2WMSClient implements CirculationClient {
 		jsonRequest.put("schemas",schemasArray);
 		String responseString = null;
 		responseObject = new JSONObject();
-		JSONObject returnJson = new JSONObject();
 		try {
 			CloseableHttpClient client = HttpClients.custom().build();
 			HttpUriRequest request = RequestBuilder.post()
@@ -324,9 +274,4 @@ public class NCIP2WMSClient implements CirculationClient {
 		return responseObject;
 	}
 	
-	
-
-
-
-
 }

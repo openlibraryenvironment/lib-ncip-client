@@ -166,7 +166,8 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		returnJson.put(Constants.ITEM_ID, itemId);
 		return returnJson;
 	}
-
+	
+	
 	/**
 	 * Call to generate NCIP1 request XML using specific template file
 	 *

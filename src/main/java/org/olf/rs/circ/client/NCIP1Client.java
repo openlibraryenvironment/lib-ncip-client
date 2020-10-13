@@ -8,6 +8,9 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.net.URI;
+import java.util.Map;
+
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
@@ -22,7 +25,7 @@ import org.json.JSONObject;
 
 /**
  * This class sends a POST request to NCIP v1 servers.
- * If useSockets is set to true, it will use java.net.Socket (not http)
+ * If useSocket is set to true, it will use java.net.Socket (not http)
  * to call the services.
  * @author mis306
  *
@@ -31,39 +34,36 @@ public class NCIP1Client implements CirculationClient {
 	
 	private static final Logger logger = Logger.getLogger(NCIP1Client.class);
 	protected String endpoint;
-	private boolean useSockets = false;
+	private boolean useSocket = false;
 	private int socketTimeout = 30*1000;
 
-	public NCIP1Client() throws IOException {
+
+	public NCIP1Client(String endpoint, Map<String,Object> inputParms) throws NCIPClientException {
 		super();
-	}
-	
-	public NCIP1Client(String endpoint) throws IOException {
-		super();
+		CaseInsensitiveMap<String,Object> inputMap = new CaseInsensitiveMap<String,Object>();
+		inputMap.putAll(inputParms);
 		this.endpoint = endpoint;
-	}
-	
-	public NCIP1Client(String endpoint,boolean useSockets) throws IOException {
-		super();
-		this.endpoint = endpoint;
-		this.useSockets = useSockets;
-	}
-	
-	public NCIP1Client(String endpoint,boolean useSockets,int timeout) throws IOException {
-		super();
-		this.endpoint = endpoint;
-		this.useSockets = useSockets;
-		this.socketTimeout = timeout;
+		try {
+			if (inputMap.containsKey("useSocket")) {
+				this.useSocket = (boolean) inputMap.get("useSocket");
+			}
+			if (inputMap.containsKey("socketTimeout")) {
+				this.socketTimeout = (int) inputMap.get("socketTimeout");
+			}
+		}
+		catch(Exception e) {
+			throw new NCIPClientException(e.getLocalizedMessage());
+		}
 	}
 	
 	/**
 	 * Send NCIP request using java.net.Socket
 	 *
 	 */
-	public JSONObject sendWithSockets(NCIPCircTransaction transaction) throws Exception  {
+	private JSONObject sendWithSockets(NCIPCircTransaction transaction) throws Exception  {
 		
-		if (this.getEndpoint() == null) {
-			logger.fatal("sendWithSockets called and endpoint is: " + this.getEndpoint());
+		if (this.endpoint == null) {
+			logger.fatal("sendWithSockets called and endpoint is: " + this.endpoint);
 			JSONObject r = constructException("Missing Endpoint ", "NCIP Client endpoint is null","");
 			return r;
 		}
@@ -71,7 +71,6 @@ public class NCIP1Client implements CirculationClient {
 		JSONObject errors = transaction.validateRequest();
 		if (errors != null) return errors;
 		
-		JSONObject responseObject = new JSONObject();
 		String requestBody = transaction.generateNCIP1Object();
 		//SPLIT UP THE ENDPONT 
 		URI uri = new URI (this.endpoint);
@@ -84,7 +83,7 @@ public class NCIP1Client implements CirculationClient {
 		logger.info("port: " + port);
 
 		Socket socket = new Socket(baseUri,port);
-		socket.setSoTimeout(this.getSocketTimeout());
+		socket.setSoTimeout(socketTimeout);
 		BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF8"));
 	    wr.write("POST " + path + " HTTP/1.0\r\n");
 	    wr.write("Content-Length: " + requestBody.length() + "\r\n");
@@ -132,7 +131,7 @@ public class NCIP1Client implements CirculationClient {
 			return r;
 		}
 		
-	    logger.info("NCIP1 SOCKET response received: ");
+		logger.info("NCIP1 SOCKET response received: ");
 		logger.info(entireResponse.toString()); 
 		
 		if (error || entireResponse.toString() == null || entireResponse.toString().isEmpty()) {
@@ -152,7 +151,7 @@ public class NCIP1Client implements CirculationClient {
 	}
 	
 	
-	public JSONObject constructException(String httpResponse,String entireResponse,String element) {
+	private JSONObject constructException(String httpResponse, String entireResponse,String element) {
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
 		JSONObject problem = new JSONObject();
@@ -165,19 +164,21 @@ public class NCIP1Client implements CirculationClient {
 	}
 
 	/**
-	 * If useSockets is set to false, send NCIP request using http,
+	 * If useSocket is set to false, send NCIP request using http,
 	 * otherwise call sendWithSockets
 	 */
 	public JSONObject send(NCIPCircTransaction transaction)  {
 		
-		if (this.getEndpoint() == null) {
-			logger.fatal("send called and endpoint is: " + this.getEndpoint());
+		if (this.endpoint == null) {
+			logger.fatal("send called and endpoint is: " + this.endpoint);
 			JSONObject r = constructException("Missing Endpoint ", "NCIP Client endpoint is null","");
 			return r;
 		}
+		JSONObject errors = transaction.validateRequest();
+		if (errors != null) return errors;
 		
 		try {
-			if (this.useSockets) return sendWithSockets(transaction);
+			if (this.useSocket) return sendWithSockets(transaction);
 		}
 		catch(Exception e) {
 			JSONObject responseObject = new JSONObject();
@@ -191,10 +192,7 @@ public class NCIP1Client implements CirculationClient {
 			logger.info(responseObject.toString());
 			return responseObject;
 		}
-		
-		JSONObject errors = transaction.validateRequest();
-		if (errors != null) return errors;
-		
+				
 		JSONObject responseObject = new JSONObject();
 		String requestBody = transaction.generateNCIP1Object();
 		logger.info(requestBody);
@@ -241,35 +239,5 @@ public class NCIP1Client implements CirculationClient {
 			return r;
 		}
 	}
-
-
-
-	public boolean isUseSockets() {
-		return useSockets;
-	}
-
-	public void setUseSockets(boolean useSockets) {
-		this.useSockets = useSockets;
-	}
-
-	public int getSocketTimeout() {
-		return socketTimeout;
-	}
-
-	public void setSocketTimeout(int socketTimeout) {
-		this.socketTimeout = socketTimeout;
-	}
-
-	public String getEndpoint() {
-		return endpoint;
-	}	
-	
-	@Override
-	public void setEndpoint(String endpoint) {
-		this.endpoint = endpoint;
-	}
-
-	
-	
 
 }

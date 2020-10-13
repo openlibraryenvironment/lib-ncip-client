@@ -1,0 +1,7 @@
+{
+    "schemas": [
+        "urn:ietf:params:scim:api:messages:2.0:Error"
+    ],
+    "detail": "Unsupported media type.",
+    "status": "415"
+}

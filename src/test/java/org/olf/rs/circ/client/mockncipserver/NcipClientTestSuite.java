@@ -21,6 +21,7 @@ import org.junit.runners.Suite;
   NcipOneWithSocket.class,
   NcipOne.class,
   NcipTwo.class,
+  NcipWms.class
 })
 public class NcipClientTestSuite {
 	

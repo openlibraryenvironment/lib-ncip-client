@@ -14,7 +14,8 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
   NCIP1ClientTests.class,
-  NCIP2ClientTests.class,
+  //NCIP2ClientTests.class,
+  NCIP2WMSClientTests.class,
   NCIPClientWrapperTests.class,
 })
 public class NcipClientUnitSuiteTest {
