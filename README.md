@@ -29,6 +29,7 @@ Each NCIP Client constructor needs an endpoint parameter (String) and a Map para
 	* NCIP1_SOCKET
 	* WMS
 * socketTimeout  - Use if you want to change the default timeout for NCIP1 when using NCIP1_SOCKET. The default is 30 seconds. Set to a number (not string)
+* lookupPatronEndpoint - Required by WMS NCIP for the LookupUser service
 
 Examples below using each client type:
 ### NCIP2
