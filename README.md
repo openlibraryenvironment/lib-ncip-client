@@ -15,8 +15,10 @@ This initial version of the 'NCIP Client' supports four NCIP services:
 * CheckOutItem
 
 The client supports both NCIP1 and NCIP2. When sending requests to an NCIP1 server, you have the option to use the java.net.Socket class instead of http to support NCIP1 servers that return responses which the http response classes cannot parse.
+<br><br>
+Each NCIP Client constructor needs an endpoint parameter (String) and a Map parameter.  The map will contain values needed by each of the clients.
 
-Examples below of using each client type
+Examples below of using each client type:
 ### NCIP2
 * NCIP2 does not require any values in the inputParms Map.  You can send through null or an empty Map.
 ```java
@@ -63,9 +65,10 @@ NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
 The NCIPClientWrapper instantiates the indicated client and returns a Map response (instead of a JSONObject)
 
 
-You then instantiate the class that represents the service you are calling and call the send method on the client.  The response is a java.util.Map (when using NCIPClientWrapper) which includes a boolean (success) to indicate whether the call was successful:
+You then instantiate the class that represents the service you are calling and call the send method on the client.  The response is a java.util.Map (when using NCIPClientWrapper) which includes a boolean (success) to indicate whether the call was successful (a JSONObject is returned for the other client classes):
 
 ### LookupUser
+* NCIP WMS - will use a different endpoint for LookupUser (vs CheckIn and CheckOut)
 ```java
 LookupUser lookupUser = new LookupUser()
 			  .setToAgency("TST")
@@ -73,35 +76,27 @@ LookupUser lookupUser = new LookupUser()
 			  .setUserId("5551212")
 			  .includeNameInformation()
 			  .includeUserAddressInformation()
-			  .checkoutItem.setRegistryId("128807")
+			  .setRegistryId("128807")
 			  .includeUserPrivilege();
 Map<String, Object> map = wrapper.send(lookupUser);
 ```
 
 Response examples:
-```
+```javascript
 {
-		success=true,
-		firstName = Jane, 
-		lastName = Doe, 
-		privileges = {
-			Courtesy Notice = true,
-			Paging = true,
-			Delivery = false,
-			Profile = STAFF,
-			status = OK
-	}, electronicAddresses = {
-		emailAddress = notreal@lehigh.edu,
+	firstName = JANE, lastName = DOE, 
+	 privileges = {
+		STATUS = OK,
+		PROFILE = faculty,
+		LIBRARY =
+	 }, 
+	 success = true, 
+	 electronicAddresses = {
+		emailAddress = janedoe@notreal.edu,
 		TEL = 6105551212
-	}, physicalAddresses = {
-		CAMPUS = {
-			"lineTwo": "",
-			"postalCode": "",
-			"locality": "",
-			"lineOne": "30 - Test Library",
-			"region": ""
-		}
-	}, userId = 5551212
+	}, 
+	physicalAddresses = {}, 
+	userId = 871129834
 }
 
 
@@ -142,6 +137,7 @@ CheckoutItem checkoutItem = new CheckoutItem()
 			  .setRequestId("LEH-20200305217")
 			  .setToAgency("TST")
 			  .setFromAgency("RSH")
+			  .setRegistryId("128807") //WMS ONLY
 			  .setApplicationProfileType("EZBORROW")
 Map<String, Object> map = wrapper.send(checkoutItem);
 		  
@@ -160,6 +156,7 @@ CheckinItem checkinItem = new CheckinItem()
 			  .setToAgency("TST")
 			  .setFromAgency("RSH")
 			  .includeBibliographicDescription()
+			  .setRegistryId("128807") //WMS ONLY
 			  .setApplicationProfileType("EZBORROW");
 Map<String, Object> map = wrapper.send(checkinItem);
 ```
@@ -170,130 +167,4 @@ Response example:
 ```
 
 		
-
-### LookupUser
-* NCIP WMS - will use a different endpoint for LookupUser (vs CheckIn and CheckOut)
-```java
-NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.notreal.edu/ncip",inputParms);
-LookupUser lookupUser = new LookupUser()
-                  .setUserId("876579559")
-                  .includeUserAddressInformation()
-                  .includeUserPrivilege()
-                  .includeNameInformation()
-                  .setToAgency("Relais")
-                  .setFromAgency("Relais")
-                  .setApplicationProfileType("EZBORROW");
-JSONObject response = ncip2Client.send(lookupUser);
-System.out.println(response);
-```
-
-Response examples:
-```json
-{
-	"firstName": "Jane",
-	"lastName": "Doe",
-	"privileges": [{
-			"value": "true",
-			"key": "Courtesy Notice"
-		}, {
-			"value": "false",
-			"key": "Delivery"
-		},
-		{
-			"value": "true",
-			"key": "Paging"
-		}, {
-			"value": "STAFF",
-			"key": "Profile"
-		}, {
-			"value": "OK",
-			"key": "status"
-		}
-	],
-	"electronicAddresses": [{
-		"value": "notreal@lehigh.edu",
-		"key": "electronic mail address"
-	}, {
-		"value": "6105551212",
-		"key": "TEL"
-	}],
-	"userId": "876579559"
-}
-
-Response example when there is a problem:
-{"problems":[{"detail":"User does not exist","type":"","value":"85551212","element":"USER"}]}
-
-```
-### AcceptItem
-```java
-NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.notreal.edu/ncip");
-AcceptItem acceptItem = new AcceptItem()
-                  .setItemId("LEH-20200305633")
-                  .setRequestId("LEH-20200305633")
-                  .setUserId("876579559")
-                  .setAuthor("Jane Doe") 
-                  .setTitle("One Fish Two Fish")
-                  .setIsbn("983847293847")
-                  .setCallNumber("505.c")
-                  .setPickupLocation("FAIRCHILD")
-                  .setToAgency("Relais")
-                  .setFromAgency("Relais")
-                  .setRequestedActionTypeString("Hold For Pickup")
-                  .setApplicationProfileType("EZBORROW");
-JSONObject response = ncip2Client.send(acceptItem);
-System.out.println(response);
-```
-Response examples:
-```json
-{"itemId":"LEH-20200305699","requestId":"25388"}
-
-Response with a problem:
-{"problems":[{"detail":"Item Barcode Already Exist","type":"","value":"LEH-20200305699","element":"Item"}]}
-```
-
-### CheckoutItem
-```java
-NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
-CheckoutItem checkoutItem = new CheckoutItem()
-                  .setUserId("905808497")
-                  .setItemId("LEH-20200305217")
-                  .setRequestId("LEH-20200305217")
-                  .setToAgency("01TULI_INST")
-                  .setFromAgency("01TULI_INST")
-                  .setApplicationProfileType("EZBORROW")
-                  .setDesiredDueDate("2020-03-18");
-JSONObject response = ncip2Client.send(checkoutItem);
-System.out.println(response);
-```
-
-Response examples:
-```json
-{"itemId":"LEH-20200305700","dueDate":"2020-06-13 04:00:00","userId":"876579559"}
-
-Response with problem:
-{"problems":[{"detail":"Invalid item barcode : LEH-2020030570a",
-"type":"","value":"CheckOut Failed","element":""}]}
-```
-
-### CheckinItem
-```java
-NCIP2Client ncip2Client = new NCIP2Client("https://test.ncip.lehigh.edu/ncip");
-CheckinItem checkinItem = new CheckinItem()
-                  .setItemId("LEH-20200301608")
-                  .setToAgency("01TULI_INST")
-                  .setFromAgency("01TULI_INST")
-                  .includeBibliographicDescription()
-                  .setApplicationProfileType("EZBORROW");
-JSONObject response = ncip2Client.send(checkinItem);
-System.out.println(response);
-
-```
-Response examples:
-```json
-{"itemId":"LEH-20200305700"}
-
-Response with a problem:
-{"problems":[{"detail":"Failed to find incoming or outgoing by external item barcode 
-LEH-20200305699","type":"Unknown Item"}]}
-```
 
