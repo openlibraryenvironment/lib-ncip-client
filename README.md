@@ -32,7 +32,7 @@ Each NCIP Client constructor needs an endpoint parameter (String) and a Map para
 
 Examples below using each client type:
 ### NCIP2
-* NCIP2 does not require any values in the inputParms Map.  You can send through null or an empty Map.
+* NCIP2 does not require any values in the inputParms Map.  You should send through an empty Map.
 ```java
 Map<String, Object> inputParms = new HashMap<String,Object>();
 NCIP2Client ncipTwoClient = new NCIP2Client(endpoint,inputParms);
