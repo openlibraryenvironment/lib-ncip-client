@@ -28,7 +28,7 @@ Each NCIP Client constructor needs an endpoint parameter (String) and a Map para
 	* NCIP2
 	* NCIP1_SOCKET
 	* WMS
-* socketTimeout  - Use if you want to change the default timeout for NCIP1 when NCIP1_SOCKET. The default is 30 seconds. Set to a number (not string)
+* socketTimeout  - Use if you want to change the default timeout for NCIP1 when using NCIP1_SOCKET. The default is 30 seconds. Set to a number (not string)
 
 Examples below using each client type:
 ### NCIP2
@@ -49,7 +49,7 @@ LookupUser lookupUser = new LookupUser()
 ### NCIP1
 ```java
 Map<String, Object> inputParms = new HashMap<String,Object>(); 
-inputParms.put("useSocket", false);
+inputParms.put("useSocket", false); //NOT REQUIRED - WILL DEFAULT TO FALUSE
 NCIP1Client ncipOneClient = new NCIP1Client(endpoint,inputParms);
 ```
 
@@ -63,8 +63,6 @@ inputParms.put("apiKey", "yourapikey");
 inputParms.put("apiSecret", "yourapisecret");
 NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(endpoint,inputParms);
 ```
-
-
 
 ### NCIPClientWrapper
 When using the NCIPClientWrapper class (which can be used for any of the NCIPClients above), add "protocol" to the input parameters to indicate which version of the client you want to use:
@@ -80,7 +78,7 @@ inputParms.put("protocol", NCIPClientWrapper.NCIP1_SOCKET);
 NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
 ```
 
-The NCIPClientWrapper instantiates the indicated client and returns a Map response (instead of a JSONObject)
+The NCIPClientWrapper instantiates the indicated client and when send is called, it returns a Map response (instead of a JSONObject)
 
 
 You then instantiate the class that represents the service you are calling and call the send method on the client.  The response is a java.util.Map (when using NCIPClientWrapper) which includes a boolean (success) to indicate whether the call was successful (a JSONObject is returned for the other client classes):
