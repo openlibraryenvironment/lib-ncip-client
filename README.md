@@ -50,7 +50,7 @@ LookupUser lookupUser = new LookupUser()
 ### NCIP1
 ```java
 Map<String, Object> inputParms = new HashMap<String,Object>(); 
-inputParms.put("useSocket", false); //NOT REQUIRED - WILL DEFAULT TO FALUSE
+inputParms.put("useSocket", false); //NOT REQUIRED - WILL DEFAULT TO FALSE
 NCIP1Client ncipOneClient = new NCIP1Client(endpoint,inputParms);
 ```
 
