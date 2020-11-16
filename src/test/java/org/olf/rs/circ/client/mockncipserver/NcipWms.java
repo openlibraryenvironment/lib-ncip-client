@@ -2,7 +2,9 @@ package org.olf.rs.circ.client.mockncipserver;
 
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 
 import org.extensiblecatalog.ncip.v2.service.ServiceException;
@@ -19,6 +21,7 @@ import org.olf.rs.circ.client.CheckoutItem;
 import org.olf.rs.circ.client.LookupUser;
 import org.olf.rs.circ.client.NCIP2Client;
 import org.olf.rs.circ.client.NCIP2WMSClient;
+import org.olf.rs.circ.client.NCIPClientException;
 import org.olf.rs.circ.client.TestConstants;
 
 import static org.junit.Assert.*;
@@ -41,10 +44,11 @@ public class NcipWms {
 	
 	@Test
 	public void lookupBlockedUser() throws Exception {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserBlocked");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserBlocked",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setApplicationProfileType("thisIsATest")
 				.setToAgency("ABC")
@@ -59,10 +63,11 @@ public class NcipWms {
 	
 	@Test
 	public void lookupActiveUser() throws Exception {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/wmsLookupUser" );
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/wmsLookupUser",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setApplicationProfileType("thisIsATest")
 				.setToAgency("ABC")
@@ -79,7 +84,8 @@ public class NcipWms {
 	
 	@Test
 	public void acceptItemMissingRequestId() throws Exception {
-		NCIP2WMSClient ncipTwoClient = new NCIP2WMSClient(baseNcipEndpoint);
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		NCIP2WMSClient ncipTwoClient = new NCIP2WMSClient(baseNcipEndpoint,inputParms);
 		AcceptItem acceptItem = new AcceptItem();
 		acceptItem.setUserId("9999999");
 		acceptItem.setTitle("ABC Book");
@@ -102,10 +108,11 @@ public class NcipWms {
 	@Test
 	public void checkOutThenIn() throws Exception {
 		String itemId = "39151000209805";
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(baseNcipEndpoint);
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");		
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(baseNcipEndpoint,inputParms);
 		CheckoutItem checkoutItem = new CheckoutItem()
 				.setUserId("5551002")
 				.setFromAgency("ABC")
@@ -121,12 +128,35 @@ public class NcipWms {
 		assertEquals(response.getString("itemId").trim(),itemId);
 	}
 	
+	
+	@Test
+	public void checkOutNoItem() throws Exception {
+		String itemId = "55";
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(baseNcipEndpoint,inputParms);
+		CheckoutItem checkoutItem = new CheckoutItem()
+				.setUserId("5551002")
+				.setFromAgency("ABC")
+				.setToAgency("DEF")
+				.setItemId(itemId);
+		JSONObject response = ncipWmsClient.send(checkoutItem);		
+		JSONArray problems = response.getJSONArray("problems");
+		String detail = problems.getJSONObject(0).getString("detail");
+		assertTrue(detail.contains("does not exists"));
+		
+	}
+	
+	
 	@Test
 	public void missingEndpoint() throws Exception {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient();
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(null,inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("N00206454")
 				.includeUserAddressInformation()
@@ -142,11 +172,12 @@ public class NcipWms {
 	
 	
 	@Test
-	public void testPatronNotFound() throws ServiceException, ValidationException, IOException, ToolkitException {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserNotFound");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+	public void testPatronNotFound() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserNotFound",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("not-a-real-patron");
 		JSONObject response = ncipWmsClient.send(lookupUser);		
@@ -161,11 +192,12 @@ public class NcipWms {
 	}
 	
 	@Test
-	public void testBlockedPatron() throws ServiceException, ValidationException, IOException, ToolkitException {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserBlocked");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+	public void testBlockedPatron() throws ServiceException, NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserBlocked",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("bobby_blocker");
 		JSONObject response = ncipWmsClient.send(lookupUser);		
@@ -176,11 +208,12 @@ public class NcipWms {
 	}
 	
 	@Test
-	public void testExpiredPatron() throws ServiceException, ValidationException, IOException, ToolkitException {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserExpired");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+	public void testExpiredPatron() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserExpired",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("expired");
 		JSONObject response = ncipWmsClient.send(lookupUser);		
@@ -191,11 +224,12 @@ public class NcipWms {
 	}
 	
 	@Test
-	public void testMissingPermissions() throws ServiceException, ValidationException, IOException, ToolkitException {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserMissingPerms");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+	public void testMissingPermissions() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserMissingPerms",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("n-a");
 		JSONObject response = ncipWmsClient.send(lookupUser);		
@@ -206,11 +240,12 @@ public class NcipWms {
 	}
 	
 	@Test
-	public void testUnauthorized() throws ServiceException, ValidationException, IOException, ToolkitException {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserUnauthorized");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+	public void testUnauthorized() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserUnauthorized",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("n-a");
 		JSONObject response = ncipWmsClient.send(lookupUser);		
@@ -221,11 +256,12 @@ public class NcipWms {
 	}
 	
 	@Test
-	public void testUnsupportedMedia() throws ServiceException, ValidationException, IOException, ToolkitException {
-		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserUnsupportedMedia");
-		ncipWmsClient.setApiKey("anapikey");
-		ncipWmsClient.setApiSecret("anApiSecret");
-		ncipWmsClient.setOAuthEndpointOveride(lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+	public void testUnsupportedMedia() throws NCIPClientException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("apiKey", "yourapikey");
+		inputParms.put("apiSecret", "yourapisecret");
+		inputParms.put("oAuthEndpointOverride", lookupUserBaseEndpoint + "/ncipwms/mockAuthenicate");
+		NCIP2WMSClient ncipWmsClient = new NCIP2WMSClient(lookupUserBaseEndpoint + "/ncipwms/lookupUserUnsupportedMedia",inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("n-a");
 		JSONObject response = ncipWmsClient.send(lookupUser);		

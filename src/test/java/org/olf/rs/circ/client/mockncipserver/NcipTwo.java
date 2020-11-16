@@ -1,7 +1,9 @@
 package org.olf.rs.circ.client.mockncipserver;
 
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.UUID;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -18,7 +20,7 @@ import static org.junit.Assert.*;
 
 public class NcipTwo {
 	
-	String baseNcipEndpoint = "http://localhost:8889/ncip";
+	String baseNcipEndpoint = "http://localhost:8890/ncip";
 	String itemId = UUID.randomUUID().toString();
 	
 	/**
@@ -31,7 +33,8 @@ public class NcipTwo {
 	
 	@Test
 	public void lookupBlockedUser() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint,inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setApplicationProfileType("thisIsATest")
 				.setToAgency("ABC")
@@ -46,7 +49,8 @@ public class NcipTwo {
 	
 	@Test
 	public void lookupActiveUser() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint,inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setApplicationProfileType("thisIsATest")
 				.setToAgency("ABC")
@@ -63,7 +67,8 @@ public class NcipTwo {
 	
 	@Test
 	public void acceptItemMissingRequestId() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint,inputParms);
 		AcceptItem acceptItem = new AcceptItem();
 		acceptItem.setUserId("9999999");
 		acceptItem.setTitle("ABC Book");
@@ -82,7 +87,8 @@ public class NcipTwo {
 	
 	@Test
 	public void acceptItemInvalidPatronId() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint,inputParms);
 		AcceptItem acceptItem = new AcceptItem();
 		acceptItem.setUserId("9999999");
 		acceptItem.setTitle("ABC Book");
@@ -101,7 +107,8 @@ public class NcipTwo {
 	
 	@Test
 	public void acceptItemSuccess() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint,inputParms);
 		AcceptItem acceptItem = new AcceptItem();
 		acceptItem.setUserId("5551002");
 		acceptItem.setTitle("ABC Book");
@@ -117,7 +124,8 @@ public class NcipTwo {
 	
 	@Test
 	public void checkOutThenIn() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint);
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipTwoClient = new NCIP2Client(baseNcipEndpoint,inputParms);
 		//CREATE AN ITEM TO CHECKOUT/CHECK IN
 		AcceptItem acceptItem = new AcceptItem();
 		acceptItem.setUserId("5551002");
@@ -146,7 +154,8 @@ public class NcipTwo {
 	
 	@Test
 	public void missingEndpoint() throws Exception {
-		NCIP2Client ncipTwoClient = new NCIP2Client();
+		Map<String, Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipTwoClient = new NCIP2Client(null,inputParms);
 		LookupUser lookupUser = new LookupUser()
 				.setUserId("N00206454")
 				.includeUserAddressInformation()

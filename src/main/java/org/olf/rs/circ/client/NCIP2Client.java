@@ -4,8 +4,9 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
+import java.util.Map;
 
+import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -18,9 +19,6 @@ import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
-import org.extensiblecatalog.ncip.v2.service.ServiceException;
-import org.extensiblecatalog.ncip.v2.service.ToolkitException;
-import org.extensiblecatalog.ncip.v2.service.ValidationException;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,38 +26,26 @@ public class NCIP2Client implements CirculationClient {
 	
 	private static final Logger logger = Logger.getLogger(NCIP2Client.class);
 	protected String endpoint;
-	private HashMap<String, String> httpHeader = new HashMap<String, String>();
 	private XCToolkitUtil xcToolkitUtil;
 	//TODO ADD TIMEOUT PREFERENCE ?
 	//TODO ADD RETRY ATTEMPT PREFERENCE ?
-	
-	public NCIP2Client() throws IOException, ToolkitException {
-		xcToolkitUtil = XCToolkitUtil.getInstance();
-	}
-	
-	public NCIP2Client(String endpoint) throws IOException, ToolkitException {
-		xcToolkitUtil = XCToolkitUtil.getInstance();
-		this.endpoint = endpoint;
+
+	public NCIP2Client(String endpoint, Map<String, Object> inputParms) throws NCIPClientException {
+		try {
+			CaseInsensitiveMap<String,Object> inputMap = new CaseInsensitiveMap<String,Object>();
+			inputMap.putAll(inputParms);
+			xcToolkitUtil = XCToolkitUtil.getInstance();
+			this.endpoint = endpoint;
+		}
+		catch(Exception e) {
+			throw new NCIPClientException(e.getLocalizedMessage());
+		}
 	}
 
-	public void setEndpoint(String newEndpoint) {
-		endpoint = newEndpoint;
-	}
 
-	public void addHttpHeader(String key, String value) {
-		 this.httpHeader.put(key, value);
-	}
-	
-	
-	
-	
-	public String getEndpoint() {
-		return endpoint;
-	}
-
-	public JSONObject send(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
+	public JSONObject send(NCIPCircTransaction transaction)  {
 		
-		if (this.getEndpoint() == null) {
+		if (this.endpoint == null) {
 			logger.fatal("NCIP2Client send calls but endpoint is missing");
 			JSONObject r = constructException("Missing Endpoint ", "NCIP Client endpoint is null","");
 			return r;
@@ -70,10 +56,25 @@ public class NCIP2Client implements CirculationClient {
 		
 		//generates XC NCIP Objects:
 		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
+		InputStream requestMessageStream = null;
 		//transforms the object into NCIP XML:
-		InputStream requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
-		
-		String requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
+		try {
+			requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
+		}
+		catch(Exception e) {
+			logger.fatal("NCIP2Client send call failed building requestMessageStream");
+			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client send call failed building requestMessageStream");
+			return r;
+		}
+		String requestBody = null;
+		try {
+			requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
+		}
+		catch(Exception e) {
+			logger.fatal("NCIP2Client send call failed building requestMessageStream");
+			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client send call failed building XML");
+			return r;
+		}
 		logger.info(requestBody);
 		String responseString = null;
 		JSONObject responseObject = new JSONObject();
@@ -117,7 +118,7 @@ public class NCIP2Client implements CirculationClient {
 		return responseObject;
 	}
 	
-	public JSONObject constructException(String httpResponse,String entireResponse,String element) {
+	private JSONObject constructException(String httpResponse,String entireResponse,String element) {
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
 		JSONObject problem = new JSONObject();
@@ -129,22 +130,5 @@ public class NCIP2Client implements CirculationClient {
 		return returnJson;
 	}
 
-	public HashMap<String, String> getHttpHeader() {
-		return httpHeader;
-	}
-
-	public void setHttpHeader(HashMap<String, String> httpHeader) {
-		this.httpHeader = httpHeader;
-	}
-
-	public XCToolkitUtil getXcToolkitUtil() {
-		return xcToolkitUtil;
-	}
-
-	public void setXcToolkitUtil(XCToolkitUtil xcToolkitUtil) {
-		this.xcToolkitUtil = xcToolkitUtil;
-	}
-	
-	
 
 }

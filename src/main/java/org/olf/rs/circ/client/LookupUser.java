@@ -272,7 +272,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			return true;
 		}
 		return false;
-		}
+	}
 	
 	
 	private String getUserIdString(LookupUserResponseData lookupUserResponse,JSONObject returnJson) {
