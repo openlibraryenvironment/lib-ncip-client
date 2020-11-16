@@ -131,4 +131,30 @@ public class NCIP2Client implements CirculationClient {
 	}
 
 
+	@Override
+	public String printRequest(NCIPCircTransaction transaction) throws NCIPClientException {
+		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
+		InputStream requestMessageStream = null;
+		//transforms the object into NCIP XML:
+		try {
+			requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
+		}
+		catch(Exception e) {
+			logger.fatal("NCIP2Client printRequest call failed building requestMessageStream");
+			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client printRequest call failed building requestMessageStream");
+			return r.toString();
+		}
+		String requestBody = null;
+		try {
+			requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
+		}
+		catch(Exception e) {
+			logger.fatal("NCIP2Client printRequest call failed building requestMessageStream");
+			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client printRequest call failed building XML");
+			return r.toString();
+		}
+		return requestBody;
+	}
+
+
 }

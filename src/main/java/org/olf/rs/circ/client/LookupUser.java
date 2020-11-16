@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
@@ -501,7 +502,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	
 		JSONArray jsonArray = new JSONArray();
 		JSONObject perms = new JSONObject();
-		perms.put("key", "status");
+		perms.put("key", "STATUS");
 		perms.put("value", (circBlocked || expired) ? "BLOCKED":"OK");
 		jsonArray.put(perms);
 		returnJson.put("privileges", jsonArray);
@@ -555,6 +556,11 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	@Override
 	public NCIPInitiationData modifyForWMS(NCIPInitiationData initData) {
 		throw new NotImplementedException();
+	}
+	
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this);
 	}
 	
 

@@ -240,4 +240,9 @@ public class NCIP1Client implements CirculationClient {
 		}
 	}
 
+	@Override
+	public String printRequest(NCIPCircTransaction transaction) throws NCIPClientException {
+		return transaction.generateNCIP1Object();
+	}
+
 }

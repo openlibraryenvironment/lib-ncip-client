@@ -54,6 +54,14 @@ public class NCIPClientWrapperTests {
 	}
 	
 	@Test
+	public void testConstructorForNCIPWMS() throws Exception {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("protocol", NCIPClientWrapper.WMS);
+		NCIPClientWrapper ncipTwoClientWrapper = new NCIPClientWrapper("http://google.com",inputParms);
+		assertEquals(ncipTwoClientWrapper.circulationClient.getClass().getName(),"org.olf.rs.circ.client.NCIP2WMSClient");
+	}
+	
+	@Test
 	public void testConstructorForNCIPSocket() throws Exception {
 		Map<String,Object> inputParms = new HashMap<String,Object>();
 		inputParms.put("protocol", NCIPClientWrapper.NCIP1_SOCKET);

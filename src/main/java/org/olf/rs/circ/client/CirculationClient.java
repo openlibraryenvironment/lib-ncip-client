@@ -4,6 +4,7 @@ import org.json.JSONObject;
 
 public interface CirculationClient {
 	
-	JSONObject send(NCIPCircTransaction service) throws NCIPClientException;
+	JSONObject send(NCIPCircTransaction transaction) throws NCIPClientException;
+	String printRequest(NCIPCircTransaction transaction) throws NCIPClientException;
 
 }

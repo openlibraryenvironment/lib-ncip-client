@@ -33,6 +33,7 @@ public class NCIP2WMSClient implements CirculationClient {
 	private String apiKey;
 	private String apiSecret;
 	private String oAuthEndpointOverride;
+	private String lookupPatronEndpoint;
 
 
 	public NCIP2WMSClient(String endpoint, Map<String, Object> inputParms) throws NCIPClientException {
@@ -44,6 +45,7 @@ public class NCIP2WMSClient implements CirculationClient {
 			this.apiSecret = (String) inputMap.get("apiSecret");
 			this.apiKey = (String) inputMap.get("apiKey");
 			this.oAuthEndpointOverride = (String) inputMap.get("oAuthEndpointOverride");
+			this.lookupPatronEndpoint  = (String) inputMap.get("lookupPatronEndpoint");
 		}
 		catch(Exception e) {
 			throw new NCIPClientException(e.getLocalizedMessage());
@@ -137,6 +139,46 @@ public class NCIP2WMSClient implements CirculationClient {
 
 		
 	}
+	
+	public String printRequest(NCIPCircTransaction transaction) throws NCIPClientException {
+		try {
+			if  (transaction.getClass() != LookupUser.class) {
+				NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
+				transaction.modifyForWMS(initiationData);
+				InputStream requestMessageStream = null;
+				//transforms the object into NCIP XML:
+				try {
+					requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
+				}
+				catch(Exception e) {
+					logger.fatal("NCIP2Client printRequest call failed building requestMessageStream");
+					JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2WMSClient printRequest call failed building requestMessageStream");
+					return r.toString();
+				}
+				String requestBody = null;
+				try {
+					requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
+				}
+				catch(Exception e) {
+					logger.fatal("NCIP2Client printRequest call failed building requestMessageStream");
+					JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(), "NCIP2WMSClient printRequest call failed building XML");
+					return r.toString();
+				}
+				return requestBody;
+			}
+			else {
+				JSONObject jsonRequest = new JSONObject();
+				JSONArray schemasArray = new JSONArray();
+				schemasArray.put("urn:ietf:params:scim:api:messages:2.0:SearchRequest");
+				jsonRequest.put("filter",  "External_ID eq \"" + ((LookupUser)transaction).getUserid()  + "\"");
+				jsonRequest.put("schemas",schemasArray);
+				return jsonRequest.toString();
+			}
+		}
+		catch(Exception e) {
+			throw new NCIPClientException(e.getLocalizedMessage());
+		}
+	}
 
 	private JSONObject constructException(String httpResponse,String entireResponse,String element) {
 		JSONObject returnJson = new JSONObject();
@@ -218,6 +260,14 @@ public class NCIP2WMSClient implements CirculationClient {
 	
 	
 	private JSONObject lookupUser(NCIPCircTransaction transaction) {
+		
+		if (lookupPatronEndpoint == null || lookupPatronEndpoint.isEmpty()) {
+			logger.fatal("NCIPWMSClient send called but lookup patron endpoint is missing");
+			JSONObject r = constructException("Missing lookupPatronEndpoint ", "NCIP Client lookupPatronEndpoint is null","");
+			return r;
+		}
+		
+		
 		String token = null;
 		JSONObject responseObject = new JSONObject();
 		try {
@@ -239,7 +289,7 @@ public class NCIP2WMSClient implements CirculationClient {
 		try {
 			CloseableHttpClient client = HttpClients.custom().build();
 			HttpUriRequest request = RequestBuilder.post()
-					.setUri(this.endpoint)
+					.setUri(this.lookupPatronEndpoint)
 					.setEntity(new StringEntity(jsonRequest.toString()))
 					.addHeader("Content-Type", "application/scim+json")
 					.addHeader("Accept", "application/scim+json")
