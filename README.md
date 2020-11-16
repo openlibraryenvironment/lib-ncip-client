@@ -183,5 +183,9 @@ Response example:
 {itemId=LEH-20200301608, success=true}
 ```
 
+### Printing
+Each of the transaction objects (e.g. CheckoutItem) has a toString() method that will return a string to show each variable and value in the instance.
+<br>
+Each of the client objects (e.g. NCIP2WMSClient) has a printRequest method that accepts a transaction as an input parameter and returns the payload that will be generated and sent to the NCIP service.  (example:   ncip2WmsClient.printRequest(acceptItem))
 		
 
