@@ -251,7 +251,12 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 				}
 				String value =  address.getElectronicAddress().getElectronicAddressData();
 				//MAKING EMAIL 'KEY' CONSISTENT
-				if (isEmailPattern(value)) type = "emailAddress";
+				if (isEmailPattern(value)) {
+					type = "emailAddress";
+				}
+				else if (type.equalsIgnoreCase("mailto")) {
+					type = "emailAddress";
+				}
 				json.put("key", type);
 				json.put("value", value);
 				jsonArray.put(json);
