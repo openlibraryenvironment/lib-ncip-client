@@ -31,6 +31,9 @@ public class NCIPClientWrapper {
 		inputMap.putAll(inputParms);
 		String protocol = (String) inputMap.get("protocol");
 		//INSTANTIATE CLIENT
+		if (protocol == null) {
+			throw new NCIPClientException("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET or WMS");
+		}
 		if (protocol.equalsIgnoreCase(NCIP1)) {
 			this.circulationClient = new NCIP1Client(endpoint,inputParms);
 		}
