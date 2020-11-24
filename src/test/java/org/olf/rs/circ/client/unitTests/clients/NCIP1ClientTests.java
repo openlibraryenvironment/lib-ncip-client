@@ -3,6 +3,7 @@ package org.olf.rs.circ.client.unitTests.clients;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.olf.rs.circ.client.CheckoutItem;
 import org.olf.rs.circ.client.NCIP1Client;
 import org.olf.rs.circ.client.NCIP2Client;
 import org.olf.rs.circ.client.NCIPClientException;
@@ -68,6 +69,21 @@ public class NCIP1ClientTests {
 		field.setAccessible(true);
 		Object value = field.get(ncipClient);
 		assertEquals(value,888);
+	}
+	
+	@Test 
+	public void testClientPrint() throws NCIPClientException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		NCIP2Client ncipClient = new NCIP2Client("http://google.com",inputParms);
+		CheckoutItem checkoutItem = new CheckoutItem();
+		checkoutItem.setApplicationProfileType("my-application-profile");
+		checkoutItem.setItemId("5551212");
+		checkoutItem.setUserId("8377360");
+		String checkoutItemAsString = ncipClient.printRequest(checkoutItem);
+		System.out.println(checkoutItemAsString);
+		assertTrue(checkoutItemAsString.contains("5551212"));
+		checkoutItemAsString = checkoutItem.toString();
+		assertTrue(checkoutItemAsString.contains("8377360"));
 	}
 
 

@@ -85,6 +85,8 @@ public class AcceptItemTests {
 		assertEquals(toAgencyId,"MAINLIBRARY");
 		assertEquals(itemId,"ABC-2387402374");
 		assertEquals(requestId,"ABC-20200501");
+		String asString = acceptItem.toString();
+		assertTrue(asString.contains("MAINLIBRARY"));
 		
 	}
 	
@@ -98,6 +100,15 @@ public class AcceptItemTests {
 		String itemId = initData.getItemId().getItemIdentifierValue();
 		assertEquals(toAgencyId,"ABC");
 		assertEquals(itemId,"ABC-2387402374");
+	}
+	
+	@Test 
+	public void testToString() throws Exception {
+		AcceptItem acceptItem = new AcceptItem();
+		acceptItem.setToAgency("ABC");
+		acceptItem.setItemId("ABC-2387402374");
+		String acceptItemAsString = acceptItem.toString();
+		assertTrue(acceptItemAsString.contains("ABC-2387402374"));
 	}
 	
 	

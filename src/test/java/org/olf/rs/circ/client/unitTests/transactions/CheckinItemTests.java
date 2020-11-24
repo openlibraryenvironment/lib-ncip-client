@@ -87,6 +87,16 @@ public class CheckinItemTests {
 		assertEquals(itemId,"ABC-2387402374");
 	}
 	
+	@Test 
+	public void testToString() throws Exception {
+		CheckinItem checkinItem = new CheckinItem();
+		checkinItem.setFromAgency("ABC");
+		checkinItem.setToAgency("DEF");
+		checkinItem.setItemId("ABC-2387402374");
+		String checkinItemAsString = checkinItem.toString();
+		assertTrue(checkinItemAsString.contains("ABC-2387402374"));
+	}
+	
 	
 	 private static String readLineByLine(String filePath) {
 	      StringBuilder contentBuilder = new StringBuilder();

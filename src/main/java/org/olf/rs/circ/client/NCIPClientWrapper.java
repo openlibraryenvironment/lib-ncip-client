@@ -49,7 +49,19 @@ public class NCIPClientWrapper {
 		}
 	}
 	
-
+	public String printRequest(NCIPCircTransaction transaction) {
+		try {
+			return this.circulationClient.printRequest(transaction);
+		}
+		catch(Exception e) {
+			logger.fatal("NCIP2ClientWrapper print request failed");
+			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client print request call failed.");
+			return r.toString();
+		}
+	
+	}
+	
+	
 	/*
 	 * @param transaction transaction represents the NCIP call (LookupUser, CheckinItem, CheckoutItem, AcceptItem)
 	 */

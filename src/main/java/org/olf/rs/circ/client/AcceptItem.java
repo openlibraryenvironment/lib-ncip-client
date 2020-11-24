@@ -3,6 +3,7 @@ package org.olf.rs.circ.client;
 import java.util.HashMap;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemResponseData;
@@ -36,6 +37,7 @@ import com.github.jknack.handlebars.context.MethodValueResolver;
 
 public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 
+	protected String registryId; //WMS ONLY
 	private String requestIdString;
 	private String useridString;
 	private String itemIdString;
@@ -99,6 +101,17 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 
 	public AcceptItem setFromAgency(String fromAgency) {
 		this.fromAgency = fromAgency;
+		return this;
+	}
+	
+	/**
+	 * setRegistryId
+	 * @param string - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element - only for WMS
+	 * @return Instance object
+	 * Only adding here for consistency because as this time WMS does not support AcceptItem
+	 */
+	public AcceptItem setRegistryId(String registryId) {
+		this.registryId = registryId;
 		return this;
 	}
 
@@ -229,7 +242,8 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	}
 	
 	public NCIPInitiationData modifyForWMS(NCIPInitiationData initData) {
-		((AcceptItemInitiationData)initData).getItemId().setAgencyId(new AgencyId(applicationProfileTypeString));
+		((AcceptItemInitiationData)initData).getItemId().setAgencyId(new AgencyId(registryId));
+		((AcceptItemInitiationData)initData).getUserId().setAgencyId(new AgencyId(registryId));
 	   return initData;
 	}
 
@@ -333,6 +347,10 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		throw new NotImplementedException();
 	}
 
+	@Override
+	public String toString() {
+		return ReflectionToStringBuilder.toString(this);
+	}
 	
 	
 

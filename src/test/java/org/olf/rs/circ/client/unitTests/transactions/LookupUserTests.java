@@ -344,5 +344,13 @@ public class LookupUserTests {
 			JSONArray problems = lookupUserResponse.getJSONArray("problems");
 		}
 		
+		@Test 
+		public void testToString() throws Exception {
+			LookupUser lookupUser = new LookupUser();
+			lookupUser.setUserId("5551212");
+			String lookupUserAsString = lookupUser.toString();
+			assertTrue(lookupUserAsString.contains("5551212"));
+		}
+		
 
 }
