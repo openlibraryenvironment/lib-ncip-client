@@ -294,8 +294,10 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 				String type = priv.getAgencyUserPrivilegeType().getValue();
 				String value = priv.getUserPrivilegeStatus().getUserPrivilegeStatusType().getValue();
 				//TRANSLATE STATUS FROM ACTIVE TO OK - TO BE CONSISTENT
-				//SOME SERVERS (ALMA) RETURN ACTIVE, OTHERS (OLE) RETURN OK
+				//SOME SERVERS (ALMA) RETURN ACTIVE, OTHERS (OLE) RETURN OK, SIERRA RETURNS "Y"
 				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("ACTIVE")) value = "OK";
+				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("Y")) value = "OK";
+				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("N")) value = Constants.BLOCKED;
 				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("DELINQUENT")) value = Constants.BLOCKED;
 				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("BARRED")) value = Constants.BLOCKED;
 				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("EXPIRED")) value = Constants.BLOCKED;
