@@ -6,15 +6,24 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.config.RegistryBuilder;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
@@ -71,7 +80,7 @@ public class NCIP2Client implements CirculationClient {
 			requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
 		}
 		catch(Exception e) {
-			logger.fatal("NCIP2Client send call failed building requestMessageStream");
+			logger.fatal("NCIP2Client send call failed building requestBody");
 			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client send call failed building XML");
 			return r;
 		}
@@ -80,7 +89,16 @@ public class NCIP2Client implements CirculationClient {
 		JSONObject responseObject = new JSONObject();
 		//call to NCIP server
 		try {
-			CloseableHttpClient client = HttpClients.custom().build();
+			//added sslConnectionSocketFactory for Sierra Deq NCIP 11-2020
+			SSLContext sslContext = SSLContexts.custom()
+			        .loadTrustMaterial((chain, authType) -> true).build();
+
+			SSLConnectionSocketFactory sslConnectionSocketFactory =
+			        new SSLConnectionSocketFactory(sslContext, new String[]
+			        {"SSLv2Hello", "SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" }, null,
+			        NoopHostnameVerifier.INSTANCE);
+			
+			CloseableHttpClient client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).build();
 			HttpUriRequest request = RequestBuilder.post()
 					.setUri(this.endpoint)
 					.setEntity(new StringEntity(requestBody,"UTF-8"))
