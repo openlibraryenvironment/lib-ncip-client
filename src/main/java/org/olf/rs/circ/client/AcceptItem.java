@@ -185,10 +185,9 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		RequestId requestId = new RequestId();
 		requestId.setAgencyId(new AgencyId(fromAgency));
 		requestId.setRequestIdentifierValue(requestIdString);
-		if (requestedActionTypeString != null) {
-			RequestedActionType requestActionType = new RequestedActionType(null, requestedActionTypeString);
-			acceptItemInitationData.setRequestedActionType(requestActionType);
-		}
+		if (requestedActionTypeString == null || requestedActionTypeString.isEmpty()) requestedActionTypeString = "Hold For Pickup";
+		RequestedActionType requestActionType = new RequestedActionType(null, requestedActionTypeString);
+		acceptItemInitationData.setRequestedActionType(requestActionType);
 		UserId userid = new UserId();
 		userid.setAgencyId(new AgencyId(fromAgency));
 		userid.setUserIdentifierValue(useridString);
