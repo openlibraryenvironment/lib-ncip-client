@@ -10,14 +10,19 @@ import java.net.SocketTimeoutException;
 import java.net.URI;
 import java.util.Map;
 
+import javax.net.ssl.SSLContext;
+
 import org.apache.commons.collections4.map.CaseInsensitiveMap;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.conn.ssl.NoopHostnameVerifier;
+import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -199,7 +204,18 @@ public class NCIP1Client implements CirculationClient {
 		String responseString = null;
 		
 		try {
-			CloseableHttpClient client = HttpClients.custom().build();
+			
+			//added sslConnectionSocketFactory for Sirsi NCIP 03-2021
+			SSLContext sslContext = SSLContexts.custom()
+			        .loadTrustMaterial((chain, authType) -> true).build();
+
+			SSLConnectionSocketFactory sslConnectionSocketFactory =
+			        new SSLConnectionSocketFactory(sslContext, new String[]
+			        {"SSLv2Hello", "SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" }, null,
+			        NoopHostnameVerifier.INSTANCE);
+			
+			CloseableHttpClient client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).build();
+			//CloseableHttpClient client = HttpClients.custom().build();
 			HttpUriRequest request = RequestBuilder.post()
 					.setUri(this.endpoint)
 					.setEntity(new StringEntity(requestBody,"UTF-8"))
@@ -228,6 +244,7 @@ public class NCIP1Client implements CirculationClient {
 			problem.put("detail", e.getLocalizedMessage());
 			array.put(problem);
 			responseObject.put("problems", array);			
+			return responseObject;
 		}
 		try {
 			responseObject = transaction.constructResponseNcip1Response(responseString);

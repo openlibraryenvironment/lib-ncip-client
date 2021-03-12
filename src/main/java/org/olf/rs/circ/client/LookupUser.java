@@ -195,7 +195,22 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			lastName = lookupUserResponse.getUserOptionalFields().getNameInformation().getPersonalNameInformation().getStructuredPersonalUserName().getSurname();
 		}
 		catch(Exception e) {
-			logger.info("Name not provided in response");
+			logger.info("Structured name not provided in response");
+			//TRY UNSTRUCTURED NAME
+			//SIERRA - NCIP2
+			try {
+				String name = lookupUserResponse.getUserOptionalFields().getNameInformation().getPersonalNameInformation().getUnstructuredPersonalUserName();
+				String[] nameParts = name.split(",");
+				if (nameParts.length == 1) {
+					nameParts = name.split(" ");
+				}
+				returnJson.put("firstName", nameParts[0]);
+				returnJson.put("lastName", nameParts[nameParts.length-1]);
+				return returnJson;
+			}
+			catch(Exception ex) {
+				logger.info("Unstructured name not provided in response");
+			}
 		}
 		returnJson.put("firstName", firstName);
 		returnJson.put("lastName", lastName);
@@ -334,13 +349,23 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
             if (problems != null && !problems.isEmpty()) {
             	return constructeNcipOneProblems(problems);
             }
-            
-            Element name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > UnstructuredPersonalUserName").get(0);
+            Element name = null;
+            try {
+            	name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > UnstructuredPersonalUserName").get(0);
+            	String nameString = name.text();
+            	returnJson = gatherUnstructuredName(nameString, returnJson);
+            }
+            catch(IndexOutOfBoundsException e) {
+            	//OK - UNSTRUCTURED NAME NOT IN RESPONSE - TRY STRUCTURED
+            	name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > StructuredPersonalUserName").get(0);
+            	String firstName = name.select("GivenName").text();
+            	String lastName = name.select("Surname").text();
+            	returnJson.put("lastName", lastName);
+    			returnJson.put("firstName", firstName);
+            }
             returnJson.put("electronicAddresses", gatherNcipOneElectronicAddress(document));
             returnJson.put("privileges", getNcipOnePrivileges(document));
             returnJson.put("unstructuredPhysicalAddress", gatherUnstructuredPhysicalAddress(document));
-            String nameString = name.text();
-            returnJson = gatherUnstructuredName(nameString, returnJson);
             returnJson.put("userId",  document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > VisibleUserId > VisibleUserIdentifier").get(0).text());
         } catch(Exception e) {
         	logger.fatal("failed to parse the NCIP XML Response: " + responseData);

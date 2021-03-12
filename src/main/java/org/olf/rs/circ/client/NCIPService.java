@@ -75,6 +75,10 @@ public class NCIPService {
 			 String type = xmlElement.select("ProcessingErrorType > value").text();
 			 String element = xmlElement.select("ProcessingErrorElement > ElementName").text();
 			 String detail = xmlElement.select("ProcessingErrorElement > ProcessingErrorElement > ProcessingErrorValue").text();
+			 //SIRSI - SLIGHTLY DIFFERENT ERROR STRUCTURE
+			 if (detail.isEmpty()) {
+				 detail = xmlElement.select("ProcessingErrorElement > ProcessingErrorValue").text();
+			 }
 			 problem.put("type",type);
 			 problem.put("detail",detail);
 			 problem.put("element",element);

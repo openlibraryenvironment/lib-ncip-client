@@ -69,6 +69,16 @@ public class LookupUserTests {
 	}
 	
 	@Test
+	public void testConstructNcip1WithStructName() throws Exception {
+		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipOneStructuredName.xml";
+		String xmlAsString = readLineByLine(mockFileName);
+		LookupUser lookupUser = new LookupUser();
+		JSONObject lookupUserResponse = lookupUser.constructResponseNcip1Response(xmlAsString);
+		assertEquals(lookupUserResponse.getString("firstName").trim(),"John");
+		assertEquals(lookupUserResponse.get("userId"),"share501");
+	}
+	
+	@Test
 	public void testConstructNcip2Response() throws Exception {
 		LookupUser lookupUser = new LookupUser();
 		LookupUserResponseData lookupUserResponseData = new LookupUserResponseData();
