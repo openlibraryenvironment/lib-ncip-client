@@ -313,14 +313,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 				JSONObject json = new JSONObject();
 				String type = priv.getAgencyUserPrivilegeType().getValue();
 				String value = priv.getUserPrivilegeStatus().getUserPrivilegeStatusType().getValue();
-				//TRANSLATE STATUS FROM ACTIVE TO OK - TO BE CONSISTENT
-				//SOME SERVERS (ALMA) RETURN ACTIVE, OTHERS (OLE) RETURN OK, SIERRA RETURNS "Y"
-				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("ACTIVE")) value = "OK";
-				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("Y")) value = "OK";
-				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("N")) value = Constants.BLOCKED;
-				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("DELINQUENT")) value = Constants.BLOCKED;
-				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("BARRED")) value = Constants.BLOCKED;
-				if (type.equalsIgnoreCase("status") && value.equalsIgnoreCase("EXPIRED")) value = Constants.BLOCKED;
+				if (type.equalsIgnoreCase("status")) value = translatePatronStatus(value);
 				json.put("key", type);
 				json.put("value", value);
 				jsonArray.put(json);
@@ -382,6 +375,10 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	 */
 	@Override
 	public String generateNCIP1Object() {
+		//NCIP1 - VISIBLE USER ID IS REQUESTED BY DEFAULT
+		//SIRSI RETURNS AN ERROR IF THIS ADDITIONAL
+		//ELEMENT IS INCLUDED
+		this.userElementTypes.remove(Constants.USERID);
 		return generateNCIP1Object("/templates/lookupUser");
 	}
 
@@ -400,6 +397,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			try {
 				String type = priv.select("AgencyUserPrivilegeType > Value").text();
 				String value = priv.select("UserPrivilegeStatus > UserPrivilegeStatusType > Value").text();
+				if (type.equalsIgnoreCase("status")) value = translatePatronStatus(value);
 				json.put("key", type);
 				json.put("value", value);
 				jsonArray.put(json);
@@ -477,15 +475,17 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		
 		try {
 			String[] values = name.split(",");
+			if (values.length == 1) {
+				values = name.split(" ");
+			}
 			returnJson.put("lastName", values[0]);
-			returnJson.put("firstName", values[1]);
+			returnJson.put("firstName", values[values.length - 1]);
 		}
 		catch(Exception e) {
 			logger.info("Unstructured name returned from NCIP could not be parsed. ");
 			logger.info(name);
-			logger.info("Using entire string in last name field");
 			returnJson.put("lastName", name);
-			returnJson.put("firstName", " ");
+			returnJson.put("firstName", name);
 		}
 		//else...put the entire string in the last name field
 		return returnJson;
@@ -583,6 +583,19 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			}
 		}
 		return jsonArray;
+	}
+	
+	private String translatePatronStatus(String input) {
+		//TRANSLATE 'Y', ACTIVE AND DELIQUENT TO OK
+		if (input.equalsIgnoreCase("ACTIVE")) return "OK";
+		if (input.equalsIgnoreCase("Y")) return "OK";
+		if (input.equalsIgnoreCase("DELINQUENT")) return  "OK";
+		//TRANSLATE 'N', BARRED AND EXPIRED TO BLOCKED
+		if (input.equalsIgnoreCase("N")) return  Constants.BLOCKED;
+		if (input.equalsIgnoreCase("BARRED")) return  Constants.BLOCKED;
+		if (input.equalsIgnoreCase("EXPIRED")) return  Constants.BLOCKED;
+		//NO TRANSLATION RETURN INPUT	
+		return input;
 	}
 
 	@Override
