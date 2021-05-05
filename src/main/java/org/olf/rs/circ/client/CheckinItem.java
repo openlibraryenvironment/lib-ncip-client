@@ -162,8 +162,14 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		catch(ClassCastException e) {
 			return constructProblem(responseData);
 		}
-
-		String itemId = checkinItemResponse.getItemId().getItemIdentifierValue();
+		String itemId = "";
+		try {
+			itemId = checkinItemResponse.getItemId().getItemIdentifierValue();
+		}
+		catch(Exception e) {
+			//IT'S FINE
+			//KOHA SENDS BACK UniqueItemId - Not ItemID
+		}
 		returnJson.put(Constants.ITEM_ID, itemId);
 		return returnJson;
 	}

@@ -78,6 +78,7 @@ public class NCIP2Client implements CirculationClient {
 		String requestBody = null;
 		try {
 			requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
+			if (!useNamespace) requestBody = requestBody.replace("ns1:", "").replace("xmlns:ns1", "xmlns");
 		}
 		catch(Exception e) {
 			logger.fatal("NCIP2Client send call failed building requestBody");
