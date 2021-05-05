@@ -36,6 +36,8 @@ public class NCIP2Client implements CirculationClient {
 	private static final Logger logger = Logger.getLogger(NCIP2Client.class);
 	protected String endpoint;
 	private XCToolkitUtil xcToolkitUtil;
+	private boolean useNamespace = true;
+	
 	//TODO ADD TIMEOUT PREFERENCE ?
 	//TODO ADD RETRY ATTEMPT PREFERENCE ?
 
@@ -43,6 +45,9 @@ public class NCIP2Client implements CirculationClient {
 		try {
 			CaseInsensitiveMap<String,Object> inputMap = new CaseInsensitiveMap<String,Object>();
 			inputMap.putAll(inputParms);
+			if (inputMap.containsKey("useNamespace")) {
+				this.useNamespace = (boolean) inputMap.get("useNamespace");
+			}
 			xcToolkitUtil = XCToolkitUtil.getInstance();
 			this.endpoint = endpoint;
 		}
