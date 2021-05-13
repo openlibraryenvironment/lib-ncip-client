@@ -22,7 +22,8 @@ Each NCIP Client constructor needs an endpoint parameter (String) and a Map para
 * apiKey     - Required by WMS NCIP only
 * apiSecret  - Required by WMS NCIP only
 * oAuthEndpointOverride   - Used by WMS NCIP only to change the default oAuth endpoint (if it is something different than https://oauth.oclc.org/token?grant_type=client_credentials&scope=)
-* useSocket - Used by NCIP1 to indicate use socket instead of http (set to true for Aleph).  Defaults to false.
+* useSocket - Used by NCIP1 to indicate use socket instead of http (set to true for Aleph,Voyager).  Defaults to false.
+* strictSocket - Used by NCIP1 (set to true for Voyager).  Defaults to false.
 * useNamespace - Used by NCIP2.  Set this to false when you do not want a namespace in the NCIP request XML (Koha).  Defaults to true.  NCIP1 requests do not use a namespace.
 * protocol - Use this when instantiating the NCIPClientWrapper to indicate which NCIPClient you want to use.  Valid values are:
 	* NCIP1
@@ -44,6 +45,16 @@ NCIP2Client ncipTwoClient = new NCIP2Client(endpoint,inputParms);
 ```java
 Map<String, Object> inputParms = new HashMap<String,Object>();
 inputParms.put("useSocket", true);
+NCIP1Client ncipOneClient = new NCIP1Client(endpoint,inputParms);
+LookupUser lookupUser = new LookupUser()
+```
+
+
+### NCIP1 USING THE SOCKET CLASS (STRICT MODE)
+```java
+Map<String, Object> inputParms = new HashMap<String,Object>();
+inputParms.put("useSocket", true);
+inputParms.put("strictSocket", true);  //for Voyager
 NCIP1Client ncipOneClient = new NCIP1Client(endpoint,inputParms);
 LookupUser lookupUser = new LookupUser()
 ```
