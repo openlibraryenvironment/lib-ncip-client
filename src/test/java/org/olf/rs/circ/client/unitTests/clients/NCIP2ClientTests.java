@@ -50,6 +50,20 @@ public class NCIP2ClientTests {
 		assertTrue(checkoutItemAsString.contains("8377360"));
 	}
 	
+	@Test 
+	public void testClientPrintNoNamespace() throws NCIPClientException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useNamespace", false);
+		NCIP2Client ncipClient = new NCIP2Client("http://google.com",inputParms);
+		CheckoutItem checkoutItem = new CheckoutItem();
+		checkoutItem.setApplicationProfileType("my-application-profile");
+		checkoutItem.setItemId("5551212");
+		checkoutItem.setUserId("8377360");
+		String checkoutItemAsString = ncipClient.printRequest(checkoutItem);
+		System.out.println(checkoutItemAsString);
+		assertFalse(checkoutItemAsString.contains("ns1"));
+	}
+	
 
 	
 
