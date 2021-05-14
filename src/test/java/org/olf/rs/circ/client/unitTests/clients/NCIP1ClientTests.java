@@ -50,6 +50,18 @@ public class NCIP1ClientTests {
 	}
 	
 	@Test
+	public void setStrictSocket() throws Exception {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("useSocket", true);
+		inputParms.put("strictSocket", true);
+		NCIP1Client ncipClient = new NCIP1Client("https://google.com",inputParms);
+		Field field = ncipClient.getClass().getDeclaredField("strictSocket");
+		field.setAccessible(true);
+		Object value = field.get(ncipClient);
+		assertEquals(((Boolean)value).booleanValue(),true);
+	}
+	
+	@Test
 	public void testCutomSocket() throws Exception {
 		Map<String,Object> inputParms = new HashMap<String,Object>();
 		inputParms.put("socketTimeout", 888);

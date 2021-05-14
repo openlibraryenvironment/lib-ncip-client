@@ -2,6 +2,7 @@ package org.olf.rs.circ.client;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
@@ -40,6 +41,7 @@ public class NCIP1Client implements CirculationClient {
 	private static final Logger logger = Logger.getLogger(NCIP1Client.class);
 	protected String endpoint;
 	private boolean useSocket = false;
+	private boolean strictSocket = false;
 	private int socketTimeout = 30*1000;
 
 
@@ -55,10 +57,77 @@ public class NCIP1Client implements CirculationClient {
 			if (inputMap.containsKey("socketTimeout")) {
 				this.socketTimeout = (int) inputMap.get("socketTimeout");
 			}
+			if (inputMap.containsKey("strictSocket")) {
+				this.strictSocket = (boolean) inputMap.get("strictSocket");
+			}
 		}
 		catch(Exception e) {
 			throw new NCIPClientException(e.getLocalizedMessage());
 		}
+	}
+	
+	
+	private JSONObject strictSocket(NCIPCircTransaction transaction) throws Exception  {
+		if (this.endpoint == null) {
+			logger.fatal("sendWithSockets (strict) called and endpoint is: " + this.endpoint);
+			JSONObject r = constructException("Missing Endpoint ", "NCIP Client endpoint is null","");
+			return r;
+		}
+		
+		JSONObject errors = transaction.validateRequest();
+		if (errors != null) return errors;
+		
+		String requestBody = transaction.generateNCIP1Object();
+		//SPLIT UP THE ENDPONT 
+		URI uri = new URI (this.endpoint);
+		int port = uri.getPort();
+		if (port == 0) port = 80;
+		String baseUri = uri.getHost();
+		String path = uri.getPath();
+		logger.info("baseUrl: " + baseUri);
+		logger.info("path: " + path);
+		logger.info("port: " + port);
+
+		Socket socket = new Socket(baseUri,port);
+		
+		DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
+		BufferedReader fromServer = new BufferedReader(
+		new InputStreamReader(socket.getInputStream()));
+		toServer.writeBytes(requestBody + "\n");
+		String line = "";
+		StringBuffer buffer = new StringBuffer();
+		while ((line = fromServer.readLine()) != null) {
+			//if (line.isEmpty()) break;
+			buffer.append(line);
+			logger.info(line);
+			try {
+				//logger.info("attempting to write to server...");
+				toServer.writeByte(0);
+			}
+			catch(Exception e) {
+				logger.info("exception attempting to write to server  - assumed server closed connection");
+				break;
+			}
+			
+		}
+		socket.close();
+		
+		if (buffer.toString().trim().isEmpty()) {
+			JSONObject r = constructException("response is empty",buffer.toString(),"exception calling ncip server with strict socket");
+			return r;
+		}
+		
+		try {
+			logger.info("full response:");
+			logger.info(buffer.toString());
+			JSONObject r = transaction.constructResponseNcip1Response(buffer.toString());
+			return r;
+		}
+		catch(Exception e) {
+			JSONObject r = constructException(e.getLocalizedMessage(),buffer.toString(),"exception calling ncip server with strict socket");
+			return r;
+		}
+		
 	}
 	
 	/**
@@ -183,6 +252,7 @@ public class NCIP1Client implements CirculationClient {
 		if (errors != null) return errors;
 		
 		try {
+			if (this.useSocket && this.strictSocket) return strictSocket(transaction);
 			if (this.useSocket) return sendWithSockets(transaction);
 		}
 		catch(Exception e) {
