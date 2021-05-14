@@ -97,7 +97,6 @@ public class NCIP1Client implements CirculationClient {
 		String line = "";
 		StringBuffer buffer = new StringBuffer();
 		while ((line = fromServer.readLine()) != null) {
-			//if (line.isEmpty()) break;
 			buffer.append(line);
 			logger.info(line);
 			try {
