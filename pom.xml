@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.olf.rs</groupId>
 	<artifactId>lib-ncip-client</artifactId>
-	<version>0.16.0</version>
+	<version>0.17.0</version>
 	<name>NCIP Client</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -87,7 +87,7 @@
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
-			<version>2.6</version>
+			<version>2.7</version>
 		</dependency>
 		<!-- FOR NCIP V1: USING HANDLEBARS TEMPLATE -->
 		<!-- https://mvnrepository.com/artifact/com.github.jknack/handlebars -->

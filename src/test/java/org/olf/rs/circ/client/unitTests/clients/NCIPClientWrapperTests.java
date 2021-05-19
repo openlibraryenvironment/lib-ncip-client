@@ -45,6 +45,20 @@ public class NCIPClientWrapperTests {
 	}
 	
 	@Test
+	public void testConstructorForNCIPOneStrictSocket() throws Exception {
+		Map<String,Object> inputParms = new HashMap<String,Object>();
+		inputParms.put("protocol", NCIPClientWrapper.NCIP1);
+		inputParms.put("strictSocket", true);
+		NCIPClientWrapper ncipOneClientWrapper = new NCIPClientWrapper("http://google.com",inputParms);
+		assertEquals(ncipOneClientWrapper.circulationClient.getClass().getName(),"org.olf.rs.circ.client.NCIP1Client");
+		Field field = ncipOneClientWrapper.circulationClient.getClass().getDeclaredField("strictSocket");
+		field.setAccessible(true);
+		Object value = field.get(ncipOneClientWrapper.circulationClient);
+		assertEquals(((Boolean)value).booleanValue(),true);
+		
+	}
+	
+	@Test
 	public void testConstructorForNCIPTwo() throws Exception {
 		Map<String,Object> inputParms = new HashMap<String,Object>();
 		inputParms.put("protocol", NCIPClientWrapper.NCIP2);
