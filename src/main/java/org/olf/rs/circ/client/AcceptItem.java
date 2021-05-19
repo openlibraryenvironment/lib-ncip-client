@@ -272,6 +272,7 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	 */
 	@Override
 	public String generateNCIP1Object() {
+		if (requestedActionTypeString == null || requestedActionTypeString.isEmpty()) requestedActionTypeString = "Hold For Pickup";
 		return generateNCIP1Object("/templates/acceptItem");
 	}
 
