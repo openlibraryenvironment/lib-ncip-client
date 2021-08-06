@@ -200,12 +200,13 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			//SIERRA - NCIP2
 			try {
 				String name = lookupUserResponse.getUserOptionalFields().getNameInformation().getPersonalNameInformation().getUnstructuredPersonalUserName();
+				logger.info("Splitting name '"+ name + "'");
 				String[] nameParts = name.split(",");
 				if (nameParts.length == 1) {
 					nameParts = name.split(" ");
 				}
-				returnJson.put("firstName", nameParts[0]);
-				returnJson.put("lastName", nameParts[nameParts.length-1]);
+				returnJson.put("lastName", nameParts[0].trim());
+				returnJson.put("firstName", nameParts[nameParts.length-1].trim());
 				return returnJson;
 			}
 			catch(Exception ex) {
@@ -478,8 +479,8 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			if (values.length == 1) {
 				values = name.split(" ");
 			}
-			returnJson.put("lastName", values[0]);
-			returnJson.put("firstName", values[values.length - 1]);
+			returnJson.put("lastName", values[0].trim());
+			returnJson.put("firstName", values[values.length - 1].trim());
 		}
 		catch(Exception e) {
 			logger.info("Unstructured name returned from NCIP could not be parsed. ");

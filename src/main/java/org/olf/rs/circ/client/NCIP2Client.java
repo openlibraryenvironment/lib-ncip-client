@@ -48,6 +48,7 @@ public class NCIP2Client implements CirculationClient {
 			if (inputMap.containsKey("useNamespace")) {
 				this.useNamespace = (boolean) inputMap.get("useNamespace");
 			}
+			logger.info("Getting xcToolkitUtil");
 			xcToolkitUtil = XCToolkitUtil.getInstance();
 			this.endpoint = endpoint;
 		}
@@ -65,6 +66,7 @@ public class NCIP2Client implements CirculationClient {
 			return r;
 		}
 		
+		logger.debug("Validating request");
 		JSONObject errors = transaction.validateRequest();
 		if (errors != null) return errors;
 		
@@ -90,7 +92,7 @@ public class NCIP2Client implements CirculationClient {
 			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client send call failed building XML");
 			return r;
 		}
-		logger.info(requestBody);
+		logger.info("Request Body: " + requestBody);
 		String responseString = null;
 		JSONObject responseObject = new JSONObject();
 		//call to NCIP server
