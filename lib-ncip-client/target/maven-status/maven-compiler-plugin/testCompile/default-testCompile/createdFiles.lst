@@ -1,0 +1,16 @@
+org/olf/rs/circ/client/mockncipserver/NcipWms.class
+org/olf/rs/circ/client/unitTests/transactions/LookupUserTests.class
+org/olf/rs/circ/client/unitTests/clients/NcipClientUnitSuiteTest.class
+org/olf/rs/circ/client/unitTests/clients/NCIP2ClientTests.class
+org/olf/rs/circ/client/unitTests/clients/NCIP2WMSClientTests.class
+org/olf/rs/circ/client/mockncipserver/NcipTwo.class
+org/olf/rs/circ/client/mockncipserver/NcipClientTestSuite.class
+org/olf/rs/circ/client/unitTests/clients/NCIPClientWrapperTests.class
+org/olf/rs/circ/client/unitTests/transactions/CheckoutItemTests.class
+org/olf/rs/circ/client/unitTests/clients/NCIP1ClientTests.class
+org/olf/rs/circ/client/mockncipserver/NcipOneWithSocket.class
+org/olf/rs/circ/client/TestConstants.class
+org/olf/rs/circ/client/unitTests/transactions/AcceptItemTests.class
+org/olf/rs/circ/client/unitTests/transactions/NcipTransactionsUnitSuiteTest.class
+org/olf/rs/circ/client/mockncipserver/NcipOne.class
+org/olf/rs/circ/client/unitTests/transactions/CheckinItemTests.class

@@ -1,0 +1,72 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+  <!DOCTYPE NCIPMessage PUBLIC "-//NISO//NCIP DTD Version 1//EN" "http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+    <NCIPMessage version="http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+      <CheckInItemResponse>
+        <ResponseHeader>
+          <FromAgencyId>
+            <UniqueAgencyId>
+              <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
+              <Value>TNS</Value>
+            </UniqueAgencyId>
+          </FromAgencyId>
+          <ToAgencyId>
+            <UniqueAgencyId>
+              <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
+              <Value>RSH</Value>
+            </UniqueAgencyId>
+          </ToAgencyId>
+        </ResponseHeader>
+        <UniqueItemId>
+          <UniqueAgencyId>
+            <Scheme>NCIP Unique Agency Id</Scheme>
+            <Value>TNS</Value>
+          </UniqueAgencyId>
+          <ItemIdentifierValue>55531234752954</ItemIdentifierValue>
+        </UniqueItemId>
+        <UniqueUserId>
+          <UniqueAgencyId>
+            <Scheme>NCIP Unique Agency Id</Scheme>
+            <Value>TNS</Value>
+          </UniqueAgencyId>
+          <UserIdentifierValue>LEH-TMP</UserIdentifierValue>
+        </UniqueUserId>
+        <RoutingInformation>
+          <RoutingInstructions>No special instructions</RoutingInstructions>
+          <Destination>
+            <Location>
+              <LocationType>
+                <Scheme>NCIP Location Type Scheme</Scheme>
+                <Value>Permanent</Value>
+              </LocationType>
+              <LocationName>
+                <LocationNameInstance>
+                  <LocationNameLevel>1</LocationNameLevel>
+                  <LocationNameValue>University Center</LocationNameValue>
+                </LocationNameInstance>
+                <LocationNameInstance>
+                  <LocationNameLevel>2</LocationNameLevel>
+                  <LocationNameValue>E-ZBorrow</LocationNameValue>
+                </LocationNameInstance>
+                <LocationNameInstance>
+                  <LocationNameLevel>3</LocationNameLevel>
+                  <LocationNameValue>EZB-55531234752954</LocationNameValue>
+                </LocationNameInstance>
+              </LocationName>
+            </Location>
+          </Destination>
+        </RoutingInformation>
+        <UserOptionalFields>
+          <VisibleUserId>
+            <UniqueAgencyId>
+              <Scheme>NCIP Unique Agency Id</Scheme>
+              <Value>TNS</Value>
+            </UniqueAgencyId>
+            <VisibleUserIdentifierType>
+              <Scheme>NCIP Visible User Identifier Type Scheme</Scheme>
+              <Value>Institution Id Number</Value>
+            </VisibleUserIdentifierType>
+            <VisibleUserIdentifier>LEH-TMP</VisibleUserIdentifier>
+          </VisibleUserId>
+        </UserOptionalFields>
+      </CheckInItemResponse>
+    </NCIPMessage>

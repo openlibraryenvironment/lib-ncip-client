@@ -1,0 +1,4 @@
+{"privileges":[{"value":"No patron type found","key":"Cat1"},{"value":"University Center","key":"LIBRARY"},
+{"value":"Not A Real School Undergraduate Student","key":"PROFILE"},{"value":"OK","key":"STATUS"}],
+"unstructuredPhysicalAddress":[{"value":"Doe, Jane 123 Main Street, Apt. 20 Allentown PA","key":"Home"}],
+"lastName":"Doe","firstName":"Jane Marie","electronicAddresses":[{"value":"jane@notarealaddress.com","key":"emailAddress"}],"userId":"N5551212"}

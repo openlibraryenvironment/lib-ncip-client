@@ -1,0 +1,34 @@
+<?xml version = "1.0" encoding = "UTF-8"?>
+<!DOCTYPE NCIPMessage PUBLIC "-//NISO//NCIP DTD Version 1//EN" "http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+<NCIPMessage version="http://www.niso.org/ncip/v1_0/imp1/dtd/ncip_v1_0.dtd">
+    <AcceptItemResponse>
+        <ResponseHeader>
+            <FromAgencyId>
+                <UniqueAgencyId>
+                    <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
+                    <Value>TNSGI</Value>
+                </UniqueAgencyId>
+            </FromAgencyId>
+            <ToAgencyId>
+                <UniqueAgencyId>
+                    <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
+                    <Value>RSH</Value>
+                </UniqueAgencyId>
+            </ToAgencyId>
+        </ResponseHeader>
+        <UniqueRequestId>
+            <UniqueAgencyId>
+                <Scheme>NCIP Unique Agency Id</Scheme>
+                <Value>TNS</Value>
+            </UniqueAgencyId>
+            <RequestIdentifierValue>TNS-11423833</RequestIdentifierValue>
+        </UniqueRequestId>
+        <UniqueItemId>
+            <UniqueAgencyId>
+                <Scheme>NCIP Unique Agency Id</Scheme>
+                <Value>TNS</Value>
+            </UniqueAgencyId>
+            <ItemIdentifierValue>100556043-10</ItemIdentifierValue>
+        </UniqueItemId>
+    </AcceptItemResponse>
+</NCIPMessage>
