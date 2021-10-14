@@ -1,7 +1,0 @@
-{
-    "schemas": [
-        "urn:ietf:params:scim:api:messages:2.0:Error"
-    ],
-    "detail": "Authorization failure. You do not have sufficient permissions to access this resource.",
-    "status": "403"
-}
