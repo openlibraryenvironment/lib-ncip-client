@@ -193,6 +193,14 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		try {
 			firstName = lookupUserResponse.getUserOptionalFields().getNameInformation().getPersonalNameInformation().getStructuredPersonalUserName().getGivenName();
 			lastName = lookupUserResponse.getUserOptionalFields().getNameInformation().getPersonalNameInformation().getStructuredPersonalUserName().getSurname();
+			if(firstName == null || firstName.trim().isEmpty()) {
+				logger.info("Blank firstname, attempting to populate from lastname field");
+				String[] nameParts = splitName(lastName);
+				if(nameParts.length > 1) {
+					lastName = nameParts[0].trim();
+					firstName = nameParts[nameParts.length-1].trim();
+				}
+			}
 		}
 		catch(Exception e) {
 			logger.info("Structured name not provided in response");
@@ -200,23 +208,28 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			//SIERRA - NCIP2
 			try {
 				String name = lookupUserResponse.getUserOptionalFields().getNameInformation().getPersonalNameInformation().getUnstructuredPersonalUserName();
-				logger.info("Splitting name '"+ name + "'");
-				String[] nameParts = name.split(",");
-				if (nameParts.length == 1) {
-					nameParts = name.split(" ");
-				}
+				String[] nameParts = splitName(name);
 				returnJson.put("lastName", nameParts[0].trim());
 				returnJson.put("firstName", nameParts[nameParts.length-1].trim());
 				return returnJson;
 			}
 			catch(Exception ex) {
-				logger.info("Unstructured name not provided in response");
+				logger.info("Unable to get Unstructured name from response: " + ex.getLocalizedMessage());
 			}
 		}
 		returnJson.put("firstName", firstName);
 		returnJson.put("lastName", lastName);
 		return returnJson;
 		
+	}
+
+	private String[] splitName(String name) {
+		logger.info("Splitting name '" + name + "'");
+		String[] nameParts = name.split(",");
+		if(nameParts.length == 1) {
+			nameParts = name.split(" ");
+		}
+		return nameParts;
 	}
 	
 	

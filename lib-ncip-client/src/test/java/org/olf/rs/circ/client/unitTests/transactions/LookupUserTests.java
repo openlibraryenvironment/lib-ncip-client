@@ -240,6 +240,53 @@ public class LookupUserTests {
 			JSONObject blankEmail = lookupUser.constructResponseNcip2Response(lookupUserResponseData);
 
 		}
+
+		@Test
+		public void checkMissingFirstName() {
+			LookupUser lookupUser = new LookupUser();
+			LookupUserResponseData lookupUserResponseData = new LookupUserResponseData();
+			UserId userId = new UserId();
+			userId.setUserIdentifierValue("5551212");
+			UserOptionalFields userOptionalFields = new UserOptionalFields();
+			NameInformation nameInformation = new NameInformation();
+			PersonalNameInformation personalNameInformation = new PersonalNameInformation();
+			StructuredPersonalUserName structuredPersonalUserName = new StructuredPersonalUserName();
+			structuredPersonalUserName.setGivenName("");
+			structuredPersonalUserName.setSurname("Doe, Jane");
+			personalNameInformation.setStructuredPersonalUserName(structuredPersonalUserName);
+			nameInformation.setPersonalNameInformation(personalNameInformation);
+			userOptionalFields.setNameInformation(nameInformation);
+			lookupUserResponseData.setUserOptionalFields(userOptionalFields);
+			lookupUserResponseData.setUserId(userId);
+			UserAddressInformation userAddressInformation = new UserAddressInformation();
+			UserAddressRoleType userAddressRoleType = new UserAddressRoleType("OTH");
+			ElectronicAddress electronicAddress = new ElectronicAddress();
+			electronicAddress.setElectronicAddressData("test@test.com");
+			userAddressInformation.setElectronicAddress(electronicAddress);
+			userAddressInformation.setUserAddressRoleType(userAddressRoleType);
+			List<UserAddressInformation> addresses = new ArrayList<UserAddressInformation>();
+			addresses.add(userAddressInformation);
+			lookupUserResponseData.getUserOptionalFields().setUserAddressInformations(addresses);
+			ArrayList<UserPrivilege> list = new ArrayList<UserPrivilege>();
+			UserPrivilege userPrivilege = new UserPrivilege();
+			UserPrivilege up = new UserPrivilege();
+	    	up.setUserPrivilegeDescription("library status");
+	    	AgencyId agencyId = new AgencyId("ABC");
+	    	up.setAgencyId(agencyId);
+	    	up.setAgencyUserPrivilegeType(new AgencyUserPrivilegeType(null,"status"));
+	    	UserPrivilegeStatus ups = new UserPrivilegeStatus();
+	    	ups.setUserPrivilegeStatusType(new UserPrivilegeStatusType(null,"OK"));
+	    	up.setUserPrivilegeStatus(ups);
+	    	list.add(up);
+			userOptionalFields.setUserPrivileges(list);
+			
+			JSONObject response = lookupUser.constructResponseNcip2Response(lookupUserResponseData);
+
+			assertEquals(response.getString("firstName"), "Jane");
+			assertEquals(response.getString("lastName"), "Doe");
+			
+
+		}
 		
 		
 		@Test
@@ -296,8 +343,7 @@ public class LookupUserTests {
 			String status = getValueByKey(lookupUserResponse.getJSONArray("privileges"),"STATUS");
 			assertEquals(status,"OK");
 			assertEquals(lookupUserResponse.get("userId"),"2200555");
-		}
-		
+		}		
 		
 		@Test(expected=JSONException.class) 
 		public void testNotAuthorized() {
