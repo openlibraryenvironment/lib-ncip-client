@@ -123,7 +123,7 @@ public class NCIP1Client implements CirculationClient {
 			return r;
 		}
 		catch(Exception e) {
-			JSONObject r = constructException(e.getLocalizedMessage(),buffer.toString(),"exception calling ncip server with strict socket");
+			JSONObject r = constructException(e.getLocalizedMessage(),buffer.toString(),"exception calling ncip server with ");
 			return r;
 		}
 		
