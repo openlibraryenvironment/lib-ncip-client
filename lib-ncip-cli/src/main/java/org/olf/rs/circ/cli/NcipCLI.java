@@ -92,6 +92,10 @@ public class NcipCLI {
 			lookupUser.includeUserAddressInformation();
 			lookupUser.includeNameInformation();
 			lookupUser.includeUserPrivilege();
+			String appProfile = inputLine.getOptionValue("app-profile");
+			if(appProfile != null) {
+				lookupUser.setApplicationProfileType(appProfile);
+			}
 
 			System.out.println("Sending lookup");
 			Map<String, Object> map = wrapper.send(lookupUser);
@@ -283,6 +287,13 @@ public class NcipCLI {
 				.longOpt("ncip-version")
 				.build();
 
+		Option appProfile = Option.builder("A")
+				.hasArg()
+				.required(false)
+				.desc("The name of the application profile")
+				.longOpt("app-profile")
+				.build();
+
 		options.addOption(fromAgency);
 		options.addOption(toAgency);
 		options.addOption(service);
@@ -293,6 +304,7 @@ public class NcipCLI {
 		options.addOption(author);
 		options.addOption(pickupLocation);
 		options.addOption(ncipVersion);
+		options.addOption(appProfile);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
