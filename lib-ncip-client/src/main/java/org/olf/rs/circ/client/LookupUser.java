@@ -367,8 +367,16 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
             	name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > StructuredPersonalUserName").get(0);
             	String firstName = name.select("GivenName").text();
             	String lastName = name.select("Surname").text();
+							if(lastName != null && (firstName == null || firstName.trim().isEmpty())) {
+								//If the entire name is in the lastname, let's try to parse it out
+								String[] nameParts = splitName(lastName);
+								if(nameParts.length > 1) {
+									lastName = nameParts[0].trim();
+									firstName = nameParts[nameParts.length - 1].trim();
+								} 
+							}
             	returnJson.put("lastName", lastName);
-    			returnJson.put("firstName", firstName);
+    			    returnJson.put("firstName", firstName);
             }
             returnJson.put("electronicAddresses", gatherNcipOneElectronicAddress(document));
             returnJson.put("privileges", getNcipOnePrivileges(document));
