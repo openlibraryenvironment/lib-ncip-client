@@ -47,11 +47,22 @@ public class NcipCLI {
 		//Scanner in = new Scanner(System.in);
 		CommandLine inputLine = handleOptions(args);
 		List<String> cliArgs = inputLine.getArgList();
-		String endpoint = cliArgs.get(0);
+
+		String endpoint;
+
+		try {
+			endpoint = cliArgs.get(0);
+		} catch(Exception e) {
+			System.out.println("Unable to read value for NCIP endpoint");
+			System.exit(1);
+			return;
+		}
 
 		if(endpoint == null || endpoint.isEmpty()) {
-			throw new Exception("An NCIP endpoint must be provided");
+			System.out.println("An NCIP endpoint must be provided");
+			System.exit(1);
 		}
+		
 		String fromAgency = inputLine.getOptionValue("from-agency");
 		String toAgency = inputLine.getOptionValue("to-agency");
 
@@ -67,7 +78,8 @@ public class NcipCLI {
 		} else if(ncipVersion.equals("2")) {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP2);
 		} else {
-			throw new Exception(ncipVersion + " is not a valid version");
+			die(ncipVersion + " is not a valid NCIP version");
+			return;
 		}
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP1);
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP2);
@@ -80,7 +92,8 @@ public class NcipCLI {
 			//String uid = in.nextLine();
 			String uid = inputLine.getOptionValue("patron-id");
 			if(uid == null) {
-				throw new Exception("Required parameter: patron-id");
+				die("Required parameter: patron-id (p)");
+				return;
 			}
 			System.out.println("Lookup User: " + uid);
 			LookupUser lookupUser = new LookupUser();
@@ -107,13 +120,13 @@ public class NcipCLI {
 			//String uid = in.nextLine();
 			String uid = inputLine.getOptionValue("patron-id");
 			if(uid == null) {
-				throw new Exception("Required parameter: patron-id");
+				die("Required parameter: patron-id (p)");
 			}
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
 			String itemId = inputLine.getOptionValue("item-id");
 			if(itemId == null) {
-				throw new Exception("Required parameter: item-id");
+				die("Required parameter: item-id (i)");
 			}
 			//System.out.println("Request ID? (press enter to use: " + itemId + ")");
 			//String requestId = in.nextLine();
@@ -123,19 +136,19 @@ public class NcipCLI {
 			//String title = in.nextLine();
 			String title = inputLine.getOptionValue("title");
 			if(title == null) {
-				throw new Exception("Required parameter: title");
+				die("Required parameter: title (T)");
 			}
 			//System.out.println("author?");
 			//String author = in.nextLine();
 			String author = inputLine.getOptionValue("author");
 			if(author == null) {
-				throw new Exception("Required parameter: author");
+				die("Required parameter: author (a)");
 			}
 			//System.out.println("Pickup Location?");
 			//String pickup = in.nextLine();
 			String pickup = inputLine.getOptionValue("pickup-location");
 			if(pickup == null) {
-				throw new Exception("Required parameter: pickup-location");
+				die("Required parameter: pickup-location (P)");
 			}
 			AcceptItem acceptItem = new AcceptItem()
 					//.setToAgency("EUL")
@@ -162,19 +175,19 @@ public class NcipCLI {
 			//String uid = in.nextLine();
 			String uid = inputLine.getOptionValue("patron-id");
 			if(uid == null) {
-				throw new Exception("Required parameter: patron-id");
+				die("Required parameter: patron-id (p)");
 			}
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
 			String itemId = inputLine.getOptionValue("item-id");
 			if(itemId == null) {
-				throw new Exception("Required parameter: item-id");
+				die("Required parameter: item-id (i)");
 			}
 			//System.out.println("Request ID?");
 			//String requestId = in.nextLine();
 			String requestId = inputLine.getOptionValue("request-id");
 			if(requestId == null) {
-				throw new Exception("Required parameter: request-id");
+				die("Required parameter: request-id (r)");
 			}
 			CheckoutItem checkoutItem = new CheckoutItem()
 					.setToAgency(toAgency)
@@ -193,7 +206,7 @@ public class NcipCLI {
 			//String itemId = in.nextLine();
 			String itemId = inputLine.getOptionValue("item-id");
 			if(itemId == null) {
-				throw new Exception("Required parameter: item-id");
+				die("Required parameter: item-id (i)");
 			}
 			CheckinItem checkinItem = new CheckinItem()
 					//.setToAgency("EUL")
@@ -207,10 +220,15 @@ public class NcipCLI {
 
 		}
 		else {
-			System.out.println("Finished - not a valid selection");
+			die("Finished - not a valid selection");
 		}
 		
 		//in.close();
+	}
+
+	private static void die(String reason) {
+		System.out.println(reason);
+		System.exit(1);
 	}
 
 	static CommandLine handleOptions(String[] args) 

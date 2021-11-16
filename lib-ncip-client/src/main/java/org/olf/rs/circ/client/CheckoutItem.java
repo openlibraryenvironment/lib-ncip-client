@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 import java.util.GregorianCalendar;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -176,8 +177,11 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 
 		String dueDateString = "";
 		if (checkoutItemResponse.getDateDue() != null) {
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
-			formatter.setCalendar(checkoutItemResponse.getDateDue());
+			//SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
+			SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm'Z'");
+			TimeZone tz = TimeZone.getTimeZone("UTC");
+			//formatter.setCalendar(checkoutItemResponse.getDateDue());
+			formatter.setTimeZone(tz);
 			dueDateString = formatter.format(checkoutItemResponse.getDateDue().getTime());
 		}
 
