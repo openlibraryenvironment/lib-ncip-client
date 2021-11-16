@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.olf.rs</groupId>
     <artifactId>lib-ncip-cli</artifactId>
-    <version>0.18.1</version>
+    <version>0.18.2</version>
     <name>lib-ncip-cli</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
