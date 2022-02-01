@@ -28,6 +28,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
 
 
 
@@ -63,38 +64,45 @@ public class NcipCLI {
 			System.exit(1);
 		}
 		
-		String fromAgency = inputLine.getOptionValue("from-agency");
-		String toAgency = inputLine.getOptionValue("to-agency");
+		String fromAgency = stringOrDie("from-agency", inputLine);
+		String toAgency = stringOrDie("to-agency", inputLine);
+
+		String apiKey = null;
+		String apiSecret = null;
 
 		System.out.println("**Testing NCIP at endpoint " + endpoint + "**");
 		
 		//System.out.println("Service? 'L' - lookupUser, 'A' - acceptItem, 'O' - checkoutItem, 'I' - checkinItem");
 		//String service = in.nextLine();
-		String service = inputLine.getOptionValue("service");
+		String service = stringOrDie("service", inputLine);
 		Map<String, Object> inputParms = new HashMap<String,Object>();
-		String ncipVersion = inputLine.getOptionValue("ncip-version");
-		if(ncipVersion.equals("1")) {
+		String ncipProtocol = inputLine.getOptionValue("ncip-protocol");
+		if(ncipProtocol.equals("1")) {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP1);
-		} else if(ncipVersion.equals("2")) {
+		} else if(ncipProtocol.equals("2")) {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP2);
+		} else if(ncipProtocol.equals("WMS")) {
+			inputParms.put("protocol", NCIPClientWrapper.WMS);
 		} else {
-			die(ncipVersion + " is not a valid NCIP version");
+			die(ncipProtocol + " is not a valid NCIP protocol");
 			return;
 		}
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP1);
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP2);
 		inputParms.put("useNamespace", false);
 		System.out.println("Creating NCIPClientWrapper");
+		if(ncipProtocol.equals("WMS")) {
+			apiKey = stringOrDie("api-key", inputLine);
+			apiSecret = stringOrDie("api-secret", inputLine);
+			inputParms.put("apiSecret", apiSecret);
+			inputParms.put("apiKey", apiKey);
+		}
 		//NCIPClientWrapper wrapper = new NCIPClientWrapper("https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder", inputParms);
 		NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
 		if (service.equalsIgnoreCase("L")) {
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
-			String uid = inputLine.getOptionValue("patron-id");
-			if(uid == null) {
-				die("Required parameter: patron-id (p)");
-				return;
-			}
+			String uid = stringOrDie("patron-id", inputLine);
 			System.out.println("Lookup User: " + uid);
 			LookupUser lookupUser = new LookupUser();
 			//lookupUser.setFromAgency("Relias");
@@ -118,38 +126,23 @@ public class NcipCLI {
 		else if (service.equalsIgnoreCase("A")) {
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
-			String uid = inputLine.getOptionValue("patron-id");
-			if(uid == null) {
-				die("Required parameter: patron-id (p)");
-			}
+			String uid = stringOrDie("patron-id", inputLine);
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
-			String itemId = inputLine.getOptionValue("item-id");
-			if(itemId == null) {
-				die("Required parameter: item-id (i)");
-			}
+			String itemId = stringOrDie("item-id", inputLine);
 			//System.out.println("Request ID? (press enter to use: " + itemId + ")");
 			//String requestId = in.nextLine();
 			String requestId = inputLine.getOptionValue("request-id");
 			if (requestId==null || requestId.equalsIgnoreCase("")) requestId = itemId;
 			//System.out.println("Title?");
 			//String title = in.nextLine();
-			String title = inputLine.getOptionValue("title");
-			if(title == null) {
-				die("Required parameter: title (T)");
-			}
+			String title = stringOrDie("title", inputLine);
 			//System.out.println("author?");
 			//String author = in.nextLine();
-			String author = inputLine.getOptionValue("author");
-			if(author == null) {
-				die("Required parameter: author (a)");
-			}
+			String author = stringOrDie("author", inputLine);
 			//System.out.println("Pickup Location?");
 			//String pickup = in.nextLine();
-			String pickup = inputLine.getOptionValue("pickup-location");
-			if(pickup == null) {
-				die("Required parameter: pickup-location (P)");
-			}
+			String pickup = stringOrDie("pickup-location", inputLine);
 			AcceptItem acceptItem = new AcceptItem()
 					//.setToAgency("EUL")
 					.setToAgency(toAgency)
@@ -173,22 +166,13 @@ public class NcipCLI {
 			NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
-			String uid = inputLine.getOptionValue("patron-id");
-			if(uid == null) {
-				die("Required parameter: patron-id (p)");
-			}
+			String uid = stringOrDie("patron-id", inputLine);
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
-			String itemId = inputLine.getOptionValue("item-id");
-			if(itemId == null) {
-				die("Required parameter: item-id (i)");
-			}
+			String itemId = stringOrDie("item-id", inputLine);
 			//System.out.println("Request ID?");
 			//String requestId = in.nextLine();
-			String requestId = inputLine.getOptionValue("request-id");
-			if(requestId == null) {
-				die("Required parameter: request-id (r)");
-			}
+			String requestId = stringOrDie("request-id", inputLine);
 			CheckoutItem checkoutItem = new CheckoutItem()
 					.setToAgency(toAgency)
 					.setFromAgency(fromAgency)
@@ -204,10 +188,7 @@ public class NcipCLI {
 		else if (service.equalsIgnoreCase("I")) {
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
-			String itemId = inputLine.getOptionValue("item-id");
-			if(itemId == null) {
-				die("Required parameter: item-id (i)");
-			}
+			String itemId = stringOrDie("item-id", inputLine);			
 			CheckinItem checkinItem = new CheckinItem()
 					//.setToAgency("EUL")
 					//.setFromAgency("Relais")
@@ -231,28 +212,36 @@ public class NcipCLI {
 		System.exit(1);
 	}
 
+	private static String stringOrDie(String valueName, CommandLine inputLine) {
+		String result = inputLine.getOptionValue(valueName);
+		if(result == null) {
+			die("Required parameter: " + valueName);
+		}
+		return result;
+	}
+
 	static CommandLine handleOptions(String[] args) 
 		throws IOException, ParseException {
 	  Options options = new Options();
 
 		Option fromAgency = Option.builder("f")
 				.hasArg()
-				.required(true)
+				.required(false)
 				.desc("From Agency value")
 				.longOpt("from-agency")
 				.build();
 		
 		Option toAgency = Option.builder("t")
 				.hasArg()
-				.required(true)
+				.required(false)
 				.desc("To Agency value")
 				.longOpt("to-agency")
 				.build();
 		
 		Option service = Option.builder("s")
 				.hasArg()
-				.required(true)
-				.desc("The service to test")
+				.required(false)
+				.desc("The service to test: (L, A, O, I)")
 				.longOpt("service")
 				.build();
 		
@@ -298,11 +287,11 @@ public class NcipCLI {
 				.longOpt("pickup-location")
 				.build();
 
-		Option ncipVersion = Option.builder("v")
+		Option ncipProtocol = Option.builder("w")
 				.hasArg()
-				.required(true)
-				.desc("The version of NCIP to use")
-				.longOpt("ncip-version")
+				.required(false)
+				.desc("The protocol of NCIP to use (1, 2, WMS)")
+				.longOpt("ncip-protocol")
 				.build();
 
 		Option appProfile = Option.builder("A")
@@ -311,6 +300,22 @@ public class NcipCLI {
 				.desc("The name of the application profile")
 				.longOpt("app-profile")
 				.build();
+
+		Option apiSecret = Option.builder("S")
+				.hasArg()
+				.required(false)
+				.desc("API Secret (WMS required)")
+				.longOpt("api-secret")
+				.build();
+
+		Option apiKey = Option.builder("K")
+				.hasArg()
+				.required(false)
+				.desc("API Key (WMS required)")
+				.longOpt("api-key")
+				.build();
+
+		Option help = new Option("help", "print this message");
 
 		options.addOption(fromAgency);
 		options.addOption(toAgency);
@@ -321,12 +326,20 @@ public class NcipCLI {
 		options.addOption(title);
 		options.addOption(author);
 		options.addOption(pickupLocation);
-		options.addOption(ncipVersion);
+		options.addOption(ncipProtocol);
 		options.addOption(appProfile);
+		options.addOption(apiKey);
+		options.addOption(apiSecret);
+		options.addOption(help);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
 		
+		if(line.hasOption("help")) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("[options] <path to NCIP endpoint>", options);
+			System.exit(0);
+		}
 
 		
 		return line;

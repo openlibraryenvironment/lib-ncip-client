@@ -101,9 +101,13 @@ public class NCIP2WMSClient implements CirculationClient {
 		
 		//MAKE SURE THIS IS NOT AN ACCEPT ITEM TRANSACTION
 		//WMS DOES NOT SUPPORT ACCEPT ITEM AS THIS TIME
+
+		//Try accept item
+		/*
 		if (transaction.getClass() == AcceptItem.class) {
 			return this.constructException("transaction type not supported", "NCIP2WMS does not support the AcceptItem message", transaction.getClass().toString());
 		}
+		*/
 
 		if (endpoint == null) {
 			logger.fatal("NCIPWMSClient send called but endpoint is missing");
@@ -193,8 +197,19 @@ public class NCIP2WMSClient implements CirculationClient {
 	}
 
 	private JSONObject callNcipService(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
+		
+		//generates XC NCIP Objects:
+		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
+		transaction.modifyForWMS(initiationData);
+		//transforms the object into NCIP XML:
+		InputStream requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
+
+		String requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
+		logger.info(requestBody);
+		String responseString = null;
+		
 		String token = null;
-		JSONObject responseObject = new JSONObject();
+		
 		try {
 			JSONObject jsonObject = authenticate(apiKey,apiSecret,Constants.NCIP_SCOPE);
 			if (jsonObject.optString("token",null) == null) return jsonObject;
@@ -207,15 +222,8 @@ public class NCIP2WMSClient implements CirculationClient {
 		JSONObject errors = transaction.validateRequest();
 		if (errors != null) return errors;
 
-		//generates XC NCIP Objects:
-		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
-		transaction.modifyForWMS(initiationData);
-		//transforms the object into NCIP XML:
-		InputStream requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
-
-		String requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
-		logger.info(requestBody);
-		String responseString = null;
+		JSONObject responseObject = new JSONObject();
+		
 		//call to NCIP server
 		try {
 			CloseableHttpClient client = HttpClients.custom().build();

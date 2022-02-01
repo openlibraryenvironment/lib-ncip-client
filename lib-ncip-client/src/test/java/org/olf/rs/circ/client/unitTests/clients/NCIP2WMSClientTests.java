@@ -5,6 +5,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.Ignore;
 import org.olf.rs.circ.client.AcceptItem;
 import org.olf.rs.circ.client.CheckoutItem;
 import org.olf.rs.circ.client.LookupUser;
@@ -30,7 +31,7 @@ public class NCIP2WMSClientTests {
 	}
 	
 
-	
+	@Ignore
 	@Test
 	public void testAcceptItemNotSupported() throws NCIPClientException {
 		Map<String,Object> inputParms = new HashMap<String,Object>();
