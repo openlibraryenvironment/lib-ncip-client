@@ -280,7 +280,8 @@ public class NCIP1Client implements CirculationClient {
 
 			SSLConnectionSocketFactory sslConnectionSocketFactory =
 			        new SSLConnectionSocketFactory(sslContext, new String[]
-			        {"SSLv2Hello", "SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" }, null,
+			        //{"SSLv2Hello", "SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" }, null,
+							{"SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" }, null,
 			        NoopHostnameVerifier.INSTANCE);
 			
 			CloseableHttpClient client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).build();
