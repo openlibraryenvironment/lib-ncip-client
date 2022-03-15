@@ -2,6 +2,9 @@ package org.olf.rs.circ.client;
 
 import java.util.Iterator;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
 import org.extensiblecatalog.ncip.v2.service.Problem;
@@ -19,6 +22,13 @@ import com.github.jknack.handlebars.context.MethodValueResolver;
 public class NCIPService {
 	
 	private static final Logger logger = Logger.getLogger(NCIPService.class);
+
+	// If the templatePrefix is set, then append this to the filename of the prefix that we use 
+	protected String templatePrefix = null;
+
+	public void setTemplatePrefix(String prefix) {
+		templatePrefix = prefix;
+	}
 	
 	public JSONObject constructMissingElementProblem(String missingElement) {
 		JSONObject returnJson = new JSONObject();
@@ -96,6 +106,16 @@ public class NCIPService {
 	public String generateNCIP1Object(String templateFileName) {
 		logger.info("generating NCIP 1 request XML");
 		Handlebars handlebars = new Handlebars();
+
+		if(templatePrefix != null) {
+			Path templatePath = Paths.get(templateFileName);
+			String fileName = templatePath.getFileName();
+			fileName = templatePrefix + "_" + fileName;
+			Path newTemplatePath = Paths.get(templatePath.getParent(), fileName);
+			if(newTemplatePath != null) {
+				templateFileName = newTemplatePath.toString();
+			}
+		}
 
 		try {
 			Template template = handlebars.compile(templateFileName); 
