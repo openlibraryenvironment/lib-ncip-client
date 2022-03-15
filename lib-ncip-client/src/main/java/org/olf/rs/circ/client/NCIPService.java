@@ -109,9 +109,9 @@ public class NCIPService {
 
 		if(templatePrefix != null) {
 			Path templatePath = Paths.get(templateFileName);
-			String fileName = templatePath.getFileName();
+			String fileName = templatePath.getFileName().toString();
 			fileName = templatePrefix + "_" + fileName;
-			Path newTemplatePath = Paths.get(templatePath.getParent(), fileName);
+			Path newTemplatePath = Paths.get(templatePath.getParent().toString(), fileName);
 			if(newTemplatePath != null) {
 				templateFileName = newTemplatePath.toString();
 			}
