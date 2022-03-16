@@ -155,6 +155,12 @@ public class NcipCLI {
 					.setRequestActionType("Hold For Pickup")
 					.setRequestId(requestId)
 					.setItemId(itemId);
+			
+			String templatePrefix = inputLine.getOptionValue("template-prefix");
+			if(templatePrefix != null) {
+				acceptItem.setTemplatePrefix(templatePrefix);
+			}		
+			
 			Map<String, Object> map = wrapper.send(acceptItem);
 			System.out.println("RESPONSE:  " + map.toString());
 			System.out.println("");
@@ -315,6 +321,13 @@ public class NcipCLI {
 				.longOpt("api-key")
 				.build();
 
+		Option prefix = Option.builder("x")
+			.hasArg()
+			.required(false)
+			.desc("Template Prefix (currently only for NCIP1 AcceptItem)")
+			.longOpt("template-prefix")
+			.build();
+
 		Option help = new Option("help", "print this message");
 
 		options.addOption(fromAgency);
@@ -331,6 +344,7 @@ public class NcipCLI {
 		options.addOption(apiKey);
 		options.addOption(apiSecret);
 		options.addOption(help);
+		options.addOption(prefix);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
