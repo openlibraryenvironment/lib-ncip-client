@@ -91,8 +91,8 @@ public class NCIP1Client implements CirculationClient {
 		Socket socket = new Socket(baseUri,port);
 		
 		DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
-		BufferedReader fromServer = new BufferedReader(
-		new InputStreamReader(socket.getInputStream()));
+		BufferedReader fromServer = new BufferedReader(new InputStreamReader(
+			socket.getInputStream()));
 		toServer.writeBytes(requestBody + "\n");
 		String line = "";
 		StringBuffer buffer = new StringBuffer();
@@ -251,8 +251,14 @@ public class NCIP1Client implements CirculationClient {
 		if (errors != null) return errors;
 		
 		try {
-			if (this.useSocket && this.strictSocket) return strictSocket(transaction);
-			if (this.useSocket) return sendWithSockets(transaction);
+			if (this.useSocket && this.strictSocket) {
+				logger.info("Sending with strict sockets");
+				return strictSocket(transaction);
+			}
+			if (this.useSocket) {
+				logger.info("Sending with sockets");
+				return sendWithSockets(transaction);
+			}
 		}
 		catch(Exception e) {
 			JSONObject responseObject = new JSONObject();
