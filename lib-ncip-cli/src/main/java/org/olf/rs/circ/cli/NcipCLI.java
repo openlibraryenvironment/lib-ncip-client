@@ -173,7 +173,7 @@ public class NcipCLI {
 			Map<String, Object> inputParameters = new HashMap<String,Object>();
 			inputParameters.put("useNamespace", false);
 			//NCIP1Client client = new NCIP1Client(" https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder",ip);
-			NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
+			//NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
 			String uid = stringOrDie("patron-id", inputLine);
@@ -191,7 +191,8 @@ public class NcipCLI {
 					.setRequestId(requestId)
 					.setItemId(itemId)
 					.setUserId(uid);
-			JSONObject map = client.send(checkoutItem);
+			//JSONObject map = client.send(checkoutItem);
+			Map<String, Object> map = wrapper.send(checkoutItem);
 			System.out.println("RESPONSE: " + map.toString());
 			System.out.println("");
 		}
