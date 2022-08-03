@@ -18,6 +18,7 @@ import org.olf.rs.circ.client.CheckoutItem;
 import org.olf.rs.circ.client.LookupUser;
 import org.olf.rs.circ.client.NCIP1Client;
 import org.olf.rs.circ.client.NCIP2Client;
+import org.olf.rs.circ.client.NCIP2WMSClient;
 import org.olf.rs.circ.client.NCIPClientWrapper;
 
 //import jdk.internal.jshell.tool.resources.l10n;
@@ -63,9 +64,9 @@ public class NcipCLI {
 			System.out.println("An NCIP endpoint must be provided");
 			System.exit(1);
 		}
-		
-		String fromAgency = stringOrDie("from-agency", inputLine);
-		String toAgency = stringOrDie("to-agency", inputLine);
+
+		String fromAgency = null;
+		String toAgency = null;
 
 		String apiKey = null;
 		String apiSecret = null;
@@ -106,6 +107,8 @@ public class NcipCLI {
 		if (service.equalsIgnoreCase("L")) {
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
 			System.out.println("Lookup User: " + uid);
 			LookupUser lookupUser = new LookupUser();
@@ -130,6 +133,8 @@ public class NcipCLI {
 		else if (service.equalsIgnoreCase("A")) {
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
@@ -176,6 +181,8 @@ public class NcipCLI {
 			//NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
@@ -199,6 +206,8 @@ public class NcipCLI {
 		else if (service.equalsIgnoreCase("I")) {
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String itemId = stringOrDie("item-id", inputLine);			
 			CheckinItem checkinItem = new CheckinItem()
 					//.setToAgency("EUL")
@@ -208,6 +217,16 @@ public class NcipCLI {
 					.setItemId(itemId);
 			Map<String, Object> map = wrapper.send(checkinItem);
 			System.out.println("RESPONSE: " + map.toString());
+			System.out.println("");
+
+		}
+		else if(service.equalsIgnoreCase("T")) {
+			if(!ncipProtocol.equals("WMS")) {
+				die("Must use WMS protocol");
+			}
+			NCIP2WMSClient WMSClient = new NCIP2WMSClient(endpoint, inputParms);
+			String token = WMSClient.getToken();
+			System.out.println("TOKEN: " + token);
 			System.out.println("");
 
 		}
