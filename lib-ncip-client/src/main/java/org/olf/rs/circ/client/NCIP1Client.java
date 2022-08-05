@@ -91,8 +91,8 @@ public class NCIP1Client implements CirculationClient {
 		Socket socket = new Socket(baseUri,port);
 		
 		DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
-		BufferedReader fromServer = new BufferedReader(
-		new InputStreamReader(socket.getInputStream()));
+		BufferedReader fromServer = new BufferedReader(new InputStreamReader(
+			socket.getInputStream()));
 		toServer.writeBytes(requestBody + "\n");
 		String line = "";
 		StringBuffer buffer = new StringBuffer();
@@ -173,11 +173,15 @@ public class NCIP1Client implements CirculationClient {
 	    StringBuffer entireResponse = new StringBuffer();
 	    String httpResponse = "";
 	    boolean error = false;
+			final String xmlRegex = "<\\?xml.+?\\?>";
+			final String docRegex = "<!DOCTYPE.+?>";
+			final String bigRegex = "<\\?xml.+<NCIPMessage.+</NCIPMessage>"; //In case everything NCIP is on one line
 		
 		try {
 	    
 			    BufferedReader rd = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			    String line;
+					boolean isNCIPMessage = false;
 			    while ((line = rd.readLine()) != null) {
 					logger.info("READING RESPONSE LINES");
 					logger.info(line);
@@ -186,10 +190,37 @@ public class NCIP1Client implements CirculationClient {
 			    		error = true;
 			    		httpResponse = line;
 			    	}
+
+						if( line.matches(bigRegex)) {
+							stringBuffer.append(line);
+							continue;
+						}
+						
+						if( line.matches(xmlRegex)) {
+							stringBuffer.append(line);
+							continue;
+						}
+
+						if( line.matches(docRegex)) {
+							stringBuffer.append(line);
+							continue;
+						}
+						/* 
 			    	//NCIP MESSAGES SEEMS TO BE ON ONE LINE
 			    	if (line.contains("NCIPMessage")) {
 			    		stringBuffer.append(line);
 			    	}
+						*/
+						if (line.contains("<NCIPMessage")) { //Open tag
+							isNCIPMessage = true;
+						}
+						if( isNCIPMessage) {
+							stringBuffer.append(line);
+						}
+
+						if (line.contains("</NCIPMessage>")) { //Close tag
+							isNCIPMessage = false;
+						}
 			    }
 			    wr.close();
 			    rd.close();
@@ -213,6 +244,7 @@ public class NCIP1Client implements CirculationClient {
 		}
 
 		try {
+			logger.info("Constructing NCIP response with string: " + stringBuffer.toString());
 			JSONObject r = transaction.constructResponseNcip1Response(stringBuffer.toString());
 			return r;
 		}
@@ -251,8 +283,14 @@ public class NCIP1Client implements CirculationClient {
 		if (errors != null) return errors;
 		
 		try {
-			if (this.useSocket && this.strictSocket) return strictSocket(transaction);
-			if (this.useSocket) return sendWithSockets(transaction);
+			if (this.useSocket && this.strictSocket) {
+				logger.info("Sending with strict sockets");
+				return strictSocket(transaction);
+			}
+			if (this.useSocket) {
+				logger.info("Sending with sockets");
+				return sendWithSockets(transaction);
+			}
 		}
 		catch(Exception e) {
 			JSONObject responseObject = new JSONObject();

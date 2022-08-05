@@ -52,6 +52,18 @@ public class NCIP2WMSClient implements CirculationClient {
 		}
 	}
 
+	public String getToken() {
+		JSONObject responseObject = this.authenticate(this.apiKey, this.apiSecret, Constants.NCIP_SCOPE);
+		try {
+			return responseObject.getString("token");
+		} catch(Exception e) {
+			System.out.println("Could not get token: " + e.getLocalizedMessage());
+			System.out.println(responseObject.toString());
+			throw e;
+		}
+
+	}
+
 
 	private JSONObject authenticate(String apiKey, String apiSecret, String scope) {
 		String token = null;

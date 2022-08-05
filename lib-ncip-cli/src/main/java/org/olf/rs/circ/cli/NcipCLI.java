@@ -18,6 +18,7 @@ import org.olf.rs.circ.client.CheckoutItem;
 import org.olf.rs.circ.client.LookupUser;
 import org.olf.rs.circ.client.NCIP1Client;
 import org.olf.rs.circ.client.NCIP2Client;
+import org.olf.rs.circ.client.NCIP2WMSClient;
 import org.olf.rs.circ.client.NCIPClientWrapper;
 
 //import jdk.internal.jshell.tool.resources.l10n;
@@ -63,9 +64,9 @@ public class NcipCLI {
 			System.out.println("An NCIP endpoint must be provided");
 			System.exit(1);
 		}
-		
-		String fromAgency = stringOrDie("from-agency", inputLine);
-		String toAgency = stringOrDie("to-agency", inputLine);
+
+		String fromAgency = null;
+		String toAgency = null;
 
 		String apiKey = null;
 		String apiSecret = null;
@@ -81,6 +82,10 @@ public class NcipCLI {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP1);
 		} else if(ncipProtocol.equals("2")) {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP2);
+		} else if(ncipProtocol.equals("SOCKET")) {
+			inputParms.put("protocol", NCIPClientWrapper.NCIP1_SOCKET);
+		} else if(ncipProtocol.equals("STRICTSOCKET")) {
+			inputParms.put("protocol", NCIPClientWrapper.NCIP1_STRICT_SOCKET);
 		} else if(ncipProtocol.equals("WMS")) {
 			inputParms.put("protocol", NCIPClientWrapper.WMS);
 		} else {
@@ -102,6 +107,8 @@ public class NcipCLI {
 		if (service.equalsIgnoreCase("L")) {
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
 			System.out.println("Lookup User: " + uid);
 			LookupUser lookupUser = new LookupUser();
@@ -126,6 +133,8 @@ public class NcipCLI {
 		else if (service.equalsIgnoreCase("A")) {
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
@@ -169,9 +178,11 @@ public class NcipCLI {
 			Map<String, Object> inputParameters = new HashMap<String,Object>();
 			inputParameters.put("useNamespace", false);
 			//NCIP1Client client = new NCIP1Client(" https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder",ip);
-			NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
+			//NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
 			//System.out.println("Patron ID?");
 			//String uid = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
@@ -187,13 +198,16 @@ public class NcipCLI {
 					.setRequestId(requestId)
 					.setItemId(itemId)
 					.setUserId(uid);
-			JSONObject map = client.send(checkoutItem);
+			//JSONObject map = client.send(checkoutItem);
+			Map<String, Object> map = wrapper.send(checkoutItem);
 			System.out.println("RESPONSE: " + map.toString());
 			System.out.println("");
 		}
 		else if (service.equalsIgnoreCase("I")) {
 			//System.out.println("Item ID?");
 			//String itemId = in.nextLine();
+			fromAgency = stringOrDie("from-agency", inputLine);
+		  toAgency = stringOrDie("to-agency", inputLine);
 			String itemId = stringOrDie("item-id", inputLine);			
 			CheckinItem checkinItem = new CheckinItem()
 					//.setToAgency("EUL")
@@ -203,6 +217,16 @@ public class NcipCLI {
 					.setItemId(itemId);
 			Map<String, Object> map = wrapper.send(checkinItem);
 			System.out.println("RESPONSE: " + map.toString());
+			System.out.println("");
+
+		}
+		else if(service.equalsIgnoreCase("T")) {
+			if(!ncipProtocol.equals("WMS")) {
+				die("Must use WMS protocol");
+			}
+			NCIP2WMSClient WMSClient = new NCIP2WMSClient(endpoint, inputParms);
+			String token = WMSClient.getToken();
+			System.out.println("TOKEN: " + token);
 			System.out.println("");
 
 		}
@@ -296,7 +320,7 @@ public class NcipCLI {
 		Option ncipProtocol = Option.builder("w")
 				.hasArg()
 				.required(false)
-				.desc("The protocol of NCIP to use (1, 2, WMS)")
+				.desc("The protocol of NCIP to use (1, 2, WMS, SOCKET, STRICTSOCKET)")
 				.longOpt("ncip-protocol")
 				.build();
 

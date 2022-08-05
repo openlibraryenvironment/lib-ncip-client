@@ -16,6 +16,7 @@ public class NCIPClientWrapper {
 	public static final String NCIP1 = "NCIP1";
 	public static final String NCIP2 = "NCIP2";
 	public static final String NCIP1_SOCKET = "NCIP1_SOCKET";
+	public static final String NCIP1_STRICT_SOCKET = "NCIP1_STRICT_SOCKET";
 	public static final String WMS = "WMS";
 	public static final Logger logger = Logger.getLogger(NCIPClientWrapper.class);
 
@@ -32,13 +33,18 @@ public class NCIPClientWrapper {
 		String protocol = (String) inputMap.get("protocol");
 		//INSTANTIATE CLIENT
 		if (protocol == null) {
-			throw new NCIPClientException("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET or WMS");
+			throw new NCIPClientException("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET, NCIP1_STRICT_SOCKET or WMS");
 		}
 		if (protocol.equalsIgnoreCase(NCIP1)) {
 			this.circulationClient = new NCIP1Client(endpoint,inputParms);
 		}
 		else if (protocol.equalsIgnoreCase(NCIP1_SOCKET)) {
 			inputParms.put("useSocket", true);
+			this.circulationClient = new NCIP1Client(endpoint,inputParms);
+		}
+		else if (protocol.equalsIgnoreCase(NCIP1_STRICT_SOCKET)) {
+			inputParms.put("useSocket", true);
+			inputParms.put("strictSocket", true);
 			this.circulationClient = new NCIP1Client(endpoint,inputParms);
 		}
 		else if (protocol.equalsIgnoreCase(NCIP2)) {

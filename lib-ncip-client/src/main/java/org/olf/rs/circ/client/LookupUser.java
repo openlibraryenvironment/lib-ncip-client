@@ -349,6 +349,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	@Override
 	public JSONObject constructResponseNcip1Response(String responseData) {
 		JSONObject returnJson = new JSONObject();
+		//logger.info("Constructing NCIP1 Response from data: " + responseData); 
         try {
             Document document = Jsoup.parse(responseData,"",Parser.xmlParser());
             
