@@ -47,6 +47,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	protected String toAgency;
 	protected String fromAgency;
 	private String useridString;
+	private String userNameString;
 	List<String> userElementTypes = new ArrayList<>();
 	private String applicationProfileTypeString;
 
@@ -57,6 +58,11 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	
 	public LookupUser setApplicationProfileType(String profileType) {
 		applicationProfileTypeString = profileType;
+		return this;
+	}
+	
+	public LookupUser setUserName(String userName) {
+		userNameString = userName;
 		return this;
 	}
 	
