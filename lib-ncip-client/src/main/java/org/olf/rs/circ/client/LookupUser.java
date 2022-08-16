@@ -64,16 +64,16 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		return this;
 	}
 	
+	public LookupUser setUserId(String userId) {
+		useridString = userId;
+		return this;
+	}
+	
 	public LookupUser setUserName(String userName) {
 		usernameString = userName;
 		return this;
 	}
 	
-	public LookupUser setUserId(String userId) {
-		useridString = userId;
-		return this;
-	}
-
 	public LookupUser addUserElement(String userElement) {
 		userElementTypes.add(userElement);
 		return this;
