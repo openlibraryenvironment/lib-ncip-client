@@ -159,11 +159,24 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			}
 		}
 		
-		UserId userid = new UserId();
-		userid.setAgencyId(new AgencyId(fromAgency));
-		userid.setUserIdentifierValue(useridString);
-		lookupUserInitationData.setUserId(userid);
-		lookupUserInitationData.setInitiationHeader(initiationHeader);
+		if (useridString == null) {
+			AuthenticationInput authenticationInput = new AuthenticationInput();
+			AuthenticationDataFormatType authenticationDataFormatType = new AuthenticationDataFormatType(null, "text");
+			AuthenticationInputType authenticationInputType = new AuthenticationInputType(null, "username");
+			authenticationInput.setAuthenticationDataFormatType(authenticationDataFormatType);
+			authenticationInput.setAuthenticationInputData(usernameString);
+			authenticationInput.setAuthenticationInputType(authenticationInputType);
+			List<AuthenticationInput> authenticationInputs = new ArrayList<AuthenticationInput>();
+			authenticationInputs.add(authenticationInput);
+			lookupUserInitationData.setAuthenticationInputs(authenticationInputs);
+		}
+		else {
+			UserId userid = new UserId();
+			userid.setAgencyId(new AgencyId(fromAgency));
+			userid.setUserIdentifierValue(useridString);
+			lookupUserInitationData.setUserId(userid);
+			lookupUserInitationData.setInitiationHeader(initiationHeader);
+		}
 
 		return lookupUserInitationData;
 	}
