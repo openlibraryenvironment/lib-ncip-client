@@ -146,6 +146,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		fromAgencyId.setAgencyId(new AgencyId(fromAgency));
 		initiationHeader.setToAgencyId(toAgencyId);
 		initiationHeader.setFromAgencyId(fromAgencyId);
+		lookupUserInitationData.setInitiationHeader(initiationHeader);
 		for (Iterator<String> iter = userElementTypes.iterator(); iter.hasNext(); ) {
 			switch (iter.next()) {
 			case Constants.NAME_INFORMATION: lookupUserInitationData.setNameInformationDesired(true); break;
@@ -175,7 +176,6 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			userid.setAgencyId(new AgencyId(fromAgency));
 			userid.setUserIdentifierValue(useridString);
 			lookupUserInitationData.setUserId(userid);
-			lookupUserInitationData.setInitiationHeader(initiationHeader);
 		}
 
 		return lookupUserInitationData;
