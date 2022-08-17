@@ -89,27 +89,47 @@ public class NCIP1Client implements CirculationClient {
 		logger.info("port: " + port);
 
 		Socket socket = new Socket(baseUri,port);
+		socket.setSoTimeout(5000);
 		
 		DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
 		BufferedReader fromServer = new BufferedReader(new InputStreamReader(
 			socket.getInputStream()));
 		toServer.writeBytes(requestBody + "\n");
-		String line = "";
+		String line = null;
 		StringBuffer buffer = new StringBuffer();
-		while ((line = fromServer.readLine()) != null) {
+		try {
+			line = fromServer.readLine();
+			logger.info("Read line: '" + line + "'");
+		} catch(Exception e) {
+			logger.error("Error reading from socket: " + e.getLocalizedMessage());			
+		}		
+		//while ((line = fromServer.readLine()) != null) {
+		while(line != null) {
 			buffer.append(line);
-			logger.info(line);
+			
 			try {
-				//logger.info("attempting to write to server...");
+				//logger.info("attempting to write to server to check if still active");
 				toServer.writeByte(0);
 			}
 			catch(Exception e) {
-				logger.info("exception attempting to write to server  - assumed server closed connection");
+				logger.info("Exception attempting to write to server to check activity  - assumed server closed connection");
 				break;
 			}
 			
+			try {
+				line = fromServer.readLine();
+				logger.info("Read line: '" + line + "'");
+			} catch(Exception e) {
+				logger.info("Error reading from socket: " + e.getLocalizedMessage());	
+				break;		
+			}		
 		}
-		socket.close();
+		try {
+			logger.info("Attempting to close socket");
+			socket.close();
+		} catch(Exception e) {
+			logger.error("Error closing socket: " + e.getLocalizedMessage());
+		}
 		
 		if (buffer.toString().trim().isEmpty()) {
 			JSONObject r = constructException("response is empty",buffer.toString(),"exception calling ncip server with strict socket");
