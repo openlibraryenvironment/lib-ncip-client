@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.olf.rs</groupId>
 	<artifactId>lib-ncip-client</artifactId>
-	<version>0.19.2</version>
+	<version>0.19.3</version>
 	<name>NCIP Client</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
