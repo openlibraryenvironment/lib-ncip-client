@@ -29,6 +29,8 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.lang.Thread;
+
 /**
  * This class sends a POST request to NCIP v1 servers.
  * If useSocket is set to true, it will use java.net.Socket (not http)
@@ -89,7 +91,8 @@ public class NCIP1Client implements CirculationClient {
 		logger.info("port: " + port);
 
 		Socket socket = new Socket(baseUri,port);
-		socket.setSoTimeout(5000);
+		//socket.setSoTimeout(5000);
+		//socket.setKeepAlive(true);
 		
 		DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
 		BufferedReader fromServer = new BufferedReader(new InputStreamReader(
@@ -97,33 +100,35 @@ public class NCIP1Client implements CirculationClient {
 		toServer.writeBytes(requestBody + "\n");
 		String line = null;
 		StringBuffer buffer = new StringBuffer();
+		final int sleepLength = 500;
+		final int maxSleeps = 20;
+		int sleeps = 0;
 		try {
-			line = fromServer.readLine();
-			logger.info("Read line: '" + line + "'");
+			while(true) {
+				if(fromServer.ready()) {
+					sleeps = 0; //reset counter
+					line = fromServer.readLine();
+					logger.info("Read line: '" + line + "'");
+					if(line == null) {
+						break;
+					} else {
+						buffer.append(line);
+					}
+				} else {					
+					if( sleeps >= maxSleeps) {
+						logger.info("Max time exceeded for waiting on server");
+						break;
+					} else {
+						//logger.info("Server is not ready to read");
+						Thread.sleep(sleepLength);
+						sleeps = sleeps + 1;
+					}
+				}
+			}
 		} catch(Exception e) {
-			logger.error("Error reading from socket: " + e.getLocalizedMessage());			
-		}		
-		//while ((line = fromServer.readLine()) != null) {
-		while(line != null) {
-			buffer.append(line);
-			
-			try {
-				//logger.info("attempting to write to server to check if still active");
-				toServer.writeByte(0);
-			}
-			catch(Exception e) {
-				logger.info("Exception attempting to write to server to check activity  - assumed server closed connection");
-				break;
-			}
-			
-			try {
-				line = fromServer.readLine();
-				logger.info("Read line: '" + line + "'");
-			} catch(Exception e) {
-				logger.info("Error reading from socket: " + e.getLocalizedMessage());	
-				break;		
-			}		
+			logger.info("Error reading from socket: " + e.getLocalizedMessage());	
 		}
+
 		try {
 			logger.info("Attempting to close socket");
 			socket.close();
@@ -319,6 +324,7 @@ public class NCIP1Client implements CirculationClient {
 			problem.put("type","NCIP1 with socket Client failed to call NCIP server or parse returned results");
 			problem.put("element",e.getCause());
 			problem.put("detail", e.getLocalizedMessage());
+			problem.put("exception", e.getClass().getCanonicalName());
 			array.put(problem);
 			responseObject.put("problems", array);			
 			logger.info(responseObject.toString());
@@ -370,6 +376,7 @@ public class NCIP1Client implements CirculationClient {
 			problem.put("type","NCIP2 Client failed to call NCIP server or parse returned results");
 			problem.put("element",e.getCause());
 			problem.put("detail", e.getLocalizedMessage());
+			problem.put("exception", e.getClass().getCanonicalName());
 			array.put(problem);
 			responseObject.put("problems", array);			
 			return responseObject;
