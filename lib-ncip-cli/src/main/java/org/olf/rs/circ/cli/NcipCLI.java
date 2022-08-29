@@ -109,14 +109,28 @@ public class NcipCLI {
 			//String uid = in.nextLine();
 			fromAgency = stringOrDie("from-agency", inputLine);
 		  toAgency = stringOrDie("to-agency", inputLine);
-			String uid = stringOrDie("patron-id", inputLine);
-			System.out.println("Lookup User: " + uid);
+			String uid = inputLine.getOptionValue("patron-id");
+			String username = inputLine.getOptionValue("username");
+			if(uid == null && username == null) {
+				die("You must define either patron-id or username");
+			}
+			if(ncipProtocol.equals("1") || ncipProtocol.equals("SOCKET") || ncipProtocol.equals("STRICTSOCKET")) {
+				if(uid == null) {
+					die("Only NCIP version 2 supports username lookup in the client");
+				}
+			}
+			if(uid != null) {
+				System.out.println("Lookup User by id: " + uid);
+			} else {
+				System.out.println("Lookup User by username: " + username);
+			}
 			LookupUser lookupUser = new LookupUser();
 			//lookupUser.setFromAgency("Relias");
 			lookupUser.setFromAgency(fromAgency);
 			//lookupUser.setToAgency("EUL");
 			lookupUser.setToAgency(toAgency);
 			lookupUser.setUserId(uid);
+			lookupUser.setUserName(username);
 			lookupUser.includeUserAddressInformation();
 			lookupUser.includeNameInformation();
 			lookupUser.includeUserPrivilege();
@@ -282,6 +296,13 @@ public class NcipCLI {
 				.longOpt("patron-id")
 				.build();
 
+		Option userName = Option.builder("n")
+				.hasArgs()
+				.required(false)
+				.desc("The username for lookup (if used instead of id)")
+				.longOpt("username")
+				.build();
+
 		Option itemId = Option.builder("i")
 				.hasArg()
 				.required(false)
@@ -359,6 +380,7 @@ public class NcipCLI {
 		options.addOption(service);
 		options.addOption(itemId);
 		options.addOption(patronId);
+		options.addOption(userName);
 		options.addOption(requestId);
 		options.addOption(title);
 		options.addOption(author);
