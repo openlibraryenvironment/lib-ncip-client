@@ -15,6 +15,9 @@ import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
+import org.extensiblecatalog.ncip.v2.service.AuthenticationDataFormatType;
+import org.extensiblecatalog.ncip.v2.service.AuthenticationInput;
+import org.extensiblecatalog.ncip.v2.service.AuthenticationInputType;
 import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
 import org.extensiblecatalog.ncip.v2.service.LookupUserInitiationData;
@@ -47,6 +50,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	protected String toAgency;
 	protected String fromAgency;
 	private String useridString;
+	private String usernameString;
 	List<String> userElementTypes = new ArrayList<>();
 	private String applicationProfileTypeString;
 
@@ -64,7 +68,12 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		useridString = userId;
 		return this;
 	}
-
+	
+	public LookupUser setUserName(String userName) {
+		usernameString = userName;
+		return this;
+	}
+	
 	public LookupUser addUserElement(String userElement) {
 		userElementTypes.add(userElement);
 		return this;
@@ -140,6 +149,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		fromAgencyId.setAgencyId(new AgencyId(fromAgency));
 		initiationHeader.setToAgencyId(toAgencyId);
 		initiationHeader.setFromAgencyId(fromAgencyId);
+		lookupUserInitationData.setInitiationHeader(initiationHeader);
 		for (Iterator<String> iter = userElementTypes.iterator(); iter.hasNext(); ) {
 			switch (iter.next()) {
 			case Constants.NAME_INFORMATION: lookupUserInitationData.setNameInformationDesired(true); break;
@@ -153,11 +163,23 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 			}
 		}
 		
-		UserId userid = new UserId();
-		userid.setAgencyId(new AgencyId(fromAgency));
-		userid.setUserIdentifierValue(useridString);
-		lookupUserInitationData.setUserId(userid);
-		lookupUserInitationData.setInitiationHeader(initiationHeader);
+		if (useridString == null) {
+			AuthenticationInput authenticationInput = new AuthenticationInput();
+			AuthenticationDataFormatType authenticationDataFormatType = new AuthenticationDataFormatType(null, "text");
+			AuthenticationInputType authenticationInputType = new AuthenticationInputType(null, "username");
+			authenticationInput.setAuthenticationDataFormatType(authenticationDataFormatType);
+			authenticationInput.setAuthenticationInputData(usernameString);
+			authenticationInput.setAuthenticationInputType(authenticationInputType);
+			List<AuthenticationInput> authenticationInputs = new ArrayList<AuthenticationInput>();
+			authenticationInputs.add(authenticationInput);
+			lookupUserInitationData.setAuthenticationInputs(authenticationInputs);
+		}
+		else {
+			UserId userid = new UserId();
+			userid.setAgencyId(new AgencyId(fromAgency));
+			userid.setUserIdentifierValue(useridString);
+			lookupUserInitationData.setUserId(userid);
+		}
 
 		return lookupUserInitationData;
 	}

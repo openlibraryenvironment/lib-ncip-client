@@ -102,8 +102,10 @@ public class NCIP2Client implements CirculationClient {
 			        .loadTrustMaterial((chain, authType) -> true).build();
 
 			SSLConnectionSocketFactory sslConnectionSocketFactory =
-			        new SSLConnectionSocketFactory(sslContext, new String[]
-			        {"SSLv2Hello", "SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" }, null,
+			        new SSLConnectionSocketFactory(sslContext, 
+							//new String[] {"SSLv2Hello", "SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" },
+							new String[] { "SSLv3", "TLSv1","TLSv1.1", "TLSv1.2" },
+							null,
 			        NoopHostnameVerifier.INSTANCE);
 			
 			CloseableHttpClient client = HttpClients.custom().setSSLSocketFactory(sslConnectionSocketFactory).build();
@@ -138,6 +140,7 @@ public class NCIP2Client implements CirculationClient {
 			problem.put("type","NCIP2 Client failed to call NCIP server or parse returned results");
 			problem.put("element",e.getCause());
 			problem.put("detail", e.getLocalizedMessage());
+			logger.error("Error sending NCIP2 request: "  + e.getLocalizedMessage(), e);
 			array.put(problem);
 			responseObject.put("problems", array);			
 		}
