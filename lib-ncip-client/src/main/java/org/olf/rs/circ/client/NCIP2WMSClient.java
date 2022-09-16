@@ -155,6 +155,7 @@ public class NCIP2WMSClient implements CirculationClient {
 
 		
 	}
+
 	
 	public String printRequest(NCIPCircTransaction transaction) throws NCIPClientException {
 		try {
@@ -208,11 +209,17 @@ public class NCIP2WMSClient implements CirculationClient {
 		return returnJson;
 	}
 
+
+	protected NCIPInitiationData modifyTransactionForWMS(NCIPCircTransaction transaction, NCIPInitiationData initiationData) {
+		return transaction.modifyForWMS(initiationData);
+	}
+
 	private JSONObject callNcipService(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
 		
 		//generates XC NCIP Objects:
 		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
-		transaction.modifyForWMS(initiationData);
+		//transaction.modifyForWMS(initiationData);
+		initiationData = modifyTransactionForWMS(transaction, initiationData);
 		//transforms the object into NCIP XML:
 		InputStream requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
 

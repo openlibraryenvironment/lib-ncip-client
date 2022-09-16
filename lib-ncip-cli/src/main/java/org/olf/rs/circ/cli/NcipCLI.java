@@ -285,7 +285,7 @@ public class NcipCLI {
 		Option service = Option.builder("s")
 				.hasArg()
 				.required(false)
-				.desc("The service to test: (L, A, O, I)")
+				.desc("The service to test: (L, A, O, I, T: WMS Token Only)")
 				.longOpt("service")
 				.build();
 		

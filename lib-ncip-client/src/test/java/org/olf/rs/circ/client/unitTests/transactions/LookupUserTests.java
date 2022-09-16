@@ -341,7 +341,7 @@ public class LookupUserTests {
 			JSONObject lookupUserResponse = lookupUser.constructWMSResponse(responseObject);
 			assertEquals(lookupUserResponse.getString("firstName").trim(),"Jane");
 			String status = getValueByKey(lookupUserResponse.getJSONArray("privileges"),"STATUS");
-			assertEquals(status,"OK");
+			assertEquals("OK", status);
 			assertEquals(lookupUserResponse.get("userId"),"2200555");
 		}		
 		
