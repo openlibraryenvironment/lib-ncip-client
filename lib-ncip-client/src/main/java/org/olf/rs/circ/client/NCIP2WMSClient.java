@@ -28,22 +28,25 @@ import org.json.JSONObject;
 public class NCIP2WMSClient implements CirculationClient {
 
 	private static final Logger logger = Logger.getLogger(NCIP2WMSClient.class);
-	private String endpoint;
-	private XCToolkitUtil xcToolkitUtil;
-	private String apiKey;
-	private String apiSecret;
-	private String oAuthEndpointOverride;
-	private String lookupPatronEndpoint;
+	protected String endpoint;
+	protected XCToolkitUtil xcToolkitUtil;
+	protected String apiKey;
+	protected String apiSecret;
+	protected String oAuthEndpointOverride;
+	protected String lookupPatronEndpoint;
 
 
 	public NCIP2WMSClient(String endpoint, Map<String, Object> inputParms) throws NCIPClientException {
 		try {
+			String keyList = String.join(",", inputParms.keySet());
+			logger.debug("keys present in inputParms: " + keyList);
 			xcToolkitUtil = XCToolkitUtil.getInstance();
 			CaseInsensitiveMap<String,Object> inputMap = new CaseInsensitiveMap<String,Object>();
 			inputMap.putAll(inputParms);
 			this.endpoint = endpoint;
 			this.apiSecret = (String) inputMap.get("apiSecret");
 			this.apiKey = (String) inputMap.get("apiKey");
+			logger.debug("apiSecret set to " + apiSecret + ", apiKey set to " + apiKey);
 			this.oAuthEndpointOverride = (String) inputMap.get("oAuthEndpointOverride");
 			this.lookupPatronEndpoint  = (String) inputMap.get("lookupPatronEndpoint");
 		}
@@ -155,6 +158,7 @@ public class NCIP2WMSClient implements CirculationClient {
 
 		
 	}
+
 	
 	public String printRequest(NCIPCircTransaction transaction) throws NCIPClientException {
 		try {
@@ -208,11 +212,17 @@ public class NCIP2WMSClient implements CirculationClient {
 		return returnJson;
 	}
 
+
+	protected NCIPInitiationData modifyTransactionForWMS(NCIPCircTransaction transaction, NCIPInitiationData initiationData) {
+		return transaction.modifyForWMS(initiationData);
+	}
+
 	private JSONObject callNcipService(NCIPCircTransaction transaction) throws ServiceException, ValidationException, IOException {
 		
 		//generates XC NCIP Objects:
 		NCIPInitiationData  initiationData = transaction.generateNCIP2Object();
-		transaction.modifyForWMS(initiationData);
+		//transaction.modifyForWMS(initiationData);
+		initiationData = modifyTransactionForWMS(transaction, initiationData);
 		//transforms the object into NCIP XML:
 		InputStream requestMessageStream =  xcToolkitUtil.translator.createInitiationMessageStream(xcToolkitUtil.serviceContext, initiationData);
 

@@ -101,8 +101,10 @@ public class NCIP1Client implements CirculationClient {
 		String line = null;
 		StringBuffer buffer = new StringBuffer();
 		final int sleepLength = 500;
-		final int maxSleeps = 20;
+		final int maxSleeps = 15;
+		final int maxFirstSleeps = 50;
 		int sleeps = 0;
+		boolean firstRead = true;
 		try {
 			while(true) {
 				if(fromServer.ready()) {
@@ -113,9 +115,13 @@ public class NCIP1Client implements CirculationClient {
 						break;
 					} else {
 						buffer.append(line);
+						firstRead = false; //No longer waiting on the first read
 					}
 				} else {					
-					if( sleeps >= maxSleeps) {
+					/* If we're still waiting on the first read, we will allow more sleeps. Once
+					 * the transmission has started, we allow fewer.
+					 */
+					if( (firstRead == false && sleeps >= maxSleeps) || sleeps >= maxFirstSleeps) {
 						logger.info("Max time exceeded for waiting on server");
 						break;
 					} else {
