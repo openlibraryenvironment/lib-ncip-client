@@ -38,12 +38,15 @@ public class NCIP2WMSClient implements CirculationClient {
 
 	public NCIP2WMSClient(String endpoint, Map<String, Object> inputParms) throws NCIPClientException {
 		try {
+			String keyList = String.join(",", inputParms.keySet());
+			logger.debug("keys present in inputParms: " + keyList);
 			xcToolkitUtil = XCToolkitUtil.getInstance();
 			CaseInsensitiveMap<String,Object> inputMap = new CaseInsensitiveMap<String,Object>();
 			inputMap.putAll(inputParms);
 			this.endpoint = endpoint;
 			this.apiSecret = (String) inputMap.get("apiSecret");
 			this.apiKey = (String) inputMap.get("apiKey");
+			logger.debug("apiSecret set to " + apiSecret + ", apiKey set to " + apiKey);
 			this.oAuthEndpointOverride = (String) inputMap.get("oAuthEndpointOverride");
 			this.lookupPatronEndpoint  = (String) inputMap.get("lookupPatronEndpoint");
 		}

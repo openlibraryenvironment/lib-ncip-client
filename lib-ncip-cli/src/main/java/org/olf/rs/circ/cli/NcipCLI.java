@@ -98,7 +98,7 @@ public class NcipCLI {
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP2);
 		inputParms.put("useNamespace", false);
 		System.out.println("Creating NCIPClientWrapper");
-		if(ncipProtocol.equals("WMS")) {
+		if(ncipProtocol.equals("WMS") || ncipProtocol.equals("WMS2")) {
 			apiKey = stringOrDie("api-key", inputLine);
 			apiSecret = stringOrDie("api-secret", inputLine);
 			inputParms.put("apiSecret", apiSecret);
