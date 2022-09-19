@@ -18,6 +18,7 @@ public class NCIPClientWrapper {
 	public static final String NCIP1_SOCKET = "NCIP1_SOCKET";
 	public static final String NCIP1_STRICT_SOCKET = "NCIP1_STRICT_SOCKET";
 	public static final String WMS = "WMS";
+	public static final String WMS2 = "WMS2";
 	public static final Logger logger = Logger.getLogger(NCIPClientWrapper.class);
 
 	public CirculationClient circulationClient = null;
@@ -33,7 +34,7 @@ public class NCIPClientWrapper {
 		String protocol = (String) inputMap.get("protocol");
 		//INSTANTIATE CLIENT
 		if (protocol == null) {
-			throw new NCIPClientException("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET, NCIP1_STRICT_SOCKET or WMS");
+			throw new NCIPClientException("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET, NCIP1_STRICT_SOCKET, WMS or WMS2");
 		}
 		if (protocol.equalsIgnoreCase(NCIP1)) {
 			this.circulationClient = new NCIP1Client(endpoint,inputParms);
@@ -53,8 +54,11 @@ public class NCIPClientWrapper {
 		else if (protocol.equalsIgnoreCase(WMS)) {
 			this.circulationClient = new NCIP2WMSClient(endpoint,inputParms);
 		}
+		else if (protocol.equalsIgnoreCase(WMS2)) {
+			this.circulationClient = new NCIP2WMS2Client(endpoint,inputParms);
+		}
 		else {
-			throw new NCIPClientException("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET or WMS");
+			throw new NCIPClientException("Protocol must be NCIP1, NCIP2, NCIP1_SOCKET, WMS or WMS2");
 		}
 	}
 	

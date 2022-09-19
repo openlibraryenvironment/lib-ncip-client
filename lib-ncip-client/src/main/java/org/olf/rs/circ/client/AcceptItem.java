@@ -38,15 +38,15 @@ import com.github.jknack.handlebars.context.MethodValueResolver;
 public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 
 	protected String registryId; //WMS ONLY
-	private String requestIdString;
-	private String useridString;
-	private String itemIdString;
-	private String pickupLocationString;
+	protected String requestIdString;
+	protected String useridString;
+	protected String itemIdString;
+	protected String pickupLocationString;
 	protected String toAgency;
 	protected String fromAgency;
-	private String requestedActionTypeString;
-	private String applicationProfileTypeString;
-	private HashMap<String, HashMap> itemOptionalFields = new HashMap<String, HashMap>();
+	protected String requestedActionTypeString;
+	protected String applicationProfileTypeString;
+	protected HashMap<String, HashMap> itemOptionalFields = new HashMap<String, HashMap>();
 	private static final Logger logger = Logger.getLogger(AcceptItem.class);
 
 	public AcceptItem() {

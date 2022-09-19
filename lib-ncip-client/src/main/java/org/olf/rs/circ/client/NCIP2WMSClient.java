@@ -28,12 +28,12 @@ import org.json.JSONObject;
 public class NCIP2WMSClient implements CirculationClient {
 
 	private static final Logger logger = Logger.getLogger(NCIP2WMSClient.class);
-	private String endpoint;
-	private XCToolkitUtil xcToolkitUtil;
-	private String apiKey;
-	private String apiSecret;
-	private String oAuthEndpointOverride;
-	private String lookupPatronEndpoint;
+	protected String endpoint;
+	protected XCToolkitUtil xcToolkitUtil;
+	protected String apiKey;
+	protected String apiSecret;
+	protected String oAuthEndpointOverride;
+	protected String lookupPatronEndpoint;
 
 
 	public NCIP2WMSClient(String endpoint, Map<String, Object> inputParms) throws NCIPClientException {

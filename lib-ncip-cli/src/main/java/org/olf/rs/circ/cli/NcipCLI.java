@@ -88,6 +88,8 @@ public class NcipCLI {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP1_STRICT_SOCKET);
 		} else if(ncipProtocol.equals("WMS")) {
 			inputParms.put("protocol", NCIPClientWrapper.WMS);
+		} else if(ncipProtocol.equals("WMS2")) {
+			inputParms.put("protocol", NCIPClientWrapper.WMS2);
 		} else {
 			die(ncipProtocol + " is not a valid NCIP protocol");
 			return;
@@ -341,7 +343,7 @@ public class NcipCLI {
 		Option ncipProtocol = Option.builder("w")
 				.hasArg()
 				.required(false)
-				.desc("The protocol of NCIP to use (1, 2, WMS, SOCKET, STRICTSOCKET)")
+				.desc("The protocol of NCIP to use (1, 2, WMS, WMS2, SOCKET, STRICTSOCKET)")
 				.longOpt("ncip-protocol")
 				.build();
 
