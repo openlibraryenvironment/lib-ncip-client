@@ -10,9 +10,14 @@ import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.RequestId;
 import org.extensiblecatalog.ncip.v2.service.UserId;
+import org.extensiblecatalog.ncip.v2.service.ItemId;
 import org.extensiblecatalog.ncip.v2.service.RequestIdentifierType;
 import org.extensiblecatalog.ncip.v2.service.RequestedActionType;
 import org.extensiblecatalog.ncip.v2.service.UserIdentifierType;
+import org.extensiblecatalog.ncip.v2.service.ItemIdentifierType;
+import org.extensiblecatalog.ncip.v2.service.PickupLocation;
+
+
 
 import org.apache.log4j.Logger;
 
@@ -29,11 +34,16 @@ public class NCIP2WMS2Client extends NCIP2WMSClient {
   private static String WMS_SCHEME_APPLICATION_PROFILE_TYPE = "http://oclc.org/ncip/schemes/applicationprofiletype/circillapplicationprofiletype.scm";
   private static String WMS_SCHEME_REQUEST_IDENTIFIER_TYPE = "http://oclc.org/ncip/schemes/requestidentifiertype/circillrequestidentifiertype.scm";
   private static String WMS_SCHEME_REQUESTED_ACTION_TYPE = "http://www.oclc.org/ncip/schemes/ws-illv1_0requestedactiontype/requestedactiontype.scm";
-  private static String WMS_SCHEME_USER_IDENTIFIER_TYPE = "http://oclc.org/ncip/schemes/userid/oclcids.scm";
+  //private static String WMS_SCHEME_USER_IDENTIFIER_TYPE = "http://oclc.org/ncip/schemes/userid/oclcids.scm";
+  private static String WMS_SCHEME_USER_IDENTIFIER_TYPE = "http://www.niso.org/ncip/v1_0/imp1/schemes/visibleuseridentifiertype/visibleuseridentifiertype.scm";
+  private static String WMS_SCHEME_ITEM_IDENTIFIER_TYPE = "http://www.niso.org/ncip/v1_0/imp1/schemes/visibleitemidentifiertype/visibleitemidentifiertype.scm";
+  private static String WMS_SCHEME_PICKUP_LOCATION = "http://oclc.org/ncip/schemes/pickuplocation/branchid.scm";
   private static String WMS_APPLICATION_PROFILE_TYPE = "2.00";
   private static String WMS_REQUEST_IDENTIFIER_VALUE = "ILL Request Id";
   private static String WMS_REQUESTED_ACTION_TYPE_VALUE = "Hold For Fulfillment";
-  private static String WMS_USER_IDENTIFIER_TYPE_VALUE = "OCLC Institution Symbol";
+  //private static String WMS_USER_IDENTIFIER_TYPE_VALUE = "OCLC Institution Symbol";
+  private static String WMS_USER_IDENTIFIER_TYPE_VALUE = "Barcode";
+  private static String WMS_ITEM_IDENTIFIER_TYPE_VALUE = "Barcode";
   
   public NCIP2WMS2Client(String endpoint, Map<String, Object> inputParams) throws NCIPClientException {
     super(endpoint, inputParams);
@@ -88,6 +98,22 @@ public class NCIP2WMS2Client extends NCIP2WMSClient {
       newUserId.setUserIdentifierType(userIdentifierType);
       newUserId.setUserIdentifierValue(userIdentifierValue);
       acceptItemInitiationData.setUserId(newUserId);
+
+      ItemId oldItemId = acceptItemInitiationData.getItemId();
+      String itemIdentifierValue = oldItemId.getItemIdentifierValue();
+      ItemId newItemId = new ItemId();
+      newItemId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, fromAgency));
+      newItemId.setItemIdentifierValue(itemIdentifierValue);
+      ItemIdentifierType itemIdentifierType = new ItemIdentifierType(WMS_SCHEME_ITEM_IDENTIFIER_TYPE, WMS_ITEM_IDENTIFIER_TYPE_VALUE);
+      newItemId.setItemIdentifierType(itemIdentifierType);
+      acceptItemInitiationData.setItemId(newItemId);
+
+      PickupLocation oldPickupLocation = acceptItemInitiationData.getPickupLocation();
+      String pickupLocationValue = oldPickupLocation.getValue();
+      PickupLocation newPickupLocation = new PickupLocation(WMS_SCHEME_PICKUP_LOCATION, pickupLocationValue);
+      acceptItemInitiationData.setPickupLocation(newPickupLocation);
+    
+
 
 
 
