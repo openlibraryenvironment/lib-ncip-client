@@ -71,6 +71,8 @@ public class NcipCLI {
 		String apiKey = null;
 		String apiSecret = null;
 
+		String registryId = null;
+
 		System.out.println("**Testing NCIP at endpoint " + endpoint + "**");
 		
 		//System.out.println("Service? 'L' - lookupUser, 'A' - acceptItem, 'O' - checkoutItem, 'I' - checkinItem");
@@ -101,8 +103,11 @@ public class NcipCLI {
 		if(ncipProtocol.equals("WMS") || ncipProtocol.equals("WMS2")) {
 			apiKey = stringOrDie("api-key", inputLine);
 			apiSecret = stringOrDie("api-secret", inputLine);
+			registryId = stringOrDie("registry-id", inputLine);
 			inputParms.put("apiSecret", apiSecret);
 			inputParms.put("apiKey", apiKey);
+			inputParms.put("registryId", registryId);
+
 		}
 		//NCIPClientWrapper wrapper = new NCIPClientWrapper("https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder", inputParms);
 		NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
@@ -179,7 +184,8 @@ public class NcipCLI {
 					.setPickupLocation(pickup)
 					.setRequestActionType("Hold For Pickup")
 					.setRequestId(requestId)
-					.setItemId(itemId);
+					.setItemId(itemId)
+					.setRegistryId(registryId);
 			
 			String templatePrefix = inputLine.getOptionValue("template-prefix");
 			if(templatePrefix != null) {
@@ -368,6 +374,13 @@ public class NcipCLI {
 				.longOpt("api-key")
 				.build();
 
+		Option registryId = Option.builder("R")
+				.hasArg()
+				.required(false)
+				.desc("Registry ID (WMS required)")
+				.longOpt("registry-id")
+				.build();
+
 		Option prefix = Option.builder("x")
 			.hasArg()
 			.required(false)
@@ -391,6 +404,7 @@ public class NcipCLI {
 		options.addOption(appProfile);
 		options.addOption(apiKey);
 		options.addOption(apiSecret);
+		options.addOption(registryId);
 		options.addOption(help);
 		options.addOption(prefix);
 

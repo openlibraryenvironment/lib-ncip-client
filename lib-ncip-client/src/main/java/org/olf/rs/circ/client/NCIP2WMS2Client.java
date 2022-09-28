@@ -102,7 +102,8 @@ public class NCIP2WMS2Client extends NCIP2WMSClient {
       ItemId oldItemId = acceptItemInitiationData.getItemId();
       String itemIdentifierValue = oldItemId.getItemIdentifierValue();
       ItemId newItemId = new ItemId();
-      newItemId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, fromAgency));
+      String itemAgencyIdValue = oldItemId.getAgencyId().getValue();
+      newItemId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, itemAgencyIdValue));
       newItemId.setItemIdentifierValue(itemIdentifierValue);
       ItemIdentifierType itemIdentifierType = new ItemIdentifierType(WMS_SCHEME_ITEM_IDENTIFIER_TYPE, WMS_ITEM_IDENTIFIER_TYPE_VALUE);
       newItemId.setItemIdentifierType(itemIdentifierType);
