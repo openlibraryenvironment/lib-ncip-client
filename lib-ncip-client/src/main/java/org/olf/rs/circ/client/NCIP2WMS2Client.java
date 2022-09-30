@@ -1,5 +1,7 @@
 package org.olf.rs.circ.client;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
+import org.extensiblecatalog.ncip.v2.service.CheckInItemInitiationData;
+import org.extensiblecatalog.ncip.v2.service.CheckOutItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
@@ -113,14 +115,93 @@ public class NCIP2WMS2Client extends NCIP2WMSClient {
       String pickupLocationValue = oldPickupLocation.getValue();
       PickupLocation newPickupLocation = new PickupLocation(WMS_SCHEME_PICKUP_LOCATION, pickupLocationValue);
       acceptItemInitiationData.setPickupLocation(newPickupLocation);
-    
-
-
-
 
     } else if (transaction.getClass() == CheckinItem.class) {
+      CheckInItemInitiationData checkInItemInitiationData = (CheckInItemInitiationData)initiationData;
+      InitiationHeader initiationHeader = checkInItemInitiationData.getInitiationHeader();
+      
+      FromSystemId fromSystemId = new FromSystemId(WMS_SCHEME_SYSTEMID, WMS_FROM_SYSTEM_ID);
+      initiationHeader.setFromSystemId(fromSystemId);
+
+      FromAgencyId fromAgencyId = initiationHeader.getFromAgencyId();
+      String fromAgency = fromAgencyId.getAgencyId().getValue();
+      FromAgencyId newFromAgencyId = new FromAgencyId();
+      newFromAgencyId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, fromAgency));
+      initiationHeader.setFromAgencyId(newFromAgencyId);
+
+      ToSystemId toSystemId = new ToSystemId(WMS_SCHEME_SYSTEMID, WMS_TO_SYSTEM_ID);
+      initiationHeader.setToSystemId(toSystemId);
+
+      ToAgencyId oldToAgencyId = initiationHeader.getToAgencyId();
+      String toAgency = oldToAgencyId.getAgencyId().getValue();
+      ToAgencyId newToAgencyId = new ToAgencyId();
+      newToAgencyId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, toAgency));
+      initiationHeader.setToAgencyId(newToAgencyId);
+
+      ApplicationProfileType applicationProfileType = 
+        new ApplicationProfileType(WMS_SCHEME_APPLICATION_PROFILE_TYPE, WMS_APPLICATION_PROFILE_TYPE);
+      initiationHeader.setApplicationProfileType(applicationProfileType);
+
+      ItemId oldItemId = checkInItemInitiationData.getItemId();
+      String itemIdentifierValue = oldItemId.getItemIdentifierValue();
+      ItemId newItemId = new ItemId();
+      //String itemAgencyIdValue = oldItemId.getAgencyId().getValue();
+      //newItemId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, itemAgencyIdValue));
+      newItemId.setItemIdentifierValue(itemIdentifierValue);
+      ItemIdentifierType itemIdentifierType = new ItemIdentifierType(WMS_SCHEME_ITEM_IDENTIFIER_TYPE, WMS_ITEM_IDENTIFIER_TYPE_VALUE);
+      newItemId.setItemIdentifierType(itemIdentifierType);
+      checkInItemInitiationData.setItemId(newItemId);
 
     } else if (transaction.getClass() == CheckoutItem.class) {
+      CheckOutItemInitiationData checkOutItemInitiationData = (CheckOutItemInitiationData)initiationData;
+      InitiationHeader initiationHeader = checkOutItemInitiationData.getInitiationHeader();
+      
+      FromSystemId fromSystemId = new FromSystemId(WMS_SCHEME_SYSTEMID, WMS_FROM_SYSTEM_ID);
+      initiationHeader.setFromSystemId(fromSystemId);
+
+      FromAgencyId fromAgencyId = initiationHeader.getFromAgencyId();
+      String fromAgency = fromAgencyId.getAgencyId().getValue();
+      FromAgencyId newFromAgencyId = new FromAgencyId();
+      newFromAgencyId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, fromAgency));
+      initiationHeader.setFromAgencyId(newFromAgencyId);
+
+      ToSystemId toSystemId = new ToSystemId(WMS_SCHEME_SYSTEMID, WMS_TO_SYSTEM_ID);
+      initiationHeader.setToSystemId(toSystemId);
+
+      ToAgencyId oldToAgencyId = initiationHeader.getToAgencyId();
+      String toAgency = oldToAgencyId.getAgencyId().getValue();
+      ToAgencyId newToAgencyId = new ToAgencyId();
+      newToAgencyId.setAgencyId(new AgencyId(WMS_SCHEME_AGENCYID, toAgency));
+      initiationHeader.setToAgencyId(newToAgencyId);
+
+      ApplicationProfileType applicationProfileType = 
+        new ApplicationProfileType(WMS_SCHEME_APPLICATION_PROFILE_TYPE, WMS_APPLICATION_PROFILE_TYPE);
+      initiationHeader.setApplicationProfileType(applicationProfileType);
+
+      UserId oldUserId = checkOutItemInitiationData.getUserId();
+      String userIdentifierValue = oldUserId.getUserIdentifierValue();
+      UserIdentifierType userIdentifierType = new UserIdentifierType(WMS_SCHEME_USER_IDENTIFIER_TYPE, WMS_USER_IDENTIFIER_TYPE_VALUE);
+      UserId newUserId = new UserId();
+      newUserId.setUserIdentifierType(userIdentifierType);
+      newUserId.setUserIdentifierValue(userIdentifierValue);
+      checkOutItemInitiationData.setUserId(newUserId);
+
+      ItemId oldItemId = checkOutItemInitiationData.getItemId();
+      String itemIdentifierValue = oldItemId.getItemIdentifierValue();
+      ItemId newItemId = new ItemId();
+      newItemId.setItemIdentifierValue(itemIdentifierValue);
+      ItemIdentifierType itemIdentifierType = new ItemIdentifierType(WMS_SCHEME_ITEM_IDENTIFIER_TYPE, WMS_ITEM_IDENTIFIER_TYPE_VALUE);
+      newItemId.setItemIdentifierType(itemIdentifierType);
+      checkOutItemInitiationData.setItemId(newItemId);
+
+      RequestId oldRequestId = checkOutItemInitiationData.getRequestId();
+      String oldRequestIdentifierValue = oldRequestId.getRequestIdentifierValue();
+      RequestIdentifierType requestIdentifierType = new RequestIdentifierType(WMS_SCHEME_REQUEST_IDENTIFIER_TYPE, WMS_REQUEST_IDENTIFIER_VALUE);
+      RequestId newRequestId = new RequestId();
+      String newRequestIdentifierValue = "ReShareRequest" + oldRequestIdentifierValue;
+      newRequestId.setRequestIdentifierType(requestIdentifierType);
+      newRequestId.setRequestIdentifierValue(newRequestIdentifierValue);
+      checkOutItemInitiationData.setRequestId(newRequestId);
 
     } else if (transaction.getClass() == LookupUser.class) {
 
