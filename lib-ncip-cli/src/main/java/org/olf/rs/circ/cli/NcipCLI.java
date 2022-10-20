@@ -71,6 +71,8 @@ public class NcipCLI {
 		String apiKey = null;
 		String apiSecret = null;
 
+		String registryId = null;
+
 		System.out.println("**Testing NCIP at endpoint " + endpoint + "**");
 		
 		//System.out.println("Service? 'L' - lookupUser, 'A' - acceptItem, 'O' - checkoutItem, 'I' - checkinItem");
@@ -88,6 +90,8 @@ public class NcipCLI {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP1_STRICT_SOCKET);
 		} else if(ncipProtocol.equals("WMS")) {
 			inputParms.put("protocol", NCIPClientWrapper.WMS);
+		} else if(ncipProtocol.equals("WMS2")) {
+			inputParms.put("protocol", NCIPClientWrapper.WMS2);
 		} else {
 			die(ncipProtocol + " is not a valid NCIP protocol");
 			return;
@@ -96,11 +100,14 @@ public class NcipCLI {
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP2);
 		inputParms.put("useNamespace", false);
 		System.out.println("Creating NCIPClientWrapper");
-		if(ncipProtocol.equals("WMS")) {
+		if(ncipProtocol.equals("WMS") || ncipProtocol.equals("WMS2")) {
 			apiKey = stringOrDie("api-key", inputLine);
 			apiSecret = stringOrDie("api-secret", inputLine);
+			registryId = stringOrDie("registry-id", inputLine);
 			inputParms.put("apiSecret", apiSecret);
 			inputParms.put("apiKey", apiKey);
+			inputParms.put("registryId", registryId);
+
 		}
 		//NCIPClientWrapper wrapper = new NCIPClientWrapper("https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder", inputParms);
 		NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
@@ -177,7 +184,8 @@ public class NcipCLI {
 					.setPickupLocation(pickup)
 					.setRequestActionType("Hold For Pickup")
 					.setRequestId(requestId)
-					.setItemId(itemId);
+					.setItemId(itemId)
+					.setRegistryId(registryId);
 			
 			String templatePrefix = inputLine.getOptionValue("template-prefix");
 			if(templatePrefix != null) {
@@ -285,7 +293,7 @@ public class NcipCLI {
 		Option service = Option.builder("s")
 				.hasArg()
 				.required(false)
-				.desc("The service to test: (L, A, O, I)")
+				.desc("The service to test: (L, A, O, I, T: WMS Token Only)")
 				.longOpt("service")
 				.build();
 		
@@ -341,7 +349,7 @@ public class NcipCLI {
 		Option ncipProtocol = Option.builder("w")
 				.hasArg()
 				.required(false)
-				.desc("The protocol of NCIP to use (1, 2, WMS, SOCKET, STRICTSOCKET)")
+				.desc("The protocol of NCIP to use (1, 2, WMS, WMS2, SOCKET, STRICTSOCKET)")
 				.longOpt("ncip-protocol")
 				.build();
 
@@ -364,6 +372,13 @@ public class NcipCLI {
 				.required(false)
 				.desc("API Key (WMS required)")
 				.longOpt("api-key")
+				.build();
+
+		Option registryId = Option.builder("R")
+				.hasArg()
+				.required(false)
+				.desc("Registry ID (WMS required)")
+				.longOpt("registry-id")
 				.build();
 
 		Option prefix = Option.builder("x")
@@ -389,6 +404,7 @@ public class NcipCLI {
 		options.addOption(appProfile);
 		options.addOption(apiKey);
 		options.addOption(apiSecret);
+		options.addOption(registryId);
 		options.addOption(help);
 		options.addOption(prefix);
 
