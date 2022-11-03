@@ -77,6 +77,37 @@ public class LookupUserTests {
 		assertEquals(lookupUserResponse.getString("firstName").trim(),"John");
 		assertEquals(lookupUserResponse.get("userId"),"share501");
 	}
+
+	@Test
+	public void testConstructNcip1WithStructuredAndUnstructuredName() throws Exception {
+		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipOneStructuredAndUnstructuredName.xml";
+		String xmlAsString = readLineByLine(mockFileName);
+		LookupUser lookupUser = new LookupUser();
+		JSONObject lookupUserResponse = lookupUser.constructResponseNcip1Response(xmlAsString);
+		assertEquals(lookupUserResponse.getString("firstName").trim(),"John");
+		assertEquals(lookupUserResponse.getString("lastName").trim(),"Doe");
+		assertEquals(lookupUserResponse.get("userId"),"share501");
+	}
+
+	@Test
+	public void testNcip1UnstructuredNameSpaces() throws Exception {
+		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipOneUnstructuredNameSpaces.xml";
+		String xmlAsString = readLineByLine(mockFileName);
+		LookupUser lookupUser = new LookupUser();
+		JSONObject lookupUserResponse = lookupUser.constructResponseNcip1Response(xmlAsString);
+		assertEquals(lookupUserResponse.getString("firstName").trim(),"John Freaking");
+		assertEquals(lookupUserResponse.getString("lastName").trim(),"Doe");
+	}
+
+	@Test
+		public void testNcip1UnstructuredNameComma() throws Exception {
+		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipOneUnstructuredNameComma.xml";
+		String xmlAsString = readLineByLine(mockFileName);
+		LookupUser lookupUser = new LookupUser();
+		JSONObject lookupUserResponse = lookupUser.constructResponseNcip1Response(xmlAsString);
+		assertEquals(lookupUserResponse.getString("firstName").trim(),"John Freaking");
+		assertEquals(lookupUserResponse.getString("lastName").trim(),"Doe");
+	}
 	
 	@Test
 	public void testConstructNcip2Response() throws Exception {

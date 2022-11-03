@@ -9,6 +9,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
@@ -380,14 +381,10 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
             	return constructeNcipOneProblems(problems);
             }
             Element name = null;
-            try {
-            	name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > UnstructuredPersonalUserName").get(0);
-            	String nameString = name.text();
-            	returnJson = gatherUnstructuredName(nameString, returnJson);
-            }
-            catch(IndexOutOfBoundsException e) {
-            	//OK - UNSTRUCTURED NAME NOT IN RESPONSE - TRY STRUCTURED
-            	name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > StructuredPersonalUserName").get(0);
+						/* Look for a structured name first, then try to parse an unstructured name */
+            
+						try {
+							name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > StructuredPersonalUserName").get(0);
             	String firstName = name.select("GivenName").text();
             	String lastName = name.select("Surname").text();
 							if(lastName != null && (firstName == null || firstName.trim().isEmpty())) {
@@ -400,7 +397,11 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 							}
             	returnJson.put("lastName", lastName);
     			    returnJson.put("firstName", firstName);
-            }
+						} catch(IndexOutOfBoundsException e) {
+							name = document.select("NCIPMessage > LookupUserResponse > UserOptionalFields > NameInformation > PersonalNameInformation > UnstructuredPersonalUserName").get(0);
+            	String nameString = name.text();
+            	returnJson = gatherUnstructuredName(nameString, returnJson);
+						}
             returnJson.put("electronicAddresses", gatherNcipOneElectronicAddress(document));
             returnJson.put("privileges", getNcipOnePrivileges(document));
             returnJson.put("unstructuredPhysicalAddress", gatherUnstructuredPhysicalAddress(document));
@@ -518,13 +519,20 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	 */
 	private JSONObject gatherUnstructuredName(String name, JSONObject returnJson) {
 		
+		/* 
+		 * If we can split on a comma, assume the name is in "Lastname, Firstname" format
+		 * If we have to split on spaces, assume "Firstname Lastname" format
+		 */
 		try {
 			String[] values = name.split(",");
 			if (values.length == 1) {
 				values = name.split(" ");
+				returnJson.put("firstName", String.join(" ", Arrays.copyOfRange(values, 0, values.length - 1)));
+				returnJson.put("lastName", values[values.length - 1].trim());
+			} else {
+				returnJson.put("lastName", values[0].trim());
+				returnJson.put("firstName", values[values.length - 1].trim());
 			}
-			returnJson.put("lastName", values[0].trim());
-			returnJson.put("firstName", values[values.length - 1].trim());
 		}
 		catch(Exception e) {
 			logger.info("Unstructured name returned from NCIP could not be parsed. ");
