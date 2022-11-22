@@ -124,6 +124,9 @@ public class NCIP1Client implements CirculationClient {
 					if( (firstRead == false && sleeps >= maxSleeps) || sleeps >= maxFirstSleeps) {
 						logger.info("Max time exceeded for waiting on server");
 						break;
+					} else if (firstRead == false && fromServer.ready() == false) {
+						logger.debug("Ready state changed to false post-read. Assuming complete.");
+						break;
 					} else {
 						//logger.info("Server is not ready to read");
 						Thread.sleep(sleepLength);
