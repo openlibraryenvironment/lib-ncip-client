@@ -9,6 +9,8 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import static org.junit.Assert.fail;
+
 import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
 import org.json.JSONObject;
@@ -98,7 +100,15 @@ public class NcipCLI {
 		}
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP1);
 		//inputParms.put("protocol", NCIPClientWrapper.NCIP2);
-		inputParms.put("useNamespace", false);
+		//inputParms.put("useNamespace", false);
+		String namespace = inputLine.getOptionValue("use-namespace");
+		if("false".equals(namespace)) {
+			inputParms.put("useNamespace", false);
+		}
+		String password = inputLine.getOptionValue("password");
+		if(password != null) {
+			inputParms.put("fromAgencyAuthentication", password);
+		}
 		System.out.println("Creating NCIPClientWrapper");
 		if(ncipProtocol.equals("WMS") || ncipProtocol.equals("WMS2")) {
 			apiKey = stringOrDie("api-key", inputLine);
@@ -198,7 +208,7 @@ public class NcipCLI {
 		}
 		else if (service.equalsIgnoreCase("O")) {
 			Map<String, Object> inputParameters = new HashMap<String,Object>();
-			inputParameters.put("useNamespace", false);
+			//inputParameters.put("useNamespace", false);
 			//NCIP1Client client = new NCIP1Client(" https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder",ip);
 			//NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
 			//System.out.println("Patron ID?");
@@ -388,6 +398,20 @@ public class NcipCLI {
 			.longOpt("template-prefix")
 			.build();
 
+		Option namespace = Option.builder("N")
+			.hasArg()
+			.required(false)
+			.desc("Use namespaces in v2 XML output (default true)")
+			.longOpt("use-namespace")
+			.build();
+
+		Option password = Option.builder("z")
+			.hasArg()
+			.required(false)
+			.desc("If provided, maps to fromAgencyAuthentication")
+			.longOpt("password")
+			.build();
+
 		Option help = new Option("help", "print this message");
 
 		options.addOption(fromAgency);
@@ -407,6 +431,8 @@ public class NcipCLI {
 		options.addOption(registryId);
 		options.addOption(help);
 		options.addOption(prefix);
+		options.addOption(namespace);
+		options.addOption(password);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);

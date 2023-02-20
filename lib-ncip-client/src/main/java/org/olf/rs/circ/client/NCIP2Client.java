@@ -31,12 +31,29 @@ import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.StringWriter;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Element;
+import org.w3c.dom.Document;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerFactory;
+
+
+
+
 public class NCIP2Client implements CirculationClient {
 	
 	private static final Logger logger = Logger.getLogger(NCIP2Client.class);
 	protected String endpoint;
 	private XCToolkitUtil xcToolkitUtil;
 	private boolean useNamespace = true;
+	private String fromAgencyAuthentication = null;
 	
 	//TODO ADD TIMEOUT PREFERENCE ?
 	//TODO ADD RETRY ATTEMPT PREFERENCE ?
@@ -47,6 +64,9 @@ public class NCIP2Client implements CirculationClient {
 			inputMap.putAll(inputParms);
 			if (inputMap.containsKey("useNamespace")) {
 				this.useNamespace = (boolean) inputMap.get("useNamespace");
+			}
+			if (inputMap.containsKey("fromAgencyAuthentication")) {
+				this.fromAgencyAuthentication = (String) inputMap.get("fromAgencyAuthentication");
 			}
 			logger.info("Getting xcToolkitUtil");
 			xcToolkitUtil = XCToolkitUtil.getInstance();
@@ -85,13 +105,58 @@ public class NCIP2Client implements CirculationClient {
 		String requestBody = null;
 		try {
 			requestBody = IOUtils.toString(requestMessageStream, StandardCharsets.UTF_8);
-			if (!useNamespace) requestBody = requestBody.replace("ns1:", "").replace("xmlns:ns1", "xmlns");
-		}
-		catch(Exception e) {
+		} catch(Exception e) {
 			logger.fatal("NCIP2Client send call failed building requestBody");
 			JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client send call failed building XML");
 			return r;
 		}
+
+		/*
+		 * If we have a provided value for fromAgencyAuthentication, parse the string to XML,
+		 * insert the value and then re-output to string
+		 */
+		if (this.fromAgencyAuthentication != null) {
+			try {
+				DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+				dbf.setNamespaceAware(true);
+				DocumentBuilder db = dbf.newDocumentBuilder();
+				InputStream is = new ByteArrayInputStream(requestBody.getBytes(StandardCharsets.UTF_8));
+				Document doc = db.parse(is);
+				Element root = doc.getDocumentElement();
+				String namespace = root.getNamespaceURI();
+				String prefix = root.getPrefix();
+				NodeList initiationHeaderNodeList = root.getElementsByTagNameNS(namespace, "InitiationHeader");
+			  Node initiationHeader = initiationHeaderNodeList.item(0);
+				Element elem = doc.createElementNS(namespace, prefix + ":" + "FromAgencyAuthentication");
+				elem.setTextContent(this.fromAgencyAuthentication);
+				Node fromAgencyId = root.getElementsByTagNameNS(namespace, "FromAgencyId").item(0);
+				initiationHeader.insertBefore(elem, fromAgencyId.getNextSibling());	
+				//Write it back to String
+				DOMSource domSource = new DOMSource(doc);
+				StringWriter writer = new StringWriter();
+				StreamResult result = new StreamResult(writer);
+				Transformer transformer = TransformerFactory.newInstance().newTransformer();
+				transformer.transform(domSource, result);
+				requestBody = writer.toString();			
+
+			} catch(Exception e) {
+				logger.fatal("NCIP2Client send call failed adding fromAgencyAuthentication: " + e.getLocalizedMessage());
+				JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client send call failed building XML");
+				return r;
+			}
+		}
+		
+		if (!useNamespace) {
+			try {
+				logger.debug("Stripping namespaces");
+				requestBody = requestBody.replace("ns1:", "").replace("xmlns:ns1", "xmlns");
+			} catch(Exception e) {
+				logger.fatal("NCIP2Client send call failed stripping namespace info: " + e.getLocalizedMessage());
+				JSONObject r = constructException("Toolkit Exception ", e.getLocalizedMessage(),"NCIP2Client send call failed building XML");
+				return r;
+			}
+		}
+		
 		logger.info("Request Body: " + requestBody);
 		String responseString = null;
 		JSONObject responseObject = new JSONObject();
