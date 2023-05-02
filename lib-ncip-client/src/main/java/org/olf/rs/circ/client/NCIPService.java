@@ -1,9 +1,8 @@
 package org.olf.rs.circ.client;
 
-import java.util.Iterator;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
@@ -20,16 +19,16 @@ import com.github.jknack.handlebars.context.FieldValueResolver;
 import com.github.jknack.handlebars.context.MethodValueResolver;
 
 public class NCIPService {
-	
+
 	private static final Logger logger = Logger.getLogger(NCIPService.class);
 
-	// If the templatePrefix is set, then append this to the filename of the prefix that we use 
+	// If the templatePrefix is set, then append this to the filename of the prefix that we use
 	protected String templatePrefix = null;
 
 	public void setTemplatePrefix(String prefix) {
 		templatePrefix = prefix;
 	}
-	
+
 	public JSONObject constructMissingElementProblem(String missingElement) {
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
@@ -42,13 +41,13 @@ public class NCIPService {
 		returnJson.put("problems", array);
 		return returnJson;
 	}
-	
+
 	public JSONObject constructProblem(NCIPResponseData responseData) {
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
 		Iterator<Problem> i = responseData.getProblems().iterator();
 		while (i.hasNext()) {
-			Problem ncipProblem = (Problem)i.next();
+			Problem ncipProblem = i.next();
 			JSONObject problem = new JSONObject();
 			ncipProblem.getProblemDetail();
 			problem.put("type",ncipProblem.getProblemType().getValue());
@@ -60,7 +59,7 @@ public class NCIPService {
 		returnJson.put("problems", array);
 		return returnJson;
 	}
-	
+
 	public JSONObject constructProblem(Problem ncipProblem) {
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
@@ -73,7 +72,7 @@ public class NCIPService {
 		returnJson.put("problems", array);
 		return returnJson;
 	}
-	
+
 	public JSONObject constructeNcipOneProblems(Elements document) {
 		JSONObject returnJson = new JSONObject();
 		JSONArray array = new JSONArray();
@@ -97,8 +96,8 @@ public class NCIPService {
 		returnJson.put("problems", array);
 		return returnJson;
 	}
-	
-	
+
+
 	/**
 	 * The method generates the NCIP1 request XML
 	 * @param templateFileName path including file name to template file
@@ -118,7 +117,7 @@ public class NCIPService {
 		}
 
 		try {
-			Template template = handlebars.compile(templateFileName); 
+			Template template = handlebars.compile(templateFileName);
 			Context context = Context.newBuilder(this).resolver(MethodValueResolver.INSTANCE,FieldValueResolver.INSTANCE).build();
 		    String output =  template.apply(context);
 		    //logger.info(output);
@@ -130,7 +129,27 @@ public class NCIPService {
 		}
 		return null;
 	}
-	
 
+	public void addProtocolInformation(
+			JSONObject responseObject,
+			String endPoint,
+			String requestBody,
+			String responseStatus,
+			String responseBody) {
+		// Create our json object that we will add the debug information to
+		JSONObject protocolInformation = new JSONObject();
+		responseObject.put("protocolInformation", protocolInformation);
 
+		// Lets add the request data
+		JSONObject requestDetails = new JSONObject();
+		protocolInformation.put("request", requestDetails);
+		requestDetails.put("endPoint", endPoint);
+		requestDetails.put("requestbody", requestBody);
+
+		// Lets add the response data
+		JSONObject responseDetails = new JSONObject();
+		protocolInformation.put("response", responseDetails);
+		responseDetails.put("responseStatus", responseStatus);
+		responseDetails.put("responseBody", responseBody);
+	}
 }

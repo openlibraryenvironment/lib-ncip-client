@@ -13,8 +13,5 @@ public interface NCIPCircTransaction {
 	JSONObject constructResponseNcip1Response(String responseData);
 	JSONObject validateRequest();
 	JSONObject constructWMSResponse(JSONObject responseJson);
-	
-
-	
-	
+	void addProtocolInformation(JSONObject responseObject, String endPoint, String requestBody, String responseStatus,String responseBody);
 }

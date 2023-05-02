@@ -154,6 +154,10 @@ public class NCIP1Client implements CirculationClient {
 			logger.info("full response:");
 			logger.info(buffer.toString());
 			JSONObject r = transaction.constructResponseNcip1Response(buffer.toString());
+			
+			// Add information that may help in debugging any problems
+			transaction.addProtocolInformation(r, this.endpoint, requestBody, null, buffer.toString());
+			
 			return r;
 		}
 		catch(Exception e) {
@@ -280,6 +284,10 @@ public class NCIP1Client implements CirculationClient {
 		try {
 			logger.info("Constructing NCIP response with string: " + stringBuffer.toString());
 			JSONObject r = transaction.constructResponseNcip1Response(stringBuffer.toString());
+			
+			// Add information that may help in debugging any problems
+			transaction.addProtocolInformation(r, this.endpoint, requestBody, null, stringBuffer.toString());
+			
 			return r;
 		}
 		catch(Exception e) {
@@ -393,6 +401,10 @@ public class NCIP1Client implements CirculationClient {
 		try {
 			responseObject = transaction.constructResponseNcip1Response(responseString);
 			logger.info(responseObject.toString());
+			
+			// Add information that may help in debugging any problems
+			transaction.addProtocolInformation(responseObject, this.endpoint, requestBody, null, responseString);
+			
 			return responseObject;
 		}
 		catch(Exception e) {

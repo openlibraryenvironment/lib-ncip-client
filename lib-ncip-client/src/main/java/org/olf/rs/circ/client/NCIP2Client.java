@@ -160,6 +160,8 @@ public class NCIP2Client implements CirculationClient {
 		logger.info("Request Body: " + requestBody);
 		String responseString = null;
 		JSONObject responseObject = new JSONObject();
+		String responseStatus = null;
+		
 		//call to NCIP server
 		try {
 			//added sslConnectionSocketFactory for Sierra Deq NCIP 11-2020
@@ -188,6 +190,7 @@ public class NCIP2Client implements CirculationClient {
 			 logger.info("to: " + this.endpoint);
 			 logger.info("NCIP2 response received: ");
 			 logger.info(responseString);
+			 responseStatus = response.getStatusLine().toString();
 			 int responseCode = response.getStatusLine().getStatusCode();
 			 if (responseCode > 399) {
 				 throw new Exception("Http call to " + this.endpoint + " returned response code " + responseCode + ".  Response body: " + responseString);
@@ -209,6 +212,10 @@ public class NCIP2Client implements CirculationClient {
 			array.put(problem);
 			responseObject.put("problems", array);			
 		}
+
+		// Add information that may help in debugging any problems
+		transaction.addProtocolInformation(responseObject, this.endpoint, requestBody, responseStatus, responseString);
+		
 		return responseObject;
 	}
 	
