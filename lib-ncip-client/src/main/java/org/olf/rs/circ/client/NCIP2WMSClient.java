@@ -245,6 +245,7 @@ public class NCIP2WMSClient implements CirculationClient {
 		if (errors != null) return errors;
 
 		JSONObject responseObject = new JSONObject();
+		String responseStatus = null;
 		
 		//call to NCIP server
 		try {
@@ -265,6 +266,7 @@ public class NCIP2WMSClient implements CirculationClient {
 			logger.info("to: " + this.endpoint);
 			logger.info("NCIP2 (WMS) response received: ");
 			logger.info(responseString);
+			responseStatus = response.getStatusLine().toString();
 			int responseCode = response.getStatusLine().getStatusCode();
 			if (responseCode > 399) {
 				throw new Exception("Http call to " + this.endpoint + " returned response code " + responseCode + ".  Response body: " + responseString);
@@ -285,6 +287,10 @@ public class NCIP2WMSClient implements CirculationClient {
 			array.put(problem);
 			responseObject.put("problems", array);			
 		}
+		
+		// Add information that may help in debugging any problems
+		transaction.addProtocolInformation(responseObject, this.endpoint, requestBody, responseStatus, responseString);
+		
 		return responseObject;
 	}
 	
