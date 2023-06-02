@@ -117,6 +117,10 @@ public class NcipCLI {
 			inputParms.put("apiSecret", apiSecret);
 			inputParms.put("apiKey", apiKey);
 			inputParms.put("registryId", registryId);
+			if("L".equals(service)) {
+				inputParms.put("lookupPatronEndpoint",
+						stringOrDie("wms-patron-lookup", inputLine));
+			}
 
 		}
 		//NCIPClientWrapper wrapper = new NCIPClientWrapper("https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder", inputParms);
@@ -412,6 +416,13 @@ public class NcipCLI {
 			.longOpt("password")
 			.build();
 
+		Option wmsLookupPatronEndpoint = Option.builder("W")
+			.hasArg()
+			.required(false)
+			.desc("The endpoint for looking up patrons used by WMS clients")
+			.longOpt("wms-patron-lookup")
+			.build();
+
 		Option help = new Option("help", "print this message");
 
 		options.addOption(fromAgency);
@@ -433,6 +444,7 @@ public class NcipCLI {
 		options.addOption(prefix);
 		options.addOption(namespace);
 		options.addOption(password);
+		options.addOption(wmsLookupPatronEndpoint);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
