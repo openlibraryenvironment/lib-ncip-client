@@ -1,15 +1,11 @@
 package org.olf.rs.circ.cli;
 
-//import static org.junit.Assert.fail;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
