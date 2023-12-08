@@ -7,8 +7,15 @@ import java.util.logging.Logger;
 
 import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
-import org.olf.rs.circ.client.*;
 
+import org.olf.rs.circ.client.AcceptItem;
+import org.olf.rs.circ.client.CheckinItem;
+import org.olf.rs.circ.client.CheckoutItem;
+import org.olf.rs.circ.client.LookupUser;
+import org.olf.rs.circ.client.RequestItem;
+
+import org.olf.rs.circ.client.NCIP2WMSClient;
+import org.olf.rs.circ.client.NCIPClientWrapper;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
