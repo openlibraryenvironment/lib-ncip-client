@@ -1,7 +1,11 @@
 package org.olf.rs.circ.client;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
@@ -11,6 +15,49 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
     protected String fromAgency;
     private String useridString;
     private String bibliographicRecordIdString;
+    private String bibliographicRecordIdCodeString;
+    private String requestIdString;
+
+    public RequestItem setRegistryId(String id) {
+        this.registryId = id;
+        return this;
+    }
+
+    public RequestItem setToAgency(String toAgency) {
+        this.toAgency = toAgency;
+        return this;
+    }
+
+    public RequestItem setFromAgency(String fromAgency) {
+        this.fromAgency = fromAgency;
+        return this;
+    }
+
+    public RequestItem setUserId(String userId) {
+        this.useridString = userId;
+        return this;
+    }
+
+    public RequestItem setBibliographicRecordId(String bibId) {
+        this.bibliographicRecordIdString = bibId;
+        return this;
+    }
+
+    public RequestItem setBibliographicRecordIdCode(String bibIdCode) {
+        this.bibliographicRecordIdCodeString = bibIdCode;
+        return this;
+    }
+
+    public RequestItem setRequestId(String requestId) {
+        this.requestIdString = requestId;
+        return this;
+    }
+
+    public RequestItem setApplicationProfileType(String profileType) {
+        applicationProfileTypeString = profileType;
+        return this;
+    }
+
     @Override
     public NCIPInitiationData generateNCIP2Object() {
         RequestItemInitiationData requestItemInitiationData = new RequestItemInitiationData();
@@ -32,11 +79,29 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         BibliographicId bibliographicId = new BibliographicId();
         BibliographicRecordId bibliographicRecordId = new BibliographicRecordId();
         bibliographicRecordId.setBibliographicRecordIdentifier(bibliographicRecordIdString);
+        bibliographicRecordId.setBibliographicRecordIdentifierCode(
+                new BibliographicRecordIdentifierCode(null, bibliographicRecordIdCodeString));
         bibliographicId.setBibliographicRecordId(bibliographicRecordId);
 
+        RequestId requestId = new RequestId();
+        requestId.setAgencyId(new AgencyId(fromAgency));
+        requestId.setRequestIdentifierValue(requestIdString);
 
+        RequestType requestType = new RequestType(null, "Loan");
 
-        return null;
+        RequestScopeType requestScopeType = new RequestScopeType(null, "Bibliographic Item");
+
+        List<BibliographicId> bibIdList = new ArrayList<>();
+        bibIdList.add(bibliographicId);
+        requestItemInitiationData.setBibliographicIds(bibIdList);
+        requestItemInitiationData.setUserId(userid);
+        requestItemInitiationData.setRequestId(requestId);
+        requestItemInitiationData.setInitiationHeader(initiationHeader);
+        requestItemInitiationData.setRequestType(requestType);
+        requestItemInitiationData.setRequestScopeType(requestScopeType);
+
+        return requestItemInitiationData;
+
     }
 
     @Override
@@ -51,7 +116,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
     @Override
     public String generateNCIP1Object() {
-        return null;
+        return generateNCIP1Object("/templates/requestItem.hbs");
     }
 
     @Override
@@ -66,12 +131,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
     @Override
     public JSONObject constructWMSResponse(JSONObject responseJson) {
-        return null;
-    }
-
-    public RequestItem setApplicationProfileType(String profileType) {
-        applicationProfileTypeString = profileType;
-        return this;
+        throw new NotImplementedException();
     }
 
 }

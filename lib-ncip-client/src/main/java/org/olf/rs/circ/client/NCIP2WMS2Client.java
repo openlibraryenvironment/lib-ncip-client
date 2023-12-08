@@ -203,7 +203,7 @@ public class NCIP2WMS2Client extends NCIP2WMSClient {
       newRequestId.setRequestIdentifierValue(newRequestIdentifierValue);
       checkOutItemInitiationData.setRequestId(newRequestId);
 
-    } else if (transaction.getClass() == i9User.class) {
+    } else if (transaction.getClass() == LookupUser.class) {
 
     }
 

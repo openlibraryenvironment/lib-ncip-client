@@ -7,12 +7,7 @@ import java.util.logging.Logger;
 
 import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
-import org.olf.rs.circ.client.AcceptItem;
-import org.olf.rs.circ.client.CheckinItem;
-import org.olf.rs.circ.client.CheckoutItem;
-import org.olf.rs.circ.client.LookupUser;
-import org.olf.rs.circ.client.NCIP2WMSClient;
-import org.olf.rs.circ.client.NCIPClientWrapper;
+import org.olf.rs.circ.client.*;
 
 
 import org.apache.commons.cli.Options;
@@ -205,6 +200,24 @@ public class NcipCLI {
 			System.out.println("");
 
 		}
+		else if(service.equalsIgnoreCase("R")) {
+			fromAgency = stringOrDie("from-agency", inputLine);
+			toAgency = stringOrDie("to-agency", inputLine);
+			String uid = stringOrDie("patron-id", inputLine);
+			String requestId = stringOrDie("request-id", inputLine);
+			String bibliographicId = stringOrDie("bib-id", inputLine);
+			String bibliographicIdCode = stringOrDie("bib-id-code", inputLine);
+			RequestItem requestItem = new RequestItem()
+					.setToAgency(toAgency)
+					.setFromAgency(fromAgency)
+					.setUserId(uid)
+					.setRequestId(requestId)
+					.setBibliographicRecordId(bibliographicId)
+					.setBibliographicRecordIdCode(bibliographicIdCode);
+			Map<String, Object> map = wrapper.send(requestItem);
+			System.out.println("RESPONSE: " + map.toString());
+			System.out.println("");
+		}
 		else if(service.equalsIgnoreCase("T")) {
 			if(!ncipProtocol.equals("WMS")) {
 				die("Must use WMS protocol");
@@ -372,6 +385,21 @@ public class NcipCLI {
 			.longOpt("wms-patron-lookup")
 			.build();
 
+		Option bibliographicId = Option.builder("b")
+			.hasArg()
+			.required(false)
+			.desc("The Bibligraphic Record Id")
+			.longOpt("bib-id")
+			.build();
+
+		Option bibliographicIdCode = Option.builder("c")
+			.hasArg()
+			.required(false)
+			.desc("The Bibligraphic Record Id code")
+			.longOpt("bib-id-code")
+			.build();
+
+
 		Option help = new Option("help", "print this message");
 
 		options.addOption(fromAgency);
@@ -394,6 +422,8 @@ public class NcipCLI {
 		options.addOption(namespace);
 		options.addOption(password);
 		options.addOption(wmsLookupPatronEndpoint);
+		options.addOption(bibliographicId);
+		options.addOption(bibliographicIdCode);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
