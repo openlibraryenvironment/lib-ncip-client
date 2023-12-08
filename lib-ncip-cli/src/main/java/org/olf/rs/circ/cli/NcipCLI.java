@@ -1,29 +1,19 @@
 package org.olf.rs.circ.cli;
 
-//import static org.junit.Assert.fail;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.List;
-import java.util.Scanner;
-import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import static org.junit.Assert.fail;
 
 import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
-import org.json.JSONObject;
 import org.olf.rs.circ.client.AcceptItem;
 import org.olf.rs.circ.client.CheckinItem;
 import org.olf.rs.circ.client.CheckoutItem;
 import org.olf.rs.circ.client.LookupUser;
-import org.olf.rs.circ.client.NCIP1Client;
-import org.olf.rs.circ.client.NCIP2Client;
+
 import org.olf.rs.circ.client.NCIP2WMSClient;
 import org.olf.rs.circ.client.NCIPClientWrapper;
-
-//import jdk.internal.jshell.tool.resources.l10n;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
