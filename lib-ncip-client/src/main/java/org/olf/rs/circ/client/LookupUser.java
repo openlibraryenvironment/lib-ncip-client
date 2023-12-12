@@ -52,6 +52,8 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	protected String fromAgency;
 	private String useridString;
 	private String usernameString;
+	private String barcodeString;
+	private String pinString;
 	List<String> userElementTypes = new ArrayList<>();
 	private String applicationProfileTypeString;
 
@@ -74,7 +76,17 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		usernameString = userName;
 		return this;
 	}
-	
+
+	public LookupUser setBarcode(String barcode) {
+		barcodeString = barcode;
+		return this;
+	}
+
+	public LookupUser setPin(String pin) {
+		pinString = pin;
+		return this;
+	}
+
 	public LookupUser addUserElement(String userElement) {
 		userElementTypes.add(userElement);
 		return this;
@@ -165,14 +177,32 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		}
 		
 		if (useridString == null) {
-			AuthenticationInput authenticationInput = new AuthenticationInput();
-			AuthenticationDataFormatType authenticationDataFormatType = new AuthenticationDataFormatType(null, "text");
-			AuthenticationInputType authenticationInputType = new AuthenticationInputType(null, "username");
-			authenticationInput.setAuthenticationDataFormatType(authenticationDataFormatType);
-			authenticationInput.setAuthenticationInputData(usernameString);
-			authenticationInput.setAuthenticationInputType(authenticationInputType);
 			List<AuthenticationInput> authenticationInputs = new ArrayList<AuthenticationInput>();
-			authenticationInputs.add(authenticationInput);
+			AuthenticationDataFormatType authenticationDataFormatType = new AuthenticationDataFormatType(null, "text");
+			AuthenticationInputType usernameInputType = new AuthenticationInputType(null, "username"); // Should this be "User Name"?
+			AuthenticationInputType barcodeInputType = new AuthenticationInputType(null, "Barcode Id");
+			AuthenticationInputType pinInputType = new AuthenticationInputType(null, "PIN");
+			if (usernameString != null) {
+				AuthenticationInput usernameInput = new AuthenticationInput();
+				usernameInput.setAuthenticationDataFormatType(authenticationDataFormatType);
+				usernameInput.setAuthenticationInputData(usernameString);
+				usernameInput.setAuthenticationInputType(usernameInputType);
+				authenticationInputs.add(usernameInput);
+			}
+			if (barcodeString != null) {
+				AuthenticationInput barcodeInput = new AuthenticationInput();
+				barcodeInput.setAuthenticationDataFormatType(authenticationDataFormatType);
+				barcodeInput.setAuthenticationInputData(barcodeString);
+				barcodeInput.setAuthenticationInputType(barcodeInputType);
+				authenticationInputs.add(barcodeInput);
+			}
+			if (pinString != null) {
+				AuthenticationInput pinInput = new AuthenticationInput();
+				pinInput.setAuthenticationDataFormatType(authenticationDataFormatType);
+				pinInput.setAuthenticationInputData(pinString);
+				pinInput.setAuthenticationInputType(pinInputType);
+				authenticationInputs.add(pinInput);
+			}
 			lookupUserInitationData.setAuthenticationInputs(authenticationInputs);
 		}
 		else {
