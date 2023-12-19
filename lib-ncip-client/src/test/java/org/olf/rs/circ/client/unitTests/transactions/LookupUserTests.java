@@ -8,10 +8,12 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
 import org.extensiblecatalog.ncip.v2.service.AgencyUserPrivilegeType;
+import org.extensiblecatalog.ncip.v2.service.AuthenticationInput;
 import org.extensiblecatalog.ncip.v2.service.ElectronicAddress;
 import org.extensiblecatalog.ncip.v2.service.ElectronicAddressType;
 import org.extensiblecatalog.ncip.v2.service.LookupUserInitiationData;
@@ -165,15 +167,19 @@ public class LookupUserTests {
 		lookupUser.setFromAgency("ABC");
 		lookupUser.setToAgency("DEF");
 		lookupUser.setUserId("P623111");
+		lookupUser.setBarcode("7890");
+		lookupUser.setPin("1234");
 		String xml = lookupUser.generateNCIP1Object();
 		Document document = Jsoup.parse(xml,"",Parser.xmlParser());
 		String  fromAgencyId = document.select("LookupUser > InitiationHeader > FromAgencyId > UniqueAgencyId > Value").text();
 		String  toAgencyId = document.select("LookupUser > InitiationHeader > ToAgencyId > UniqueAgencyId > Value").text();
 		String  userId = document.select("LookupUser > UniqueUserId > UserIdentifierValue").text();
+		List<String> authValues = document.select("LookupUser > AuthenticationInput > AuthenticationInputData").eachText();
 		assertEquals(fromAgencyId,"ABC");
 		assertEquals(toAgencyId,"DEF");
 		assertEquals(userId,"P623111");
-		
+		assertTrue(authValues.contains("7890"));
+		assertTrue(authValues.contains("1234"));
 	}
 	
 	@Test 
@@ -190,8 +196,25 @@ public class LookupUserTests {
 		assertEquals(toAgencyId,"DEF");
 		assertEquals(userId,"P67098660");
 	}
-	
-	
+
+	@Test
+	public void testGenerateNcip2ObjectBarcode() throws Exception {
+		LookupUser lookupUser = new LookupUser();
+		lookupUser.setFromAgency("ABC");
+		lookupUser.setToAgency("DEF");
+		lookupUser.setBarcode("7890");
+		lookupUser.setPin("1234");
+		LookupUserInitiationData initData = (LookupUserInitiationData) lookupUser.generateNCIP2Object();
+		String toAgencyId = initData.getInitiationHeader().getToAgencyId().getAgencyId().getValue();
+		String fromAgencyId = initData.getInitiationHeader().getFromAgencyId().getAgencyId().getValue();
+		List<String> authValues = initData.getAuthenticationInputs().stream()
+			.map(AuthenticationInput::getAuthenticationInputData)
+			.collect(Collectors.toList());
+		assertEquals(fromAgencyId,"ABC");
+		assertEquals(fromAgencyId,"ABC");
+		assertTrue(authValues.contains("7890"));
+		assertTrue(authValues.contains("1234"));
+	}
 	 private static String readLineByLine(String filePath) {
 	      StringBuilder contentBuilder = new StringBuilder();
 	      try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
