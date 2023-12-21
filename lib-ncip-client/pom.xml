@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.olf.rs</groupId>
 	<artifactId>lib-ncip-client</artifactId>
-	<version>0.21.1</version>
+	<version>0.22.0</version>
 	<name>NCIP Client</name>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -100,7 +100,7 @@
 		<dependency>
 			<groupId>org.jsoup</groupId>
 			<artifactId>jsoup</artifactId>
-			<version>1.10.2</version>
+			<version>1.10.3</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.commons</groupId>
