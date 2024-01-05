@@ -8,14 +8,8 @@ import java.util.logging.Logger;
 import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
 
-import org.olf.rs.circ.client.AcceptItem;
-import org.olf.rs.circ.client.CheckinItem;
-import org.olf.rs.circ.client.CheckoutItem;
-import org.olf.rs.circ.client.LookupUser;
-import org.olf.rs.circ.client.RequestItem;
-
-import org.olf.rs.circ.client.NCIP2WMSClient;
-import org.olf.rs.circ.client.NCIPClientWrapper;
+import org.extensiblecatalog.ncip.v2.service.CancelRequestItemInitiationData;
+import org.olf.rs.circ.client.*;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -207,21 +201,44 @@ public class NcipCLI {
 			System.out.println("");
 
 		}
-		else if(service.equalsIgnoreCase("R")) {
+		else if (service.equalsIgnoreCase("R")) {
 			fromAgency = stringOrDie("from-agency", inputLine);
 			toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
 			String requestId = stringOrDie("request-id", inputLine);
-			String bibliographicId = stringOrDie("bib-id", inputLine);
-			String bibliographicIdCode = stringOrDie("bib-id-code", inputLine);
+			String bibliographicId = inputLine.getOptionValue("bib-id");
+			String bibliographicIdCode = inputLine.getOptionValue("bib-id-code");
+			String itemId = inputLine.getOptionValue("item-id");
+
 			RequestItem requestItem = new RequestItem()
 					.setToAgency(toAgency)
 					.setFromAgency(fromAgency)
 					.setUserId(uid)
-					.setRequestId(requestId)
-					.setBibliographicRecordId(bibliographicId)
-					.setBibliographicRecordIdCode(bibliographicIdCode);
+					.setRequestId(requestId);
+			if (bibliographicId != null && bibliographicIdCode != null) {
+				requestItem.setBibliographicRecordId(bibliographicId);
+				requestItem.setBibliographicRecordIdCode(bibliographicIdCode);
+			} else if (itemId != null) {
+				requestItem.setItemId(itemId);
+			} else {
+				die("You must set either bib-id and bib-id-code OR item-id");
+			}
+
 			Map<String, Object> map = wrapper.send(requestItem);
+			System.out.println("RESPONSE: " + map.toString());
+			System.out.println("");
+		}
+		else if (service.equalsIgnoreCase("C")) {
+			fromAgency = stringOrDie("from-agency", inputLine);
+			toAgency = stringOrDie("to-agency", inputLine);
+			String uid = stringOrDie("patron-id", inputLine);
+			String requestId = stringOrDie("request-id", inputLine);
+			CancelRequestItem cancelRequestItem = new CancelRequestItem()
+					.setToAgency(toAgency)
+					.setFromAgency(fromAgency)
+					.setUserId(uid)
+					.setRequestId(requestId);
+			Map<String, Object> map = wrapper.send(cancelRequestItem);
 			System.out.println("RESPONSE: " + map.toString());
 			System.out.println("");
 		}

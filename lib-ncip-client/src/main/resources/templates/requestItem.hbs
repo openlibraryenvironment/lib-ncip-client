@@ -17,9 +17,9 @@
       <UniqueUserId>
          <UniqueAgencyId>
             <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
-            <Value>{{this.userIdString}}</Value>
+            <Value>{{this.fromAgency}}</Value>
          </UniqueAgencyId>
-         <UserIdentifierValue>brent</UserIdentifierValue>
+         <UserIdentifierValue>{{this.userIdString}}</UserIdentifierValue>
       </UniqueUserId>
       <UniqueBibliographicId>
          <BibliographicRecordId>
@@ -33,7 +33,7 @@
       <UniqueRequestId>
          <UniqueAgencyId>
             <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
-            <Value>{{this.toAgency}}</Value>
+            <Value>{{this.fromAgency}}</Value>
          </UniqueAgencyId>
          <RequestIdentifierValue>{{this.requestIdString}}</RequestIdentifierValue>
       </UniqueRequestId>

@@ -1,14 +1,20 @@
 package org.olf.rs.circ.client;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
+    private static final Logger logger = Logger.getLogger(RequestItem.class);
     private String applicationProfileTypeString;
     protected String registryId; //WMS ONLY
     protected String toAgency;
@@ -17,6 +23,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
     private String bibliographicRecordIdString;
     private String bibliographicRecordIdCodeString;
     private String requestIdString;
+    private String itemIdString;
 
     public RequestItem setRegistryId(String id) {
         this.registryId = id;
@@ -58,6 +65,11 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         return this;
     }
 
+    public RequestItem setItemId(String itemIdString) {
+        this.itemIdString = itemIdString;
+        return this;
+    }
+
     @Override
     public NCIPInitiationData generateNCIP2Object() {
         RequestItemInitiationData requestItemInitiationData = new RequestItemInitiationData();
@@ -76,12 +88,25 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         userid.setAgencyId(new AgencyId(fromAgency));
         userid.setUserIdentifierValue(useridString);
 
-        BibliographicId bibliographicId = new BibliographicId();
-        BibliographicRecordId bibliographicRecordId = new BibliographicRecordId();
-        bibliographicRecordId.setBibliographicRecordIdentifier(bibliographicRecordIdString);
-        bibliographicRecordId.setBibliographicRecordIdentifierCode(
-                new BibliographicRecordIdentifierCode(null, bibliographicRecordIdCodeString));
-        bibliographicId.setBibliographicRecordId(bibliographicRecordId);
+        /* If we have a bibliographic id set, use that, otherwise use the item id */
+        if (bibliographicRecordIdString != null) {
+            BibliographicId bibliographicId = new BibliographicId();
+            BibliographicRecordId bibliographicRecordId = new BibliographicRecordId();
+            bibliographicRecordId.setBibliographicRecordIdentifier(bibliographicRecordIdString);
+            bibliographicRecordId.setBibliographicRecordIdentifierCode(
+                    new BibliographicRecordIdentifierCode(null, bibliographicRecordIdCodeString));
+            bibliographicId.setBibliographicRecordId(bibliographicRecordId);
+            List<BibliographicId> bibIdList = new ArrayList<>();
+            bibIdList.add(bibliographicId);
+            requestItemInitiationData.setBibliographicIds(bibIdList);
+        } else if (itemIdString != null) {
+            ItemId itemId = new ItemId();
+            itemId.setAgencyId(new AgencyId(fromAgency));
+            itemId.setItemIdentifierValue(itemIdString);
+            List<ItemId> itemIdList = new ArrayList<>();
+            itemIdList.add(itemId);
+            requestItemInitiationData.setItemIds(itemIdList);
+        }
 
         RequestId requestId = new RequestId();
         requestId.setAgencyId(new AgencyId(fromAgency));
@@ -91,9 +116,6 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
         RequestScopeType requestScopeType = new RequestScopeType(null, "Bibliographic Item");
 
-        List<BibliographicId> bibIdList = new ArrayList<>();
-        bibIdList.add(bibliographicId);
-        requestItemInitiationData.setBibliographicIds(bibIdList);
         requestItemInitiationData.setUserId(userid);
         requestItemInitiationData.setRequestId(requestId);
         requestItemInitiationData.setInitiationHeader(initiationHeader);
@@ -106,7 +128,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
     @Override
     public NCIPInitiationData modifyForWMS(NCIPInitiationData initData) {
-        return null;
+        throw new NotImplementedException();
     }
 
     @Override
@@ -116,12 +138,30 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
     @Override
     public String generateNCIP1Object() {
-        return generateNCIP1Object("/templates/requestItem.hbs");
+        return generateNCIP1Object("/templates/requestItem");
     }
 
     @Override
     public JSONObject constructResponseNcip1Response(String responseData) {
-        return null;
+        JSONObject returnJson = new JSONObject();
+        try {
+            Document document = Jsoup.parse(responseData, "", Parser.xmlParser());
+            Elements problems = document.select("NCIPMessage > RequestItemResponse > Problem");
+            if (problems != null && !problems.isEmpty()) {
+                return constructeNcipOneProblems(problems);
+            }
+            String itemId = document.select(
+                    "NCIPMessage > RequestItemResponse > UniqueItemId > ItemIdentifierValue").text();
+            String requestId = document.select(
+                    "NCIPMessage > RequestItemResponse > UniqueRequestId > RequestIdentifiervalue").text();
+            returnJson.put("itemId", itemId);
+            returnJson.put("requestId", requestId);
+        } catch(Exception e) {
+            logger.fatal("Failed to parse the NCIP XML Response: " + responseData);
+            logger.fatal(e.getLocalizedMessage());
+            throw e;
+        }
+        return returnJson;
     }
 
     @Override
