@@ -14,13 +14,27 @@
         </UniqueAgencyId>
       </ToAgencyId>
     </InitiationHeader>
-    <UniqueUserId>
+    {{#if this.useridString}}<UniqueUserId>
       <UniqueAgencyId>
         <Scheme>http://www.niso.org/ncip/v1_0/schemes/agency.scm</Scheme>
         <Value>{{toAgency}}</Value>
       </UniqueAgencyId>
       <UserIdentifierValue>{{this.useridString}}</UserIdentifierValue>
-    </UniqueUserId>
+    </UniqueUserId>{{/if}}
+    {{#if this.barcodeString}}<AuthenticationInput>
+       <AuthenticationInputData>{{this.barcodeString}}</AuthenticationInputData>
+       <AuthenticationInputType>
+          <Scheme>https://www.niso.org/ncip/v1_0/imp1/schemes/authenticationinputtype/authenticationinputype.scm</Scheme>
+          <Value>Barcode Id</Value>
+       </AuthenticationInputType>
+    </AuthenticationInput>{{/if}}
+    {{#if this.pinString}}<AuthenticationInput>
+       <AuthenticationInputData>{{this.pinString}}</AuthenticationInputData>
+       <AuthenticationInputType>
+          <Scheme>https://www.niso.org/ncip/v1_0/imp1/schemes/authenticationinputtype/authenticationinputype.scm</Scheme>
+          <Value>PIN</Value>
+       </AuthenticationInputType>
+    </AuthenticationInput>{{/if}}
     {{#each userElementTypes}}<UserElementType>
       <Scheme>http://www.niso.org/ncip/v1_0/schemes/userelementtype/userelementtype.scm</Scheme>
       <Value>{{this}}</Value>

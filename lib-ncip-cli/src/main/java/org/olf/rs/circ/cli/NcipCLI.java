@@ -109,11 +109,13 @@ public class NcipCLI {
 		    toAgency = stringOrDie("to-agency", inputLine);
 			String uid = inputLine.getOptionValue("patron-id");
 			String username = inputLine.getOptionValue("username");
-			if(uid == null && username == null) {
-				die("You must define either patron-id or username");
+			String barcode = inputLine.getOptionValue("barcode");
+			String pin = inputLine.getOptionValue("pin");
+			if(uid == null && username == null && barcode == null) {
+				die("You must define either patron-id or username or barcode");
 			}
 			if(ncipProtocol.equals("1") || ncipProtocol.equals("SOCKET") || ncipProtocol.equals("STRICTSOCKET")) {
-				if(uid == null) {
+				if(uid == null && barcode == null) {
 					die("Only NCIP version 2 supports username lookup in the client");
 				}
 			}
@@ -127,6 +129,8 @@ public class NcipCLI {
 			lookupUser.setToAgency(toAgency);
 			lookupUser.setUserId(uid);
 			lookupUser.setUserName(username);
+			lookupUser.setBarcode(barcode);
+			lookupUser.setPin(pin);
 			lookupUser.includeUserAddressInformation();
 			lookupUser.includeNameInformation();
 			lookupUser.includeUserPrivilege();
@@ -311,6 +315,20 @@ public class NcipCLI {
 				.longOpt("username")
 				.build();
 
+		Option barcode = Option.builder("b")
+				.hasArg()
+				.required(false)
+				.desc("The patron barcode")
+				.longOpt("barcode")
+				.build();
+
+		Option pin = Option.builder("B")
+				.hasArg()
+				.required(false)
+				.desc("The patron pin")
+				.longOpt("pin")
+				.build();
+
 		Option itemId = Option.builder("i")
 				.hasArg()
 				.required(false)
@@ -432,6 +450,8 @@ public class NcipCLI {
 		options.addOption(itemId);
 		options.addOption(patronId);
 		options.addOption(userName);
+		options.addOption(barcode);
+		options.addOption(pin);
 		options.addOption(requestId);
 		options.addOption(title);
 		options.addOption(author);
