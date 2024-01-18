@@ -1,4 +1,4 @@
-name: Publish package to GitHub Packages
+name: Build
 on:
   push:
 
@@ -16,6 +16,6 @@ jobs:
           distribution: 'temurin'
       - name: Publish package
         working-directory: ./lib-ncip-client
-        run: mvn clean build
+        run: mvn package
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
