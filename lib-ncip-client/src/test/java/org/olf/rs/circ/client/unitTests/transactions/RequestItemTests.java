@@ -2,7 +2,6 @@ package org.olf.rs.circ.client.unitTests.transactions;
 
 import static org.junit.Assert.*;
 
-import netscape.javascript.JSObject;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
 import org.extensiblecatalog.ncip.v2.service.RequestItemInitiationData;
 import org.json.JSONObject;
