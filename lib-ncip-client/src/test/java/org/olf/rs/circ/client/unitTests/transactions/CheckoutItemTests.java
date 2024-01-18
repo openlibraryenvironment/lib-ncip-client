@@ -20,17 +20,11 @@ import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
-import org.junit.Before;
 import org.junit.Test;
-import org.olf.rs.circ.client.AcceptItem;
-import org.olf.rs.circ.client.CheckinItem;
 import org.olf.rs.circ.client.CheckoutItem;
-import org.olf.rs.circ.client.LookupUser;
-import org.olf.rs.circ.client.NCIP2Client;
 import org.olf.rs.circ.client.TestConstants;
 
 import static org.junit.Assert.*;
-
 
 
 public class CheckoutItemTests {

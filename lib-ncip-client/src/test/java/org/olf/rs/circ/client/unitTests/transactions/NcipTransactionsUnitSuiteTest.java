@@ -16,7 +16,8 @@ import org.junit.runners.Suite;
   AcceptItemTests.class,
   CheckinItemTests.class,
   CheckoutItemTests.class,
-  LookupUserTests.class
+  LookupUserTests.class,
+  RequestItemTests.class
 })
 public class NcipTransactionsUnitSuiteTest {
 	

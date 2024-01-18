@@ -7,13 +7,9 @@ import java.util.logging.Logger;
 
 import java.io.IOException;
 import org.apache.log4j.BasicConfigurator;
-import org.olf.rs.circ.client.AcceptItem;
-import org.olf.rs.circ.client.CheckinItem;
-import org.olf.rs.circ.client.CheckoutItem;
-import org.olf.rs.circ.client.LookupUser;
 
-import org.olf.rs.circ.client.NCIP2WMSClient;
-import org.olf.rs.circ.client.NCIPClientWrapper;
+import org.extensiblecatalog.ncip.v2.service.CancelRequestItemInitiationData;
+import org.olf.rs.circ.client.*;
 
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
@@ -29,10 +25,6 @@ public class NcipCLI {
 
 	public static void main(String[] args) throws Exception {
 
-		//final String endpoint = "https://35.171.72.85:443/iii/nciprelais/Restful";
-	  //final String fromAgency = "reshare";
-		
-		//final String toAgency = "duquesne";
 
 	  final Logger logger = Logger.getLogger(NcipCLI.class.getName());
 	
@@ -88,9 +80,7 @@ public class NcipCLI {
 			die(ncipProtocol + " is not a valid NCIP protocol");
 			return;
 		}
-		//inputParms.put("protocol", NCIPClientWrapper.NCIP1);
-		//inputParms.put("protocol", NCIPClientWrapper.NCIP2);
-		//inputParms.put("useNamespace", false);
+
 		String namespace = inputLine.getOptionValue("use-namespace");
 		if("false".equals(namespace)) {
 			inputParms.put("useNamespace", false);
@@ -113,13 +103,10 @@ public class NcipCLI {
 			}
 
 		}
-		//NCIPClientWrapper wrapper = new NCIPClientWrapper("https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder", inputParms);
 		NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
 		if (service.equalsIgnoreCase("L")) {
-			//System.out.println("Patron ID?");
-			//String uid = in.nextLine();
 			fromAgency = stringOrDie("from-agency", inputLine);
-		  toAgency = stringOrDie("to-agency", inputLine);
+		    toAgency = stringOrDie("to-agency", inputLine);
 			String uid = inputLine.getOptionValue("patron-id");
 			String username = inputLine.getOptionValue("username");
 			String barcode = inputLine.getOptionValue("barcode");
@@ -138,9 +125,7 @@ public class NcipCLI {
 				System.out.println("Lookup User by username: " + username);
 			}
 			LookupUser lookupUser = new LookupUser();
-			//lookupUser.setFromAgency("Relias");
 			lookupUser.setFromAgency(fromAgency);
-			//lookupUser.setToAgency("EUL");
 			lookupUser.setToAgency(toAgency);
 			lookupUser.setUserId(uid);
 			lookupUser.setUserName(username);
@@ -160,31 +145,17 @@ public class NcipCLI {
 			System.out.println("");	
 		}
 		else if (service.equalsIgnoreCase("A")) {
-			//System.out.println("Patron ID?");
-			//String uid = in.nextLine();
 			fromAgency = stringOrDie("from-agency", inputLine);
-		  toAgency = stringOrDie("to-agency", inputLine);
+		    toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
-			//System.out.println("Item ID?");
-			//String itemId = in.nextLine();
 			String itemId = stringOrDie("item-id", inputLine);
-			//System.out.println("Request ID? (press enter to use: " + itemId + ")");
-			//String requestId = in.nextLine();
 			String requestId = inputLine.getOptionValue("request-id");
 			if (requestId==null || requestId.equalsIgnoreCase("")) requestId = itemId;
-			//System.out.println("Title?");
-			//String title = in.nextLine();
 			String title = stringOrDie("title", inputLine);
-			//System.out.println("author?");
-			//String author = in.nextLine();
 			String author = stringOrDie("author", inputLine);
-			//System.out.println("Pickup Location?");
-			//String pickup = in.nextLine();
 			String pickup = stringOrDie("pickup-location", inputLine);
 			AcceptItem acceptItem = new AcceptItem()
-					//.setToAgency("EUL")
 					.setToAgency(toAgency)
-					//.setFromAgency("Relais")
 					.setFromAgency(fromAgency)
 					.setUserId(uid) 
 					.setTitle(title)
@@ -206,42 +177,26 @@ public class NcipCLI {
 		}
 		else if (service.equalsIgnoreCase("O")) {
 			Map<String, Object> inputParameters = new HashMap<String,Object>();
-			//inputParameters.put("useNamespace", false);
-			//NCIP1Client client = new NCIP1Client(" https://eastern.tlcdelivers.com:8467/ncipServlet/NCIPResponder",ip);
-			//NCIP2Client client = new NCIP2Client(endpoint, inputParameters);
-			//System.out.println("Patron ID?");
-			//String uid = in.nextLine();
 			fromAgency = stringOrDie("from-agency", inputLine);
-		  toAgency = stringOrDie("to-agency", inputLine);
+		    toAgency = stringOrDie("to-agency", inputLine);
 			String uid = stringOrDie("patron-id", inputLine);
-			//System.out.println("Item ID?");
-			//String itemId = in.nextLine();
 			String itemId = stringOrDie("item-id", inputLine);
-			//System.out.println("Request ID?");
-			//String requestId = in.nextLine();
 			String requestId = stringOrDie("request-id", inputLine);
 			CheckoutItem checkoutItem = new CheckoutItem()
 					.setToAgency(toAgency)
 					.setFromAgency(fromAgency)
-					//.setToAgency("EUL")
-					//.setFromAgency("Relais")
 					.setRequestId(requestId)
 					.setItemId(itemId)
 					.setUserId(uid);
-			//JSONObject map = client.send(checkoutItem);
 			Map<String, Object> map = wrapper.send(checkoutItem);
 			System.out.println("RESPONSE: " + map.toString());
 			System.out.println("");
 		}
 		else if (service.equalsIgnoreCase("I")) {
-			//System.out.println("Item ID?");
-			//String itemId = in.nextLine();
 			fromAgency = stringOrDie("from-agency", inputLine);
-		  toAgency = stringOrDie("to-agency", inputLine);
+		    toAgency = stringOrDie("to-agency", inputLine);
 			String itemId = stringOrDie("item-id", inputLine);			
 			CheckinItem checkinItem = new CheckinItem()
-					//.setToAgency("EUL")
-					//.setFromAgency("Relais")
 					.setToAgency(toAgency)
 					.setFromAgency(fromAgency)
 					.setItemId(itemId);
@@ -249,6 +204,47 @@ public class NcipCLI {
 			System.out.println("RESPONSE: " + map.toString());
 			System.out.println("");
 
+		}
+		else if (service.equalsIgnoreCase("R")) {
+			fromAgency = stringOrDie("from-agency", inputLine);
+			toAgency = stringOrDie("to-agency", inputLine);
+			String uid = stringOrDie("patron-id", inputLine);
+			String requestId = stringOrDie("request-id", inputLine);
+			String bibliographicId = inputLine.getOptionValue("bib-id");
+			String bibliographicIdCode = inputLine.getOptionValue("bib-id-code");
+			String itemId = inputLine.getOptionValue("item-id");
+
+			RequestItem requestItem = new RequestItem()
+					.setToAgency(toAgency)
+					.setFromAgency(fromAgency)
+					.setUserId(uid)
+					.setRequestId(requestId);
+			if (bibliographicId != null && bibliographicIdCode != null) {
+				requestItem.setBibliographicRecordId(bibliographicId);
+				requestItem.setBibliographicRecordIdCode(bibliographicIdCode);
+			} else if (itemId != null) {
+				requestItem.setItemId(itemId);
+			} else {
+				die("You must set either bib-id and bib-id-code OR item-id");
+			}
+
+			Map<String, Object> map = wrapper.send(requestItem);
+			System.out.println("RESPONSE: " + map.toString());
+			System.out.println("");
+		}
+		else if (service.equalsIgnoreCase("C")) {
+			fromAgency = stringOrDie("from-agency", inputLine);
+			toAgency = stringOrDie("to-agency", inputLine);
+			String uid = stringOrDie("patron-id", inputLine);
+			String requestId = stringOrDie("request-id", inputLine);
+			CancelRequestItem cancelRequestItem = new CancelRequestItem()
+					.setToAgency(toAgency)
+					.setFromAgency(fromAgency)
+					.setUserId(uid)
+					.setRequestId(requestId);
+			Map<String, Object> map = wrapper.send(cancelRequestItem);
+			System.out.println("RESPONSE: " + map.toString());
+			System.out.println("");
 		}
 		else if(service.equalsIgnoreCase("T")) {
 			if(!ncipProtocol.equals("WMS")) {
@@ -431,6 +427,21 @@ public class NcipCLI {
 			.longOpt("wms-patron-lookup")
 			.build();
 
+		Option bibliographicId = Option.builder("b")
+			.hasArg()
+			.required(false)
+			.desc("The Bibligraphic Record Id")
+			.longOpt("bib-id")
+			.build();
+
+		Option bibliographicIdCode = Option.builder("c")
+			.hasArg()
+			.required(false)
+			.desc("The Bibligraphic Record Id code")
+			.longOpt("bib-id-code")
+			.build();
+
+
 		Option help = new Option("help", "print this message");
 
 		options.addOption(fromAgency);
@@ -455,6 +466,8 @@ public class NcipCLI {
 		options.addOption(namespace);
 		options.addOption(password);
 		options.addOption(wmsLookupPatronEndpoint);
+		options.addOption(bibliographicId);
+		options.addOption(bibliographicIdCode);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
