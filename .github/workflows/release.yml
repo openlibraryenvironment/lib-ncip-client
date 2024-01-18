@@ -18,9 +18,7 @@ jobs:
           java-version: '11'
           distribution: 'temurin'
       - name: Publish package
-        uses: gradle/gradle-build-action@749f47bda3e44aa060e82d7b3ef7e40d953bd629
-        with:
-          build-root-directory: ./lib-ncip-client
-          arguments: publish
+        working-directory: ./lib-ncip-client 
+        run: mvn clean deploy -Pdeploy-ncip-client
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
