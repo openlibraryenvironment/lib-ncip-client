@@ -127,11 +127,11 @@
 		<tag>HEAD</tag>
 	 </scm>
 	<repositories>
-		<repository>
-			<id>folio-nexus</id>
-			<name>FOLIO Maven repository</name>
-			<url>https://repository.folio.org/repository/maven-folio</url>
-		</repository>
+                <repository>
+                  <id>github</id>
+                  <name>GitHub Packages</name>
+                  <url>https://maven.pkg.github.com/openlibraryenvironment/lib-ncip-client</url>
+                </repository>
 	</repositories>
 	<build>
 		<resources>
