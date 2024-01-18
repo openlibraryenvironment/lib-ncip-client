@@ -217,8 +217,8 @@
                             <configuration>
                                 <skip>false</skip>
                                 <file>target/${project.artifactId}-${project.version}.jar</file>
-                                <repositoryId>folio-nexus</repositoryId>
-                                <url>https://repository.folio.org/repository/maven-releases/</url>
+                                <repositoryId>github</repositoryId>
+                                <url>https://maven.pkg.github.com/openlibraryenvironment/lib-ncip-client</url>
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>${project.artifactId}</artifactId>
                                 <version>${project.version}</version>
