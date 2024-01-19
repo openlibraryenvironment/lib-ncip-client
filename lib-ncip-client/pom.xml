@@ -114,18 +114,27 @@
 		</dependency>
 	</dependencies>
 	<distributionManagement>
-         <repository>
-           <id>github</id>
-           <name>GitHub Packages</name>
-           <url>https://maven.pkg.github.com/openlibraryenvironment/lib-ncip-client</url>
+      	  <repository>
+        	<id>folio-nexus</id>
+       	 	<name>FOLIO Release Repository</name>
+        	<url>https://repository.folio.org/repository/maven-releases/</url>
+        	<uniqueVersion>false</uniqueVersion>
+        	<layout>default</layout>
          </repository>
-    	 </distributionManagement>
-	 <scm>
+         <snapshotRepository>
+        	<id>folio-nexus</id>
+        	<name>FOLIO Snapshot Repository</name>
+        	<uniqueVersion>true</uniqueVersion>
+        	<url>https://repository.folio.org/repository/maven-snapshots/</url>
+        	<layout>default</layout>
+      	 </snapshotRepository>
+	<distributionManagement>
+	<scm>
 		<url>https://github.com/openlibraryenvironment/lib-ncip-client.git</url>
 		<connection>scm:git:git://github.com/openlibraryenvironment/lib-ncip-client.git</connection>
 		<developerConnection>scm:git:git@github.com:openlibraryenvironment/lib-ncip-client.git</developerConnection>
 		<tag>HEAD</tag>
-	 </scm>
+	</scm>
 	<repositories>
 		<repository>
 			<id>folio-nexus</id>
