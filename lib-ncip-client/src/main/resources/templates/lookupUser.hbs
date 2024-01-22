@@ -23,6 +23,10 @@
     </UniqueUserId>{{/if}}
     {{#if this.barcodeString}}<AuthenticationInput>
        <AuthenticationInputData>{{this.barcodeString}}</AuthenticationInputData>
+       <AuthenticationDataFormatType>
+         <Scheme>http://www.isi.edu/in-notes/iana/assignments/media-types/media-types</Scheme>
+         <Value>Text</Value>
+       </AuthenticationDataFormatType>
        <AuthenticationInputType>
           <Scheme>https://www.niso.org/ncip/v1_0/imp1/schemes/authenticationinputtype/authenticationinputype.scm</Scheme>
           <Value>Barcode Id</Value>
@@ -30,6 +34,10 @@
     </AuthenticationInput>{{/if}}
     {{#if this.pinString}}<AuthenticationInput>
        <AuthenticationInputData>{{this.pinString}}</AuthenticationInputData>
+       <AuthenticationDataFormatType>
+         <Scheme>http://www.isi.edu/in-notes/iana/assignments/media-types/media-types</Scheme>
+         <Value>Text</Value>
+       </AuthenticationDataFormatType>
        <AuthenticationInputType>
           <Scheme>https://www.niso.org/ncip/v1_0/imp1/schemes/authenticationinputtype/authenticationinputype.scm</Scheme>
           <Value>PIN</Value>
