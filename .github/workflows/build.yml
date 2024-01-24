@@ -1,9 +1,11 @@
 name: Build
 on:
   push:
+    branches:
+      - reposilite
 
 jobs:
-  package:
+  build:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -14,8 +16,5 @@ jobs:
         with:
           java-version: '11'
           distribution: 'temurin'
-      - name: Publish package
-        working-directory: ./lib-ncip-client
-        run: mvn package
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build
+        run: mvn install

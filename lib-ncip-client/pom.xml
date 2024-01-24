@@ -115,18 +115,14 @@
 	</dependencies>
 	<distributionManagement>
       	  <repository>
-        	<id>folio-nexus</id>
-       	 	<name>FOLIO Release Repository</name>
-        	<url>https://repository.folio.org/repository/maven-releases/</url>
-        	<uniqueVersion>false</uniqueVersion>
-        	<layout>default</layout>
+                <id>reposilite-repository-releases</id>
+                <name>Reposilite Repository</name>
+                <url>https://reposilite.reshare.indexdata.com/releases</url>
          </repository>
          <snapshotRepository>
-        	<id>folio-nexus</id>
-        	<name>FOLIO Snapshot Repository</name>
-        	<uniqueVersion>true</uniqueVersion>
-        	<url>https://repository.folio.org/repository/maven-snapshots/</url>
-        	<layout>default</layout>
+                <id>reposilite-repository</id>
+                <name>Reposilite Repository</name>
+                <url>https://reposilite.reshare.indexdata.com/snapshots</url>
       	 </snapshotRepository>
     	 </distributionManagement>
 	<scm>
@@ -136,11 +132,15 @@
 		<tag>HEAD</tag>
 	</scm>
 	<repositories>
-		<repository>
-			<id>folio-nexus</id>
-			<name>FOLIO Maven repository</name>
-			<url>https://repository.folio.org/repository/maven-folio</url>
-		</repository>
+          <repository>
+            <id>folio-nexus</id>
+            <name>Folio</name>
+            <url>https://repository.folio.org/repository/maven-releases/</url>
+            <layout>default</layout>
+            <snapshots>
+              <enabled>false</enabled>
+            </snapshots>
+          </repository>
 	</repositories>
 	<build>
 		<resources>
@@ -226,8 +226,8 @@
                             <configuration>
                                 <skip>false</skip>
                                 <file>target/${project.artifactId}-${project.version}.jar</file>
-                                <repositoryId>folio-nexus</repositoryId>
-                                <url>https://repository.folio.org/repository/maven-releases/</url>
+                                <repositoryId>reposilite-repository-releases</repositoryId>
+                                <url>https://reposilite.reshare.indexdata.com/releases</url>
                                 <groupId>${project.groupId}</groupId>
                                 <artifactId>${project.artifactId}</artifactId>
                                 <version>${project.version}</version>
