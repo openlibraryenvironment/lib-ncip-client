@@ -1,12 +1,8 @@
 name: Publish package to ID mvn repo
 
-#on:
-#  release:
-#    types: [published]
 on:
-  push:
-    branches:
-      - reposilite
+  release:
+    types: [published]
 
 jobs:
   publish:
