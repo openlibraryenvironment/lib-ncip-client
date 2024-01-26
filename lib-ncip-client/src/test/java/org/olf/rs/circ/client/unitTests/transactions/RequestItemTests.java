@@ -49,4 +49,18 @@ public class RequestItemTests {
         assertEquals("7355677", requestItemResponse.get("requestId"));
         assertEquals("1669775-1001", requestItemResponse.get("itemId"));
     }
+
+    @Test
+    public void testToString() {
+        RequestItem requestItem = new RequestItem();
+        requestItem.setRequestId("123");
+        requestItem.setFromAgency("ABC");
+        requestItem.setToAgency("CBA");
+        requestItem.setUserId("v12345");
+        requestItem.setBibliographicRecordId("pn234092945");
+        requestItem.setBibliographicRecordIdCode("LCOC");
+        String asString = requestItem.toString();
+        assertTrue(asString.contains("pn234092945"));
+        assertTrue(asString.contains("v12345"));
+    }
 }

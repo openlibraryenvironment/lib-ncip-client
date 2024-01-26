@@ -5,8 +5,7 @@ import org.junit.Test;
 import org.olf.rs.circ.client.CancelRequestItem;
 import org.olf.rs.circ.client.TestConstants;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 public class CancelRequestItemTests {
     @Test
@@ -27,5 +26,16 @@ public class CancelRequestItemTests {
         JSONObject cancelRequestItemResponse = cancelRequestItem.constructResponseNcip1Response(xmlAsString);
         assertEquals("12345", cancelRequestItemResponse.get("requestId"));
 
+    }
+
+    @Test
+    public void testToString() {
+        CancelRequestItem cancelRequestItem = new CancelRequestItem();
+        cancelRequestItem.setRequestId("123");
+        cancelRequestItem.setFromAgency("ABC");
+        cancelRequestItem.setToAgency("CBA");
+        String asString = cancelRequestItem.toString();
+        assertTrue(asString.contains("123"));
+        assertTrue(asString.contains("CBA"));
     }
 }
