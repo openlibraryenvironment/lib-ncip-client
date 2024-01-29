@@ -1,6 +1,7 @@
 package org.olf.rs.circ.client;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
@@ -172,6 +173,11 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
     @Override
     public JSONObject constructWMSResponse(JSONObject responseJson) {
         throw new NotImplementedException();
+    }
+
+    @Override
+    public String toString() {
+        return ReflectionToStringBuilder.toString(this);
     }
 
 }
