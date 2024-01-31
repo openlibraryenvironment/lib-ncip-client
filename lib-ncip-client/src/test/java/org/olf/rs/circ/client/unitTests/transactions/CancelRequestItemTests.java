@@ -1,5 +1,8 @@
 package org.olf.rs.circ.client.unitTests.transactions;
 
+import org.extensiblecatalog.ncip.v2.service.CancelRequestItemResponseData;
+import org.extensiblecatalog.ncip.v2.service.ItemId;
+import org.extensiblecatalog.ncip.v2.service.RequestId;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.olf.rs.circ.client.CancelRequestItem;
@@ -26,6 +29,21 @@ public class CancelRequestItemTests {
         JSONObject cancelRequestItemResponse = cancelRequestItem.constructResponseNcip1Response(xmlAsString);
         assertEquals("12345", cancelRequestItemResponse.get("requestId"));
 
+    }
+
+    @Test
+    public void testConstructNcip2Response() throws Exception {
+        CancelRequestItem requestItem = new CancelRequestItem();
+        CancelRequestItemResponseData cancelRequestItemResponseData = new CancelRequestItemResponseData();
+        ItemId itemId = new ItemId();
+        itemId.setItemIdentifierValue("22334455");
+        RequestId requestId = new RequestId();
+        requestId.setRequestIdentifierValue("RESH-99");
+        cancelRequestItemResponseData.setItemId(itemId);
+        cancelRequestItemResponseData.setRequestId(requestId);
+        JSONObject jsonObject = requestItem.constructResponseNcip2Response(cancelRequestItemResponseData);
+        assertEquals(jsonObject.getString("itemId"), "22334455");
+        assertEquals(jsonObject.getString("requestId"), "RESH-99");
     }
 
     @Test

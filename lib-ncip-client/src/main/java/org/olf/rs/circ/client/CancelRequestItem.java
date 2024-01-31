@@ -77,7 +77,21 @@ public class CancelRequestItem extends NCIPService implements NCIPCircTransactio
 
     @Override
     public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
-        throw new NotImplementedException();
+        CancelRequestItemResponseData cancelRequestItemResponseData = null;
+        try {
+            cancelRequestItemResponseData = (CancelRequestItemResponseData)responseData;
+            if (cancelRequestItemResponseData.getProblems() != null && cancelRequestItemResponseData.getProblems().size() > 0) {
+                return constructProblem(responseData);
+            }
+        }
+        catch(ClassCastException e) {
+            return constructProblem(responseData);
+        }
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("itemId", cancelRequestItemResponseData.getItemId().getItemIdentifierValue());
+        returnJson.put("requestId", cancelRequestItemResponseData.getRequestId().getRequestIdentifierValue());
+
+        return returnJson;
     }
 
     @Override

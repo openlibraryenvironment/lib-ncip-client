@@ -2,8 +2,7 @@ package org.olf.rs.circ.client.unitTests.transactions;
 
 import static org.junit.Assert.*;
 
-import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
-import org.extensiblecatalog.ncip.v2.service.RequestItemInitiationData;
+import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
 import org.junit.Test;
 import org.olf.rs.circ.client.RequestItem;
@@ -48,6 +47,21 @@ public class RequestItemTests {
         JSONObject requestItemResponse = requestItem.constructResponseNcip1Response(xmlAsString);
         assertEquals("7355677", requestItemResponse.get("requestId"));
         assertEquals("1669775-1001", requestItemResponse.get("itemId"));
+    }
+
+    @Test
+    public void testConstructNcip2Response() throws Exception {
+        RequestItem requestItem = new RequestItem();
+        RequestItemResponseData requestItemResponseData = new RequestItemResponseData();
+        ItemId itemId = new ItemId();
+        itemId.setItemIdentifierValue("22334455");
+        RequestId requestId = new RequestId();
+        requestId.setRequestIdentifierValue("RESH-99");
+        requestItemResponseData.setItemId(itemId);
+        requestItemResponseData.setRequestId(requestId);
+        JSONObject jsonObject = requestItem.constructResponseNcip2Response(requestItemResponseData);
+        assertEquals(jsonObject.getString("itemId"), "22334455");
+        assertEquals(jsonObject.getString("requestId"), "RESH-99");
     }
 
     @Test
