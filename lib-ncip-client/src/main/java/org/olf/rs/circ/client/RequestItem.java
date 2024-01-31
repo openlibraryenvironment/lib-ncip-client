@@ -134,7 +134,21 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
     @Override
     public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
-        return null;
+        RequestItemResponseData requestItemResponseData = null;
+        try {
+            requestItemResponseData = (RequestItemResponseData)responseData;
+            if (requestItemResponseData.getProblems() != null && requestItemResponseData.getProblems().size() > 0) {
+                return constructProblem(responseData);
+            }
+        }
+        catch(ClassCastException e) {
+            return constructProblem(responseData);
+        }
+        JSONObject returnJson = new JSONObject();
+        returnJson.put("itemId", requestItemResponseData.getItemId().getItemIdentifierValue());
+        returnJson.put("requestId", requestItemResponseData.getRequestId().getRequestIdentifierValue());
+
+        return returnJson;
     }
 
     @Override
