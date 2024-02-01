@@ -20,7 +20,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
     protected String registryId; //WMS ONLY
     protected String toAgency;
     protected String fromAgency;
-    private String useridString;
+    private String userIdString;
     private String bibliographicRecordIdString;
     private String bibliographicRecordIdCodeString;
     private String requestIdString;
@@ -42,7 +42,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
     }
 
     public RequestItem setUserId(String userId) {
-        this.useridString = userId;
+        this.userIdString = userId;
         return this;
     }
 
@@ -87,7 +87,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
 
         UserId userid = new UserId();
         userid.setAgencyId(new AgencyId(fromAgency));
-        userid.setUserIdentifierValue(useridString);
+        userid.setUserIdentifierValue(userIdString);
 
         /* If we have a bibliographic id set, use that, otherwise use the item id */
         if (bibliographicRecordIdString != null) {

@@ -21,6 +21,7 @@ public class RequestItemTests {
         requestItem.setBibliographicRecordId("pn234092945");
         requestItem.setBibliographicRecordIdCode("LCOC");
         String xml = requestItem.generateNCIP1Object();
+        assertTrue(xml.contains("v12345"));
         assertNotNull(xml);
     }
 
