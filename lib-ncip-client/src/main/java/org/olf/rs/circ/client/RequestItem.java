@@ -25,6 +25,9 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
     private String bibliographicRecordIdCodeString;
     private String requestIdString;
     private String itemIdString;
+    private String requestTypeString;
+    private String requestScopeTypeString = null;
+    private String pickupLocationString = null;
 
     public RequestItem setRegistryId(String id) {
         this.registryId = id;
@@ -71,6 +74,21 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         return this;
     }
 
+    public RequestItem setRequestType(String requestTypeString) {
+        this.requestTypeString = requestTypeString;
+        return this;
+    }
+
+    public RequestItem setRequestScopeType(String requestScopeTypeString) {
+        this.requestScopeTypeString = requestScopeTypeString;
+        return this;
+    }
+
+    public RequestItem setPickupLocation(String pickupLocationString) {
+        this.pickupLocationString = pickupLocationString;
+        return this;
+    }
+
     @Override
     public NCIPInitiationData generateNCIP2Object() {
         RequestItemInitiationData requestItemInitiationData = new RequestItemInitiationData();
@@ -113,9 +131,20 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         requestId.setAgencyId(new AgencyId(fromAgency));
         requestId.setRequestIdentifierValue(requestIdString);
 
-        RequestType requestType = new RequestType(null, "Loan");
+        if (requestTypeString == null) {
+            requestTypeString = "Loan";
+        }
+        RequestType requestType = new RequestType(null, requestTypeString);
 
-        RequestScopeType requestScopeType = new RequestScopeType(null, "Bibliographic Item");
+        if (requestScopeTypeString == null) {
+            requestScopeTypeString = "Bibliographic Item";
+        }
+        RequestScopeType requestScopeType = new RequestScopeType(null, requestScopeTypeString);
+
+        if (pickupLocationString != null) {
+           PickupLocation pickupLocation = new PickupLocation(pickupLocationString);
+           requestItemInitiationData.setPickupLocation(pickupLocation);
+        }
 
         requestItemInitiationData.setUserId(userid);
         requestItemInitiationData.setRequestId(requestId);

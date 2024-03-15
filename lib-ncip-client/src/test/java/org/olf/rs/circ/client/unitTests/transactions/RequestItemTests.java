@@ -20,6 +20,7 @@ public class RequestItemTests {
         requestItem.setUserId("v12345");
         requestItem.setBibliographicRecordId("pn234092945");
         requestItem.setBibliographicRecordIdCode("LCOC");
+        requestItem.setRequestType("Loan");
         String xml = requestItem.generateNCIP1Object();
         assertTrue(xml.contains("v12345"));
         assertNotNull(xml);
@@ -34,6 +35,7 @@ public class RequestItemTests {
         requestItem.setUserId("v12345");
         requestItem.setBibliographicRecordId("pn234092945");
         requestItem.setBibliographicRecordIdCode("LCOC");
+        requestItem.setRequestType("Loan");
         RequestItemInitiationData initData
                 = (RequestItemInitiationData) requestItem.generateNCIP2Object();
         InitiationHeader initiationHeader = initData.getInitiationHeader();
