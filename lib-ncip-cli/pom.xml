@@ -2,7 +2,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.olf.rs</groupId>
     <artifactId>lib-ncip-cli</artifactId>
-    <version>0.23.5</version>
+    <version>0.23.6</version>
     <name>lib-ncip-cli</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,7 +27,7 @@
           <dependency>
 			<groupId>org.json</groupId>
 			<artifactId>json</artifactId>
-			<version>20190722</version>
+			<version>20230227</version>
 		</dependency>
         <dependency>
             <groupId>org.olf.rs</groupId>

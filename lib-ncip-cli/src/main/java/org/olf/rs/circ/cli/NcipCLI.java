@@ -40,11 +40,13 @@ public class NcipCLI {
 			endpoint = cliArgs.get(0);
 		} catch(Exception e) {
 			System.out.println("Unable to read value for NCIP endpoint");
-			System.exit(1);
+			if (!inputLine.hasOption("mock-only")) {
+				System.exit(1);
+			}
 			return;
 		}
 
-		if(endpoint == null || endpoint.isEmpty()) {
+		if ((endpoint == null || endpoint.isEmpty()) && !inputLine.hasOption("mock-only")) {
 			System.out.println("An NCIP endpoint must be provided");
 			System.exit(1);
 		}
@@ -59,12 +61,11 @@ public class NcipCLI {
 
 		System.out.println("**Testing NCIP at endpoint " + endpoint + "**");
 		
-		//System.out.println("Service? 'L' - lookupUser, 'A' - acceptItem, 'O' - checkoutItem, 'I' - checkinItem");
-		//String service = in.nextLine();
+
 		String service = stringOrDie("service", inputLine);
 		Map<String, Object> inputParms = new HashMap<String,Object>();
 		String ncipProtocol = inputLine.getOptionValue("ncip-protocol");
-		if(ncipProtocol.equals("1")) {
+		if (ncipProtocol.equals("1")) {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP1);
 		} else if(ncipProtocol.equals("2")) {
 			inputParms.put("protocol", NCIPClientWrapper.NCIP2);
@@ -101,150 +102,179 @@ public class NcipCLI {
 				inputParms.put("lookupPatronEndpoint",
 						stringOrDie("wms-patron-lookup", inputLine));
 			}
-
 		}
-		NCIPClientWrapper wrapper = new NCIPClientWrapper(endpoint, inputParms);
-		if (service.equalsIgnoreCase("L")) {
-			fromAgency = stringOrDie("from-agency", inputLine);
-		    toAgency = stringOrDie("to-agency", inputLine);
-			String uid = inputLine.getOptionValue("patron-id");
-			String username = inputLine.getOptionValue("username");
-			String barcode = inputLine.getOptionValue("barcode");
-			String pin = inputLine.getOptionValue("pin");
-			if(uid == null && username == null && barcode == null) {
-				die("You must define either patron-id or username or barcode");
+
+		if (service.equalsIgnoreCase("L") || service.equalsIgnoreCase("A")
+				|| service.equalsIgnoreCase("O") || service.equalsIgnoreCase("I")
+				|| service.equalsIgnoreCase("R") || service.equalsIgnoreCase("C")) {
+
+			NCIPCircTransaction transaction = null;
+			NCIPClientWrapper wrapper;
+			if (endpoint == null || endpoint.isEmpty()) {
+				endpoint = "https://not.a.real.url";
 			}
-			if(ncipProtocol.equals("1") || ncipProtocol.equals("SOCKET") || ncipProtocol.equals("STRICTSOCKET")) {
-				if(uid == null && barcode == null) {
-					die("Only NCIP version 2 supports username lookup in the client");
+			wrapper = new NCIPClientWrapper(endpoint, inputParms);
+			if (service.equalsIgnoreCase("L")) {
+				fromAgency = stringOrDie("from-agency", inputLine);
+				toAgency = stringOrDie("to-agency", inputLine);
+				String uid = inputLine.getOptionValue("patron-id");
+				String username = inputLine.getOptionValue("username");
+				String barcode = inputLine.getOptionValue("barcode");
+				String pin = inputLine.getOptionValue("pin");
+				if (uid == null && username == null && barcode == null) {
+					die("You must define either patron-id or username or barcode");
 				}
+				if (ncipProtocol.equals("1") || ncipProtocol.equals("SOCKET") || ncipProtocol.equals("STRICTSOCKET")) {
+					if (uid == null && barcode == null) {
+						die("Only NCIP version 2 supports username lookup in the client");
+					}
+				}
+				if (uid != null) {
+					System.out.println("Lookup User by id: " + uid);
+				} else {
+					System.out.println("Lookup User by username: " + username);
+				}
+				LookupUser lookupUser = new LookupUser();
+				lookupUser.setFromAgency(fromAgency);
+				lookupUser.setToAgency(toAgency);
+				lookupUser.setUserId(uid);
+				lookupUser.setUserName(username);
+				lookupUser.setBarcode(barcode);
+				lookupUser.setPin(pin);
+				lookupUser.includeUserAddressInformation();
+				lookupUser.includeNameInformation();
+				lookupUser.includeUserPrivilege();
+				String appProfile = inputLine.getOptionValue("app-profile");
+				if (appProfile != null) {
+					lookupUser.setApplicationProfileType(appProfile);
+				}
+
+				System.out.println("Sending lookup");
+				transaction = lookupUser;
+
+				//Map<String, Object> map = wrapper.send(lookupUser);
+				//System.out.println("RESPONSE:  " + map.toString());
+				//System.out.println("");
+			} else if (service.equalsIgnoreCase("A")) {
+				fromAgency = stringOrDie("from-agency", inputLine);
+				toAgency = stringOrDie("to-agency", inputLine);
+				String uid = stringOrDie("patron-id", inputLine);
+				String itemId = stringOrDie("item-id", inputLine);
+				String requestId = inputLine.getOptionValue("request-id");
+				if (requestId == null || requestId.equalsIgnoreCase("")) requestId = itemId;
+				String title = stringOrDie("title", inputLine);
+				String author = stringOrDie("author", inputLine);
+				String pickup = stringOrDie("pickup-location", inputLine);
+				AcceptItem acceptItem = new AcceptItem()
+						.setToAgency(toAgency)
+						.setFromAgency(fromAgency)
+						.setUserId(uid)
+						.setTitle(title)
+						.setAuthor(author)
+						.setPickupLocation(pickup)
+						.setRequestActionType("Hold For Pickup")
+						.setRequestId(requestId)
+						.setItemId(itemId)
+						.setRegistryId(registryId);
+
+				String templatePrefix = inputLine.getOptionValue("template-prefix");
+				if (templatePrefix != null) {
+					acceptItem.setTemplatePrefix(templatePrefix);
+				}
+				transaction = acceptItem;
+				//Map<String, Object> map = wrapper.send(acceptItem);
+				//System.out.println("RESPONSE:  " + map.toString());
+				//System.out.println("");
+			} else if (service.equalsIgnoreCase("O")) {
+				Map<String, Object> inputParameters = new HashMap<String, Object>();
+				fromAgency = stringOrDie("from-agency", inputLine);
+				toAgency = stringOrDie("to-agency", inputLine);
+				String uid = stringOrDie("patron-id", inputLine);
+				String itemId = stringOrDie("item-id", inputLine);
+				String requestId = stringOrDie("request-id", inputLine);
+				CheckoutItem checkoutItem = new CheckoutItem()
+						.setToAgency(toAgency)
+						.setFromAgency(fromAgency)
+						.setRequestId(requestId)
+						.setItemId(itemId)
+						.setUserId(uid);
+				transaction = checkoutItem;
+
+				//Map<String, Object> map = wrapper.send(checkoutItem);
+				//System.out.println("RESPONSE: " + map.toString());
+				//System.out.println("");
+			} else if (service.equalsIgnoreCase("I")) {
+				fromAgency = stringOrDie("from-agency", inputLine);
+				toAgency = stringOrDie("to-agency", inputLine);
+				String itemId = stringOrDie("item-id", inputLine);
+				CheckinItem checkinItem = new CheckinItem()
+						.setToAgency(toAgency)
+						.setFromAgency(fromAgency)
+						.setItemId(itemId);
+				transaction = checkinItem;
+				//Map<String, Object> map = wrapper.send(checkinItem);
+				//System.out.println("RESPONSE: " + map.toString());
+				//System.out.println("");
+
+			} else if (service.equalsIgnoreCase("R")) {
+				fromAgency = stringOrDie("from-agency", inputLine);
+				toAgency = stringOrDie("to-agency", inputLine);
+				String uid = stringOrDie("patron-id", inputLine);
+				String requestId = stringOrDie("request-id", inputLine);
+				String requestType = stringOrDie("request-type", inputLine);
+				String bibliographicId = inputLine.getOptionValue("bib-id");
+				String bibliographicIdCode = inputLine.getOptionValue("bib-id-code");
+				String requestScopeType = inputLine.getOptionValue("request-scope-type");
+				String pickupLocation = inputLine.getOptionValue("pickup-location");
+				String itemId = inputLine.getOptionValue("item-id");
+
+				RequestItem requestItem = new RequestItem()
+						.setToAgency(toAgency)
+						.setFromAgency(fromAgency)
+						.setUserId(uid)
+						.setRequestId(requestId)
+						.setRequestType(requestType);
+				if (bibliographicId != null && bibliographicIdCode != null) {
+					requestItem.setBibliographicRecordId(bibliographicId);
+					requestItem.setBibliographicRecordIdCode(bibliographicIdCode);
+				} else if (itemId != null) {
+					requestItem.setItemId(itemId);
+				} else {
+					die("You must set either bib-id and bib-id-code OR item-id");
+				}
+
+				if (requestScopeType != null) {
+					requestItem.setRequestScopeType(requestScopeType);
+				}
+
+				if (pickupLocation != null) {
+					requestItem.setPickupLocation(pickupLocation);
+				}
+				transaction = requestItem;
+			} else if (service.equalsIgnoreCase("C")) {
+				fromAgency = stringOrDie("from-agency", inputLine);
+				toAgency = stringOrDie("to-agency", inputLine);
+				String uid = stringOrDie("patron-id", inputLine);
+				String requestId = stringOrDie("request-id", inputLine);
+				CancelRequestItem cancelRequestItem = new CancelRequestItem()
+						.setToAgency(toAgency)
+						.setFromAgency(fromAgency)
+						.setUserId(uid)
+						.setRequestId(requestId);
+				transaction = cancelRequestItem;
+				//Map<String, Object> map = wrapper.send(cancelRequestItem);
+				//System.out.println("RESPONSE: " + map.toString());
+				//System.out.println("");
 			}
-			if(uid != null) {
-				System.out.println("Lookup User by id: " + uid);
+
+			if (inputLine.hasOption("mock-only")) {
+				System.out.println("MOCK-REQUEST: " + wrapper.printRequest(transaction));
 			} else {
-				System.out.println("Lookup User by username: " + username);
-			}
-			LookupUser lookupUser = new LookupUser();
-			lookupUser.setFromAgency(fromAgency);
-			lookupUser.setToAgency(toAgency);
-			lookupUser.setUserId(uid);
-			lookupUser.setUserName(username);
-			lookupUser.setBarcode(barcode);
-			lookupUser.setPin(pin);
-			lookupUser.includeUserAddressInformation();
-			lookupUser.includeNameInformation();
-			lookupUser.includeUserPrivilege();
-			String appProfile = inputLine.getOptionValue("app-profile");
-			if(appProfile != null) {
-				lookupUser.setApplicationProfileType(appProfile);
+				Map<String, Object> map = wrapper.send(transaction);
+				System.out.println("RESPONSE: " + map.toString());
+				System.out.println("");
 			}
 
-			System.out.println("Sending lookup");
-			Map<String, Object> map = wrapper.send(lookupUser);
-			System.out.println("RESPONSE:  " + map.toString());
-			System.out.println("");	
-		}
-		else if (service.equalsIgnoreCase("A")) {
-			fromAgency = stringOrDie("from-agency", inputLine);
-		    toAgency = stringOrDie("to-agency", inputLine);
-			String uid = stringOrDie("patron-id", inputLine);
-			String itemId = stringOrDie("item-id", inputLine);
-			String requestId = inputLine.getOptionValue("request-id");
-			if (requestId==null || requestId.equalsIgnoreCase("")) requestId = itemId;
-			String title = stringOrDie("title", inputLine);
-			String author = stringOrDie("author", inputLine);
-			String pickup = stringOrDie("pickup-location", inputLine);
-			AcceptItem acceptItem = new AcceptItem()
-					.setToAgency(toAgency)
-					.setFromAgency(fromAgency)
-					.setUserId(uid) 
-					.setTitle(title)
-					.setAuthor(author)
-					.setPickupLocation(pickup)
-					.setRequestActionType("Hold For Pickup")
-					.setRequestId(requestId)
-					.setItemId(itemId)
-					.setRegistryId(registryId);
-			
-			String templatePrefix = inputLine.getOptionValue("template-prefix");
-			if(templatePrefix != null) {
-				acceptItem.setTemplatePrefix(templatePrefix);
-			}		
-			
-			Map<String, Object> map = wrapper.send(acceptItem);
-			System.out.println("RESPONSE:  " + map.toString());
-			System.out.println("");
-		}
-		else if (service.equalsIgnoreCase("O")) {
-			Map<String, Object> inputParameters = new HashMap<String,Object>();
-			fromAgency = stringOrDie("from-agency", inputLine);
-		    toAgency = stringOrDie("to-agency", inputLine);
-			String uid = stringOrDie("patron-id", inputLine);
-			String itemId = stringOrDie("item-id", inputLine);
-			String requestId = stringOrDie("request-id", inputLine);
-			CheckoutItem checkoutItem = new CheckoutItem()
-					.setToAgency(toAgency)
-					.setFromAgency(fromAgency)
-					.setRequestId(requestId)
-					.setItemId(itemId)
-					.setUserId(uid);
-			Map<String, Object> map = wrapper.send(checkoutItem);
-			System.out.println("RESPONSE: " + map.toString());
-			System.out.println("");
-		}
-		else if (service.equalsIgnoreCase("I")) {
-			fromAgency = stringOrDie("from-agency", inputLine);
-		    toAgency = stringOrDie("to-agency", inputLine);
-			String itemId = stringOrDie("item-id", inputLine);			
-			CheckinItem checkinItem = new CheckinItem()
-					.setToAgency(toAgency)
-					.setFromAgency(fromAgency)
-					.setItemId(itemId);
-			Map<String, Object> map = wrapper.send(checkinItem);
-			System.out.println("RESPONSE: " + map.toString());
-			System.out.println("");
-
-		}
-		else if (service.equalsIgnoreCase("R")) {
-			fromAgency = stringOrDie("from-agency", inputLine);
-			toAgency = stringOrDie("to-agency", inputLine);
-			String uid = stringOrDie("patron-id", inputLine);
-			String requestId = stringOrDie("request-id", inputLine);
-			String bibliographicId = inputLine.getOptionValue("bib-id");
-			String bibliographicIdCode = inputLine.getOptionValue("bib-id-code");
-			String itemId = inputLine.getOptionValue("item-id");
-
-			RequestItem requestItem = new RequestItem()
-					.setToAgency(toAgency)
-					.setFromAgency(fromAgency)
-					.setUserId(uid)
-					.setRequestId(requestId);
-			if (bibliographicId != null && bibliographicIdCode != null) {
-				requestItem.setBibliographicRecordId(bibliographicId);
-				requestItem.setBibliographicRecordIdCode(bibliographicIdCode);
-			} else if (itemId != null) {
-				requestItem.setItemId(itemId);
-			} else {
-				die("You must set either bib-id and bib-id-code OR item-id");
-			}
-
-			Map<String, Object> map = wrapper.send(requestItem);
-			System.out.println("RESPONSE: " + map.toString());
-			System.out.println("");
-		}
-		else if (service.equalsIgnoreCase("C")) {
-			fromAgency = stringOrDie("from-agency", inputLine);
-			toAgency = stringOrDie("to-agency", inputLine);
-			String uid = stringOrDie("patron-id", inputLine);
-			String requestId = stringOrDie("request-id", inputLine);
-			CancelRequestItem cancelRequestItem = new CancelRequestItem()
-					.setToAgency(toAgency)
-					.setFromAgency(fromAgency)
-					.setUserId(uid)
-					.setRequestId(requestId);
-			Map<String, Object> map = wrapper.send(cancelRequestItem);
-			System.out.println("RESPONSE: " + map.toString());
-			System.out.println("");
 		}
 		else if(service.equalsIgnoreCase("T")) {
 			if(!ncipProtocol.equals("WMS")) {
@@ -297,7 +327,7 @@ public class NcipCLI {
 		Option service = Option.builder("s")
 				.hasArg()
 				.required(false)
-				.desc("The service to test: (L, A, O, I, T: WMS Token Only)")
+				.desc("The service to test: (L, A, O, I, R, C, T: WMS Token Only)")
 				.longOpt("service")
 				.build();
 		
@@ -441,6 +471,24 @@ public class NcipCLI {
 			.longOpt("bib-id-code")
 			.build();
 
+		Option mockOnly = Option.builder("m")
+			.required(false)
+			.desc("Do we just want to generate and not send the request?")
+			.longOpt("mock-only")
+			.build();
+
+		Option requestType = Option.builder("q")
+			.hasArg()
+			.required(false)
+			.desc("The RequestType for RequestItem")
+			.longOpt("request-type")
+			.build();
+
+		Option requestScopeType = Option.builder("Q")
+			.hasArg()
+			.required(false)
+			.longOpt("request-scope-type")
+			.build();
 
 		Option help = new Option("help", "print this message");
 
@@ -468,6 +516,9 @@ public class NcipCLI {
 		options.addOption(wmsLookupPatronEndpoint);
 		options.addOption(bibliographicId);
 		options.addOption(bibliographicIdCode);
+		options.addOption(mockOnly);
+		options.addOption(requestType);
+		options.addOption(requestScopeType);
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = parser.parse(options, args);
