@@ -68,6 +68,17 @@ public class RequestItemTests {
     }
 
     @Test
+    public void testConstructNcip2ResponseWithoutItemId() throws Exception {
+        RequestItem requestItem = new RequestItem();
+        RequestItemResponseData requestItemResponseData = new RequestItemResponseData();
+        RequestId requestId = new RequestId();
+        requestId.setRequestIdentifierValue("RESH-99");
+        requestItemResponseData.setRequestId(requestId);
+        JSONObject jsonObject = requestItem.constructResponseNcip2Response(requestItemResponseData);
+        assertEquals(jsonObject.getString("requestId"), "RESH-99");
+    }
+
+    @Test
     public void testToString() {
         RequestItem requestItem = new RequestItem();
         requestItem.setRequestId("123");
