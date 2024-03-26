@@ -174,8 +174,12 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
             return constructProblem(responseData);
         }
         JSONObject returnJson = new JSONObject();
-        returnJson.put("itemId", requestItemResponseData.getItemId().getItemIdentifierValue());
-        returnJson.put("requestId", requestItemResponseData.getRequestId().getRequestIdentifierValue());
+        if (requestItemResponseData.getItemId() != null) {
+            returnJson.put("itemId", requestItemResponseData.getItemId().getItemIdentifierValue());
+        }
+        if (requestItemResponseData.getRequestId() != null) {
+            returnJson.put("requestId", requestItemResponseData.getRequestId().getRequestIdentifierValue());
+        }
 
         return returnJson;
     }
