@@ -40,6 +40,11 @@ public class CancelRequestItem extends NCIPService implements NCIPCircTransactio
         return this;
     }
 
+    public CancelRequestItem setRegistryId(String registryId) {
+        this.registryId = registryId;
+        return this;
+    }
+
     @Override
     public NCIPInitiationData generateNCIP2Object() {
         CancelRequestItemInitiationData cancelRequestItemInitiationData = new CancelRequestItemInitiationData();
