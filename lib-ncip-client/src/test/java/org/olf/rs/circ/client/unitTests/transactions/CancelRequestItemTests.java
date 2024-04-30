@@ -33,7 +33,7 @@ public class CancelRequestItemTests {
 
     @Test
     public void testConstructNcip2Response() throws Exception {
-        CancelRequestItem requestItem = new CancelRequestItem();
+        CancelRequestItem cancelRequestItem = new CancelRequestItem();
         CancelRequestItemResponseData cancelRequestItemResponseData = new CancelRequestItemResponseData();
         ItemId itemId = new ItemId();
         itemId.setItemIdentifierValue("22334455");
@@ -41,7 +41,7 @@ public class CancelRequestItemTests {
         requestId.setRequestIdentifierValue("RESH-99");
         cancelRequestItemResponseData.setItemId(itemId);
         cancelRequestItemResponseData.setRequestId(requestId);
-        JSONObject jsonObject = requestItem.constructResponseNcip2Response(cancelRequestItemResponseData);
+        JSONObject jsonObject = cancelRequestItem.constructResponseNcip2Response(cancelRequestItemResponseData);
         assertEquals(jsonObject.getString("itemId"), "22334455");
         assertEquals(jsonObject.getString("requestId"), "RESH-99");
     }
@@ -52,6 +52,7 @@ public class CancelRequestItemTests {
         cancelRequestItem.setRequestId("123");
         cancelRequestItem.setFromAgency("ABC");
         cancelRequestItem.setToAgency("CBA");
+        cancelRequestItem.setRegistryId("44556677");
         String asString = cancelRequestItem.toString();
         assertTrue(asString.contains("123"));
         assertTrue(asString.contains("CBA"));
