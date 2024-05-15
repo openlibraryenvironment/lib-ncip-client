@@ -8,6 +8,8 @@ import org.junit.Test;
 import org.olf.rs.circ.client.RequestItem;
 import org.olf.rs.circ.client.TestConstants;
 
+import java.util.Collections;
+
 
 public class RequestItemTests {
 
@@ -60,11 +62,27 @@ public class RequestItemTests {
         itemId.setItemIdentifierValue("22334455");
         RequestId requestId = new RequestId();
         requestId.setRequestIdentifierValue("RESH-99");
+        LocationNameInstance locationNameInstance = new LocationNameInstance();
+        locationNameInstance.setLocationNameValue("Main library");
+        LocationName locationName = new LocationName();
+        locationName.setLocationNameInstances(Collections.singletonList(locationNameInstance));
+        Location location = new Location();
+        location.setLocationName(locationName);
+        ItemDescription itemDescription = new ItemDescription();
+        itemDescription.setCopyNumber("b-123");
+        itemDescription.setCallNumber("TK5105.88815 . A58 2004 FT MEADE");
+        ItemOptionalFields itemOptionalFields = new ItemOptionalFields();
+        itemOptionalFields.setItemDescription(itemDescription);
+        itemOptionalFields.setLocations(Collections.singletonList(location));
         requestItemResponseData.setItemId(itemId);
         requestItemResponseData.setRequestId(requestId);
+        requestItemResponseData.setItemOptionalFields(itemOptionalFields);
         JSONObject jsonObject = requestItem.constructResponseNcip2Response(requestItemResponseData);
         assertEquals(jsonObject.getString("itemId"), "22334455");
         assertEquals(jsonObject.getString("requestId"), "RESH-99");
+        assertEquals(jsonObject.getString("barcode"), "b-123");
+        assertEquals(jsonObject.getString("callNumber"), "TK5105.88815 . A58 2004 FT MEADE");
+        assertEquals(jsonObject.getString("location"), "Main library");
     }
 
     @Test

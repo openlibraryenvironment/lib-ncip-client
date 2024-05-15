@@ -180,6 +180,23 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         if (requestItemResponseData.getRequestId() != null) {
             returnJson.put("requestId", requestItemResponseData.getRequestId().getRequestIdentifierValue());
         }
+        if (requestItemResponseData.getItemOptionalFields() != null) {
+            if (requestItemResponseData.getItemOptionalFields().getLocations() != null &&
+                    !requestItemResponseData.getItemOptionalFields().getLocations().isEmpty()){
+                Location location = requestItemResponseData.getItemOptionalFields().getLocation(0);
+                if (location.getLocationName() != null && location.getLocationName().getLocationNameInstances() != null &&
+                        !location.getLocationName().getLocationNameInstances().isEmpty()) {
+                    returnJson.put("location", location.getLocationName()
+                            .getLocationNameInstance(0).getLocationNameValue());
+                }
+            }
+            if (requestItemResponseData.getItemOptionalFields().getItemDescription() != null) {
+                returnJson.put("barcode", requestItemResponseData.getItemOptionalFields()
+                        .getItemDescription().getCopyNumber());
+                returnJson.put("callNumber", requestItemResponseData.getItemOptionalFields()
+                        .getItemDescription().getCallNumber());
+            }
+        }
 
         return returnJson;
     }
