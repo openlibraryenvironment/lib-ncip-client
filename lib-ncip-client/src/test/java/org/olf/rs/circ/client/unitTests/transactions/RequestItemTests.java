@@ -5,9 +5,14 @@ import static org.junit.Assert.*;
 import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.olf.rs.circ.client.NCIP2Client;
 import org.olf.rs.circ.client.RequestItem;
 import org.olf.rs.circ.client.TestConstants;
+import org.olf.rs.circ.client.XCToolkitUtil;
 
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
 
@@ -108,5 +113,21 @@ public class RequestItemTests {
         String asString = requestItem.toString();
         assertTrue(asString.contains("pn234092945"));
         assertTrue(asString.contains("v12345"));
+    }
+
+    @Test
+    public void testConvertResponseStringToJson() throws Exception{
+        XCToolkitUtil xcToolkitUtil = XCToolkitUtil.getInstance();
+        NCIP2Client.setUpMapping();
+        String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipTwoRequestItem.xml";
+        String responseString = LookupUserTests.readLineByLine(mockFileName);
+        InputStream stream = new ByteArrayInputStream(responseString.getBytes(StandardCharsets.UTF_8));
+        NCIPResponseData responseData = xcToolkitUtil.translator.createResponseData(xcToolkitUtil.serviceContext, stream);
+        RequestItem requestItem = new RequestItem();
+        JSONObject jsonObject = requestItem.constructResponseNcip2Response(responseData);
+        assertEquals(jsonObject.getString("itemId"), "980001");
+        assertEquals(jsonObject.getString("requestId"), "99873b27-893f-4611-98bf-72a92a9a82c8");
+        assertEquals(jsonObject.getString("callNumber"), "Holdings magazine Q1");
+        assertEquals(jsonObject.getString("location"), "Main Library : Datalogisk Institut");
     }
 }

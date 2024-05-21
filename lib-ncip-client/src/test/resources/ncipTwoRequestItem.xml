@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<ns1:NCIPMessage xmlns:ns1="http://www.niso.org/2008/ncip" ns1:version="http://www.niso.org/schemas/ncip/v2_0/imp1/xsd/ncip_v2_0.xsd">
+    <ns1:RequestItemResponse>
+        <ns1:RequestId>
+            <ns1:RequestIdentifierType ns1:Scheme="Scheme">Request Id</ns1:RequestIdentifierType>
+            <ns1:RequestIdentifierValue>99873b27-893f-4611-98bf-72a92a9a82c8</ns1:RequestIdentifierValue>
+        </ns1:RequestId>
+        <ns1:ItemId>
+            <ns1:ItemIdentifierType ns1:Scheme="Scheme">Item Barcode</ns1:ItemIdentifierType>
+            <ns1:ItemIdentifierValue>980001</ns1:ItemIdentifierValue>
+        </ns1:ItemId>
+        <ns1:UserId>
+            <ns1:AgencyId>slnp_two</ns1:AgencyId>
+            <ns1:UserIdentifierValue>b4cee18d-f862-4ef1-95a5-879fdd619603</ns1:UserIdentifierValue>
+        </ns1:UserId>
+        <ns1:RequestType ns1:Scheme="Scheme">Page</ns1:RequestType>
+        <ns1:RequestScopeType ns1:Scheme="Scheme">Item</ns1:RequestScopeType>
+        <ns1:ItemOptionalFields>
+            <ns1:ItemDescription>
+                <ns1:CallNumber>Holdings magazine Q1</ns1:CallNumber>
+            </ns1:ItemDescription>
+            <ns1:Location>
+                <ns1:LocationType ns1:Scheme="Scheme">Item</ns1:LocationType>
+                <ns1:LocationName>
+                    <ns1:LocationNameInstance>
+                        <ns1:LocationNameLevel>1</ns1:LocationNameLevel>
+                        <ns1:LocationNameValue>Main Library : Datalogisk Institut</ns1:LocationNameValue>
+                    </ns1:LocationNameInstance>
+                </ns1:LocationName>
+            </ns1:Location>
+        </ns1:ItemOptionalFields>
+    </ns1:RequestItemResponse>
+</ns1:NCIPMessage>

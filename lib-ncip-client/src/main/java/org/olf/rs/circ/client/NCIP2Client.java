@@ -26,8 +26,14 @@ import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.util.EntityUtils;
 import org.apache.log4j.Logger;
+import org.extensiblecatalog.ncip.v2.service.BibliographicRecordIdentifierCode;
+import org.extensiblecatalog.ncip.v2.service.LocationType;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
+import org.extensiblecatalog.ncip.v2.service.RequestScopeType;
+import org.extensiblecatalog.ncip.v2.service.RequestType;
+import org.extensiblecatalog.ncip.v2.service.SchemeValueBehavior;
+import org.extensiblecatalog.ncip.v2.service.SchemeValuePair;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -68,6 +74,7 @@ public class NCIP2Client implements CirculationClient {
 			if (inputMap.containsKey("fromAgencyAuthentication")) {
 				this.fromAgencyAuthentication = (String) inputMap.get("fromAgencyAuthentication");
 			}
+			setUpMapping();
 			logger.info("Getting xcToolkitUtil");
 			xcToolkitUtil = XCToolkitUtil.getInstance();
 			this.endpoint = endpoint;
@@ -258,5 +265,13 @@ public class NCIP2Client implements CirculationClient {
 		return requestBody;
 	}
 
+	public static void setUpMapping(){
+		SchemeValuePair.allowNullScheme(RequestType.class.getName(), RequestScopeType.class.getName(),
+				BibliographicRecordIdentifierCode.class.getName(), LocationType.class.getName());
+		SchemeValuePair.mapBehavior(RequestType.class.getName(), SchemeValueBehavior.ALLOW_ANY);
+		SchemeValuePair.mapBehavior(RequestScopeType.class.getName(), SchemeValueBehavior.ALLOW_ANY);
+		SchemeValuePair.mapBehavior(BibliographicRecordIdentifierCode.class.getName(), SchemeValueBehavior.ALLOW_ANY);
+		SchemeValuePair.mapBehavior(LocationType.class.getName(), SchemeValueBehavior.ALLOW_ANY);
+	}
 
 }

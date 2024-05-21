@@ -215,7 +215,7 @@ public class LookupUserTests {
 		assertTrue(authValues.contains("7890"));
 		assertTrue(authValues.contains("1234"));
 	}
-	 private static String readLineByLine(String filePath) {
+	 public static String readLineByLine(String filePath) {
 	      StringBuilder contentBuilder = new StringBuilder();
 	      try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
 	      {
