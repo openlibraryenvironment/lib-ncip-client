@@ -5,7 +5,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -15,6 +18,8 @@ import org.extensiblecatalog.ncip.v2.service.CheckOutItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.CheckOutItemResponseData;
 import org.extensiblecatalog.ncip.v2.service.ItemId;
 import org.extensiblecatalog.ncip.v2.service.UserId;
+import org.extensiblecatalog.ncip.v2.service.UserIdentifierType;
+import org.extensiblecatalog.ncip.v2.service.UserOptionalFields;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
@@ -49,11 +54,18 @@ public class CheckoutItemTests {
 		itemId.setItemIdentifierValue("2938470293874");
 		UserId userId = new UserId();
 		userId.setUserIdentifierValue("5551212");
+		UserId loanId = new UserId();
+		loanId.setUserIdentifierType(new UserIdentifierType("Scheme", "loanUuid"));
+		loanId.setUserIdentifierValue("1231231234");
+		UserOptionalFields optionalFields = new UserOptionalFields();
+		optionalFields.setUserIds(Collections.singletonList(loanId));
 		checkOutItemResponseData.setItemId(itemId);
 		checkOutItemResponseData.setUserId(userId);
+		checkOutItemResponseData.setUserOptionalFields(optionalFields);
 		JSONObject jsonObject = checkoutItem.constructResponseNcip2Response(checkOutItemResponseData);
-		assertEquals(jsonObject.get("itemId"),"2938470293874");
-		assertEquals(jsonObject.get("userId"),"5551212");
+		assertEquals("2938470293874", jsonObject.get("itemId"));
+		assertEquals("5551212", jsonObject.get("userId"));
+		assertEquals("1231231234", jsonObject.get("loanUuid"));
 	}
 
 	

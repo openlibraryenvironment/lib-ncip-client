@@ -29,5 +29,11 @@
                 </ns1:LocationName>
             </ns1:Location>
         </ns1:ItemOptionalFields>
+        <ns1:UserOptionalFields>
+            <ns1:UserId>
+                <ns1:UserIdentifierType ns1:Scheme="Scheme">uuid</ns1:UserIdentifierType>
+                <ns1:UserIdentifierValue>764fe3bf-e09b-4fcc-b4a9-c78aab6995f1</ns1:UserIdentifierValue>
+            </ns1:UserId>
+        </ns1:UserOptionalFields>
     </ns1:RequestItemResponse>
 </ns1:NCIPMessage>
