@@ -185,6 +185,15 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 			dueDateString = formatter.format(checkoutItemResponse.getDateDue().getTime());
 		}
 
+		if(checkoutItemResponse.getUserOptionalFields() != null && checkoutItemResponse.getUserOptionalFields().getUserIds() != null) {
+			for(UserId userId : checkoutItemResponse.getUserOptionalFields().getUserIds()) {
+				if(userId.getUserIdentifierType() != null && "loanUuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
+					returnJson.put("loanUuid", userId.getUserIdentifierValue());
+					break;
+				}
+			}
+		}
+
 		
 		returnJson.put("dueDate", dueDateString);
 		returnJson.put("itemId", checkoutItemResponse.getItemId().getItemIdentifierValue());

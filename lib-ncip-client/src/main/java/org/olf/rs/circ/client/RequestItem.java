@@ -198,6 +198,15 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
             }
         }
 
+        if(requestItemResponseData.getUserOptionalFields() != null && requestItemResponseData.getUserOptionalFields().getUserIds() != null) {
+            for(UserId userId : requestItemResponseData.getUserOptionalFields().getUserIds()) {
+                if(userId.getUserIdentifierType() != null && "uuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
+                    returnJson.put("userUuid", userId.getUserIdentifierValue());
+                    break;
+                }
+            }
+        }
+
         return returnJson;
     }
 
