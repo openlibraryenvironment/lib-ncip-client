@@ -1,35 +1,19 @@
 package org.olf.rs.circ.client;
 
 
-
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-
 import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 import org.apache.log4j.Logger;
-import org.extensiblecatalog.ncip.v2.service.AgencyId;
-import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
-import org.extensiblecatalog.ncip.v2.service.CheckInItemInitiationData;
-import org.extensiblecatalog.ncip.v2.service.CheckInItemResponseData;
-import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
-import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
-import org.extensiblecatalog.ncip.v2.service.ItemId;
-import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
-import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
-import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
+import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
-import com.github.jknack.handlebars.Context;
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.context.FieldValueResolver;
-import com.github.jknack.handlebars.context.MethodValueResolver;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 
@@ -72,7 +56,7 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 	
 	/**
 	 * setRegistryId
-	 * @param string - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element
+	 * @param registryId - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element
 	 * @return Instance object
 	 */
 	public CheckinItem setRegistryId(String registryId) {
@@ -148,12 +132,12 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 	 * This method generates a JSONObject using the NCIPResponsData object for CheckinItem
 	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
-		CheckInItemResponseData checkinItemResponse = null;
+		CheckInItemResponseData checkinItemResponse;
 		JSONObject returnJson = new JSONObject();
 
 		try {
 			checkinItemResponse = (CheckInItemResponseData)responseData;
-			//DEAL W/PROBLEMS IN THE RESPONSE
+			// DEAL W/PROBLEMS IN THE RESPONSE
 			if (checkinItemResponse.getProblems() != null && checkinItemResponse.getProblems().size() > 0) {
 				return constructProblem(responseData);
 			}
@@ -167,10 +151,25 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 			itemId = checkinItemResponse.getItemId().getItemIdentifierValue();
 		}
 		catch(Exception e) {
-			//IT'S FINE
-			//KOHA SENDS BACK UniqueItemId - Not ItemID
+			// IT'S FINE
+			// KOHA SENDS BACK UniqueItemId - Not ItemID
 		}
 		returnJson.put(Constants.ITEM_ID, itemId);
+
+		if (checkinItemResponse.getUserOptionalFields() != null && checkinItemResponse.getUserOptionalFields().getUserIds() != null) {
+			for (UserId userId : checkinItemResponse.getUserOptionalFields().getUserIds()) {
+				if (userId.getUserIdentifierType() != null && "loanUuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
+					returnJson.put("loanUuid", userId.getUserIdentifierValue());
+					break;
+				}
+
+				if (userId.getUserIdentifierType() != null && "userUuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
+					returnJson.put("userUuid", userId.getUserIdentifierValue());
+					break;
+				}
+			}
+		}
+
 		return returnJson;
 	}
 	
@@ -192,7 +191,7 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 	public JSONObject constructResponseNcip1Response(String responseData) {
 		JSONObject returnJson = new JSONObject();
         try {
-            Document document = Jsoup.parse(responseData,"",Parser.xmlParser());
+            Document document = Jsoup.parse(responseData,"", Parser.xmlParser());
 
             Elements problems = document.select("NCIPMessage > CheckInItemResponse > Problem");
             if (problems != null && !problems.isEmpty()) {
@@ -222,5 +221,4 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this);
 	}
-
 }
