@@ -1,40 +1,22 @@
 package org.olf.rs.circ.client;
 
+import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.log4j.Logger;
+import org.extensiblecatalog.ncip.v2.service.*;
+import org.json.JSONObject;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.parser.Parser;
+import org.jsoup.select.Elements;
+
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 import java.util.GregorianCalendar;
-
-import org.apache.commons.lang.NotImplementedException;
-import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import org.apache.log4j.Logger;
-import org.extensiblecatalog.ncip.v2.service.AgencyId;
-import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
-import org.extensiblecatalog.ncip.v2.service.CheckOutItemInitiationData;
-import org.extensiblecatalog.ncip.v2.service.CheckOutItemResponseData;
-import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
-import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
-import org.extensiblecatalog.ncip.v2.service.ItemId;
-import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
-import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
-import org.extensiblecatalog.ncip.v2.service.Problem;
-import org.extensiblecatalog.ncip.v2.service.RequestId;
-import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
-import org.extensiblecatalog.ncip.v2.service.UserId;
-import org.json.JSONObject;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.parser.Parser;
-import org.jsoup.select.Elements;
-
-import com.github.jknack.handlebars.Context;
-import com.github.jknack.handlebars.Handlebars;
-import com.github.jknack.handlebars.Template;
-import com.github.jknack.handlebars.context.FieldValueResolver;
+import java.util.TimeZone;
 
 public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	
@@ -159,7 +141,7 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	 * This method generates a JSONObject using the NCIPResponsData object for CheckoutItem
 	 */
 	public JSONObject constructResponseNcip2Response(NCIPResponseData responseData) {
-		CheckOutItemResponseData checkoutItemResponse = null;
+		CheckOutItemResponseData checkoutItemResponse;
 		try {
 			checkoutItemResponse = (CheckOutItemResponseData)responseData;
 			//DEAL W/PROBLEMS IN THE RESPONSE
@@ -167,13 +149,11 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 				return constructProblem(responseData);
 			}
 		}
-		//WMS RETURNS A PROBLEM ELEMENT (INSTEAD OF NCIPResponseData)
+		// WMS RETURNS A PROBLEM ELEMENT (INSTEAD OF NCIPResponseData)
 		catch(ClassCastException e) {
 			return constructProblem(responseData);
 		}
 		JSONObject returnJson = new JSONObject();
-		
-		
 
 		String dueDateString = "";
 		if (checkoutItemResponse.getDateDue() != null) {
@@ -185,15 +165,14 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 			dueDateString = formatter.format(checkoutItemResponse.getDateDue().getTime());
 		}
 
-		if(checkoutItemResponse.getUserOptionalFields() != null && checkoutItemResponse.getUserOptionalFields().getUserIds() != null) {
-			for(UserId userId : checkoutItemResponse.getUserOptionalFields().getUserIds()) {
-				if(userId.getUserIdentifierType() != null && "loanUuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
+		if (checkoutItemResponse.getUserOptionalFields() != null && checkoutItemResponse.getUserOptionalFields().getUserIds() != null) {
+			for (UserId userId : checkoutItemResponse.getUserOptionalFields().getUserIds()) {
+				if (userId.getUserIdentifierType() != null && "loanUuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
 					returnJson.put("loanUuid", userId.getUserIdentifierValue());
 					break;
 				}
 			}
 		}
-
 		
 		returnJson.put("dueDate", dueDateString);
 		returnJson.put("itemId", checkoutItemResponse.getItemId().getItemIdentifierValue());
@@ -259,6 +238,4 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	public String toString() {
 		return ReflectionToStringBuilder.toString(this);
 	}
-	
-
 }

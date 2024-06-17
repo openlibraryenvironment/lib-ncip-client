@@ -1,26 +1,7 @@
 package org.olf.rs.circ.client.unitTests.transactions;
 
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Stream;
-
-import org.extensiblecatalog.ncip.v2.service.CheckInItemInitiationData;
-import org.extensiblecatalog.ncip.v2.service.CheckInItemResponseData;
-import org.extensiblecatalog.ncip.v2.service.CheckOutItemInitiationData;
-import org.extensiblecatalog.ncip.v2.service.CheckOutItemResponseData;
-import org.extensiblecatalog.ncip.v2.service.ItemId;
-import org.extensiblecatalog.ncip.v2.service.UserId;
-import org.extensiblecatalog.ncip.v2.service.UserIdentifierType;
-import org.extensiblecatalog.ncip.v2.service.UserOptionalFields;
-import org.json.JSONArray;
+import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -29,14 +10,22 @@ import org.junit.Test;
 import org.olf.rs.circ.client.CheckoutItem;
 import org.olf.rs.circ.client.TestConstants;
 
-import static org.junit.Assert.*;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Collections;
+import java.util.stream.Stream;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 
 public class CheckoutItemTests {
 	
 
 	@Test
-	public void testConstructNcip1Response() throws Exception {
+	public void testConstructNcip1Response() {
 		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipOneCheckoutItemXmlResponseExample.xml";
 		String xmlAsString = readLineByLine(mockFileName);
 		CheckoutItem checkoutItem = new CheckoutItem();
@@ -47,7 +36,7 @@ public class CheckoutItemTests {
 	}
 	
 	@Test
-	public void testConstructNcip2Response() throws Exception {
+	public void testConstructNcip2Response() {
 		CheckoutItem checkoutItem = new CheckoutItem();
 		CheckOutItemResponseData checkOutItemResponseData = new CheckOutItemResponseData();
 		ItemId itemId = new ItemId();
@@ -71,7 +60,7 @@ public class CheckoutItemTests {
 	
 	
 	@Test
-	public void testGenerateNcip1Object() throws Exception {
+	public void testGenerateNcip1Object() {
 		CheckoutItem checkoutItem = new CheckoutItem();
 		checkoutItem.setFromAgency("ABC");
 		checkoutItem.setToAgency("DEF");
@@ -88,7 +77,7 @@ public class CheckoutItemTests {
 	}
 	
 	@Test 
-	public void testGenerateNcip2Object() throws Exception {
+	public void testGenerateNcip2Object() {
 		CheckoutItem checkoutItem = new CheckoutItem();
 		checkoutItem.setFromAgency("ABC");
 		checkoutItem.setToAgency("DEF");
@@ -103,7 +92,7 @@ public class CheckoutItemTests {
 	}
 	
 	@Test 
-	public void testToString() throws Exception {
+	public void testToString() {
 		CheckoutItem checkoutItem = new CheckoutItem();
 		checkoutItem.setFromAgency("ABC");
 		checkoutItem.setToAgency("DEF");
@@ -125,7 +114,4 @@ public class CheckoutItemTests {
 	      }
 	      return contentBuilder.toString();
 	  }
-	
-
-
 }

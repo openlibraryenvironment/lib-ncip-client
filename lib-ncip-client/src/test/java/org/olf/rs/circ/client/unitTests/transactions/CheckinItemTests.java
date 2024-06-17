@@ -1,14 +1,7 @@
 package org.olf.rs.circ.client.unitTests.transactions;
 
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.stream.Stream;
-import org.extensiblecatalog.ncip.v2.service.CheckInItemInitiationData;
-import org.extensiblecatalog.ncip.v2.service.CheckInItemResponseData;
-import org.extensiblecatalog.ncip.v2.service.ItemId;
+import org.extensiblecatalog.ncip.v2.service.*;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,13 +10,18 @@ import org.junit.Before;
 import org.junit.Test;
 import org.olf.rs.circ.client.CheckinItem;
 import org.olf.rs.circ.client.TestConstants;
-import static org.junit.Assert.*;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.stream.Stream;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class CheckinItemTests {
-	
-
 	
 	/**
 	 * @throws java.lang.Exception
@@ -34,7 +32,7 @@ public class CheckinItemTests {
 	}
 	
 	@Test
-	public void testConstructNcip1Response() throws Exception {
+	public void testConstructNcip1Response() {
 		String mockFileName =  TestConstants.PATH_TO_MOCK_FILES + "ncipOneCheckinItemXmlResponseExample.xml";
 		String xmlAsString = readLineByLine(mockFileName);
 		CheckinItem checkinItem = new CheckinItem();
@@ -43,20 +41,33 @@ public class CheckinItemTests {
 	}
 	
 	@Test
-	public void testConstructNcip2Response() throws Exception {
+	public void testConstructNcip2Response() {
 		CheckinItem checkinItem = new CheckinItem();
 		CheckInItemResponseData checkInItemResponseData = new CheckInItemResponseData();
 		ItemId itemId = new ItemId();
 		itemId.setItemIdentifierValue("2938470293874");
+
+		UserId loanId = new UserId();
+		loanId.setUserIdentifierType(new UserIdentifierType("Scheme", "loanUuid"));
+		loanId.setUserIdentifierValue("1231231234");
+
+		UserId userId = new UserId();
+		userId.setUserIdentifierType(new UserIdentifierType("Scheme", "userUuid"));
+		userId.setUserIdentifierValue("91231543543");
+
+		UserOptionalFields optionalFields = new UserOptionalFields();
+		optionalFields.setUserIds(Arrays.asList(loanId, userId));
+
+		checkInItemResponseData.setUserOptionalFields(optionalFields);
 		checkInItemResponseData.setItemId(itemId);
 		JSONObject jsonObject = checkinItem.constructResponseNcip2Response(checkInItemResponseData);
 		assertEquals(jsonObject.get("itemId"),"2938470293874");
+		assertEquals("1231231234", jsonObject.get("loanUuid"));
+		assertEquals("91231543543", jsonObject.get("userUuid"));
 	}
 	
-	
-	
 	@Test
-	public void testGenerateNcip1Object() throws Exception {
+	public void testGenerateNcip1Object() {
 		CheckinItem checkinItem = new CheckinItem();
 		checkinItem.setFromAgency("ABC");
 		checkinItem.setToAgency("DEF");
@@ -69,11 +80,10 @@ public class CheckinItemTests {
 		assertEquals(fromAgencyId,"ABC");
 		assertEquals(toAgencyId,"DEF");
 		assertEquals(itemId,"ABC-2387402374");
-		
 	}
 	
 	@Test 
-	public void testGenerateNcip2Object() throws Exception {
+	public void testGenerateNcip2Object() {
 		CheckinItem checkinItem = new CheckinItem();
 		checkinItem.setFromAgency("ABC");
 		checkinItem.setToAgency("DEF");
@@ -88,7 +98,7 @@ public class CheckinItemTests {
 	}
 	
 	@Test 
-	public void testToString() throws Exception {
+	public void testToString() {
 		CheckinItem checkinItem = new CheckinItem();
 		checkinItem.setFromAgency("ABC");
 		checkinItem.setToAgency("DEF");
@@ -110,6 +120,5 @@ public class CheckinItemTests {
 	      }
 	      return contentBuilder.toString();
 	  }
-
 }
 
