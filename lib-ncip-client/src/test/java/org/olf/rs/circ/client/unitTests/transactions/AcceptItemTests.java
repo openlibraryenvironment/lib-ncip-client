@@ -5,15 +5,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Iterator;
-import java.util.UUID;
 import java.util.stream.Stream;
 
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemResponseData;
 import org.extensiblecatalog.ncip.v2.service.ItemId;
 import org.extensiblecatalog.ncip.v2.service.RequestId;
-import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -21,10 +18,7 @@ import org.jsoup.parser.Parser;
 import org.junit.Before;
 import org.junit.Test;
 import org.olf.rs.circ.client.AcceptItem;
-import org.olf.rs.circ.client.CheckinItem;
-import org.olf.rs.circ.client.CheckoutItem;
-import org.olf.rs.circ.client.LookupUser;
-import org.olf.rs.circ.client.NCIP2Client;
+import org.olf.rs.circ.client.Constants;
 import org.olf.rs.circ.client.TestConstants;
 
 import static org.junit.Assert.*;
@@ -91,15 +85,31 @@ public class AcceptItemTests {
 	}
 	
 	@Test 
-	public void testGenerateNcip2Object() throws Exception {
-		AcceptItem acceptItem = new AcceptItem();
-		acceptItem.setToAgency("ABC");
-		acceptItem.setItemId("ABC-2387402374");
+	public void testGenerateNcip2Object() {
+		AcceptItem acceptItem = new AcceptItem()
+				.setToAgency("ABC")
+				.setItemId("ABC-2387402374")
+				.setChargeDefaultPatronFee(true);
 		AcceptItemInitiationData initData = (AcceptItemInitiationData) acceptItem.generateNCIP2Object();
 		String toAgencyId = initData.getInitiationHeader().getToAgencyId().getAgencyId().getValue();
 		String itemId = initData.getItemId().getItemIdentifierValue();
 		assertEquals(toAgencyId,"ABC");
 		assertEquals(itemId,"ABC-2387402374");
+		assertEquals(Constants.CHARGE_DEFAULT_PATRON_FEE, initData.getFiscalTransactionInformation().getFiscalActionType().getValue());
+	}
+
+	@Test
+	public void testGenerateNcip2ObjectNoFee() {
+		AcceptItem acceptItem = new AcceptItem()
+				.setToAgency("ABC")
+				.setItemId("ABC-2387402374")
+				.setChargeDefaultPatronFee(false);
+		AcceptItemInitiationData initData = (AcceptItemInitiationData) acceptItem.generateNCIP2Object();
+		String toAgencyId = initData.getInitiationHeader().getToAgencyId().getAgencyId().getValue();
+		String itemId = initData.getItemId().getItemIdentifierValue();
+		assertEquals(toAgencyId,"ABC");
+		assertEquals(itemId,"ABC-2387402374");
+		assertNull(initData.getFiscalTransactionInformation());
 	}
 	
 	@Test 
