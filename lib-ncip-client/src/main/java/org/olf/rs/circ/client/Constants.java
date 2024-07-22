@@ -33,6 +33,9 @@ public class Constants {
 	public static final String IDM_SCOPE = "SCIM:read_user";
 	public static final String OCLC_HOST_NAME = "https://oauth.oclc.org";
 	public static final String DEFAULT_TIMEOUT = "3000";
+	public static final String SCHEME = "Scheme";
+	public static final String CHARGE_DEFAULT_PATRON_FEE = "charge-default-patron-fee";
+	public static final String ILL_FEE = "ILL-fee";
 
 
 }

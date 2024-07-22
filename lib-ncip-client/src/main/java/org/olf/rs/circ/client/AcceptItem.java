@@ -1,5 +1,6 @@
 package org.olf.rs.circ.client;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 
 import org.apache.commons.lang.NotImplementedException;
@@ -8,10 +9,14 @@ import org.apache.log4j.Logger;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemInitiationData;
 import org.extensiblecatalog.ncip.v2.service.AcceptItemResponseData;
 import org.extensiblecatalog.ncip.v2.service.AgencyId;
+import org.extensiblecatalog.ncip.v2.service.Amount;
 import org.extensiblecatalog.ncip.v2.service.ApplicationProfileType;
 import org.extensiblecatalog.ncip.v2.service.BibliographicDescription;
 import org.extensiblecatalog.ncip.v2.service.BibliographicItemId;
 import org.extensiblecatalog.ncip.v2.service.BibliographicItemIdentifierCode;
+import org.extensiblecatalog.ncip.v2.service.FiscalActionType;
+import org.extensiblecatalog.ncip.v2.service.FiscalTransactionInformation;
+import org.extensiblecatalog.ncip.v2.service.FiscalTransactionType;
 import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
 import org.extensiblecatalog.ncip.v2.service.ItemDescription;
@@ -46,12 +51,13 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	protected String fromAgency;
 	protected String requestedActionTypeString;
 	protected String applicationProfileTypeString;
-	protected HashMap<String, HashMap> itemOptionalFields = new HashMap<String, HashMap>();
+	protected boolean chargeDefaultPatronFee;
+	protected HashMap<String, HashMap<String, String>> itemOptionalFields = new HashMap<>();
 	private static final Logger logger = Logger.getLogger(AcceptItem.class);
 
 	public AcceptItem() {
-		itemOptionalFields.put(Constants.BIBLIOGRAPHIC_DESCRIPTION, new HashMap<String, String>());
-		itemOptionalFields.put(Constants.ITEM_DESCRIPTION, new HashMap<String, String>());
+		itemOptionalFields.put(Constants.BIBLIOGRAPHIC_DESCRIPTION, new HashMap<>());
+		itemOptionalFields.put(Constants.ITEM_DESCRIPTION, new HashMap<>());
 	}
 
 	public AcceptItem setRequestActionType(String action) {
@@ -61,6 +67,11 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 
 	public AcceptItem setApplicationProfileType(String profileType) {
 		applicationProfileTypeString = profileType;
+		return this;
+	}
+
+	public AcceptItem setChargeDefaultPatronFee(boolean chargeDefaultPatronFee) {
+		this.chargeDefaultPatronFee = chargeDefaultPatronFee;
 		return this;
 	}
 
@@ -106,7 +117,7 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 	
 	/**
 	 * setRegistryId
-	 * @param string - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element - only for WMS
+	 * @param registryId - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element - only for WMS
 	 * @return Instance object
 	 * Only adding here for consistency because as this time WMS does not support AcceptItem
 	 */
@@ -237,6 +248,17 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 		acceptItemInitationData.setRequestId(requestId);
 
 		acceptItemInitationData.setItemOptionalFields(itemOptionalFields);
+
+		if (chargeDefaultPatronFee) {
+			FiscalTransactionInformation fiscalTransactionInformation = new FiscalTransactionInformation();
+			Amount amount = new Amount();
+			amount.setMonetaryValue(BigDecimal.ZERO);
+			fiscalTransactionInformation.setAmount(amount);
+			fiscalTransactionInformation.setFiscalActionType(new FiscalActionType(Constants.SCHEME, Constants.CHARGE_DEFAULT_PATRON_FEE));
+			fiscalTransactionInformation.setFiscalTransactionType(new FiscalTransactionType(Constants.SCHEME, Constants.ILL_FEE));
+			acceptItemInitationData.setFiscalTransactionInformation(fiscalTransactionInformation);
+		}
+
 		return acceptItemInitationData;
 	}
 	
