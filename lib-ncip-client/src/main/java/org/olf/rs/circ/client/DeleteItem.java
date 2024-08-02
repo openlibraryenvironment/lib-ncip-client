@@ -74,8 +74,7 @@ public class DeleteItem  extends NCIPService implements NCIPCircTransaction {
             if (deleteItemResponseData.getProblems() != null && !deleteItemResponseData.getProblems().isEmpty()) {
                 return constructProblem(responseData);
             }
-        }
-        catch(ClassCastException e) {
+        } catch(ClassCastException e) {
             return constructProblem(responseData);
         }
         JSONObject returnJson = new JSONObject();
