@@ -105,7 +105,10 @@ public class CreateUserFiscalTransaction extends NCIPService implements NCIPCirc
         }
         JSONObject returnJson = new JSONObject();
         if (transResponseData.getUserId() != null) {
-            returnJson.put("userId", transResponseData.getUserId().getUserIdentifierValue());
+            returnJson.put("userUuid", transResponseData.getUserId().getUserIdentifierValue());
+        }
+        if (transResponseData.getFiscalTransactionReferenceId() != null) {
+            returnJson.put("feeUuid", transResponseData.getFiscalTransactionReferenceId().getFiscalTransactionIdentifierValue());
         }
         return returnJson;
     }
