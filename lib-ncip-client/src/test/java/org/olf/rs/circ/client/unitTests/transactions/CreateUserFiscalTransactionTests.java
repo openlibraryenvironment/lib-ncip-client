@@ -3,6 +3,7 @@ package org.olf.rs.circ.client.unitTests.transactions;
 import org.extensiblecatalog.ncip.v2.service.CreateUserFiscalTransactionInitiationData;
 import org.extensiblecatalog.ncip.v2.service.CreateUserFiscalTransactionResponseData;
 import org.extensiblecatalog.ncip.v2.service.DeleteItemResponseData;
+import org.extensiblecatalog.ncip.v2.service.FiscalTransactionReferenceId;
 import org.extensiblecatalog.ncip.v2.service.Problem;
 import org.extensiblecatalog.ncip.v2.service.ProblemType;
 import org.extensiblecatalog.ncip.v2.service.UserId;
@@ -22,9 +23,13 @@ public class CreateUserFiscalTransactionTests {
         CreateUserFiscalTransactionResponseData responseData = new CreateUserFiscalTransactionResponseData();
         UserId userId = new UserId();
         userId.setUserIdentifierValue("123");
+        FiscalTransactionReferenceId fiscalTransactionReferenceId = new FiscalTransactionReferenceId();
+        fiscalTransactionReferenceId.setFiscalTransactionIdentifierValue("f123");
+        responseData.setFiscalTransactionReferenceId(fiscalTransactionReferenceId);
         responseData.setUserId(userId);
         JSONObject jsonObject = createUserFiscalTransaction.constructResponseNcip2Response(responseData);
-        assertEquals(jsonObject.getString("userId"), "123");
+        assertEquals(jsonObject.getString("userUuid"), "123");
+        assertEquals(jsonObject.getString("feeUuid"), "f123");
     }
 
     @Test
