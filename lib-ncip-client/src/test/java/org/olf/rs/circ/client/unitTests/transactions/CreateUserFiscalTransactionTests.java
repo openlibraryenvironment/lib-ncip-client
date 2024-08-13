@@ -59,9 +59,10 @@ public class CreateUserFiscalTransactionTests {
         CreateUserFiscalTransaction createUserFiscalTransaction = new CreateUserFiscalTransaction()
                 .setFromAgency("ABC")
                 .setToAgency("CBA")
-                .setUseridString("123")
+                .setUserId("123")
                 .setChargeDefaultPatronFee(true)
-                .setRegistryId("R1");
+                .setRegistryId("R1")
+                .setItemId("i123");
 
         CreateUserFiscalTransactionInitiationData initiationData = (CreateUserFiscalTransactionInitiationData)
                 createUserFiscalTransaction.generateNCIP2Object();
@@ -69,5 +70,6 @@ public class CreateUserFiscalTransactionTests {
         assertEquals("CBA", initiationData.getInitiationHeader().getToAgencyId().getAgencyId().getValue());
         assertEquals("123", initiationData.getUserId().getUserIdentifierValue());
         assertEquals("charge-default-patron-fee", initiationData.getFiscalTransactionInformation().getFiscalActionType().getValue());
+        assertEquals("i123", initiationData.getFiscalTransactionInformation().getItemDetails().getItemId().getItemIdentifierValue());
     }
 }

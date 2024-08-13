@@ -20,6 +20,7 @@ import org.extensiblecatalog.ncip.v2.service.FiscalTransactionType;
 import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
 import org.extensiblecatalog.ncip.v2.service.ItemDescription;
+import org.extensiblecatalog.ncip.v2.service.ItemDetails;
 import org.extensiblecatalog.ncip.v2.service.ItemId;
 import org.extensiblecatalog.ncip.v2.service.ItemOptionalFields;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
@@ -256,6 +257,8 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 			fiscalTransactionInformation.setAmount(amount);
 			fiscalTransactionInformation.setFiscalActionType(new FiscalActionType(Constants.SCHEME, Constants.CHARGE_DEFAULT_PATRON_FEE));
 			fiscalTransactionInformation.setFiscalTransactionType(new FiscalTransactionType(Constants.SCHEME, Constants.ILL_FEE));
+			fiscalTransactionInformation.setItemDetails(new ItemDetails());
+			fiscalTransactionInformation.getItemDetails().setItemId(itemId);
 			acceptItemInitationData.setFiscalTransactionInformation(fiscalTransactionInformation);
 		}
 
