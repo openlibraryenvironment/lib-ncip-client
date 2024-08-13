@@ -11,6 +11,8 @@ import org.extensiblecatalog.ncip.v2.service.FiscalTransactionInformation;
 import org.extensiblecatalog.ncip.v2.service.FiscalTransactionType;
 import org.extensiblecatalog.ncip.v2.service.FromAgencyId;
 import org.extensiblecatalog.ncip.v2.service.InitiationHeader;
+import org.extensiblecatalog.ncip.v2.service.ItemDetails;
+import org.extensiblecatalog.ncip.v2.service.ItemId;
 import org.extensiblecatalog.ncip.v2.service.NCIPInitiationData;
 import org.extensiblecatalog.ncip.v2.service.NCIPResponseData;
 import org.extensiblecatalog.ncip.v2.service.ToAgencyId;
@@ -23,7 +25,8 @@ public class CreateUserFiscalTransaction extends NCIPService implements NCIPCirc
     protected String registryId; //WMS ONLY
     protected String toAgency;
     protected String fromAgency;
-    protected String useridString;
+    protected String userId;
+    protected String itemId;
     protected boolean chargeDefaultPatronFee;
 
     public CreateUserFiscalTransaction setRegistryId(String registryId) {
@@ -41,13 +44,18 @@ public class CreateUserFiscalTransaction extends NCIPService implements NCIPCirc
         return this;
     }
 
-    public CreateUserFiscalTransaction setUseridString(String useridString) {
-        this.useridString = useridString;
+    public CreateUserFiscalTransaction setUserId(String userId) {
+        this.userId = userId;
         return this;
     }
 
     public CreateUserFiscalTransaction setChargeDefaultPatronFee(boolean chargeDefaultPatronFee) {
         this.chargeDefaultPatronFee = chargeDefaultPatronFee;
+        return this;
+    }
+
+    public CreateUserFiscalTransaction setItemId(String itemId) {
+        this.itemId = itemId;
         return this;
     }
 
@@ -64,13 +72,14 @@ public class CreateUserFiscalTransaction extends NCIPService implements NCIPCirc
 
         UserId userId = new UserId();
         userId.setAgencyId(new AgencyId(fromAgency));
-        userId.setUserIdentifierValue(useridString);
+        userId.setUserIdentifierValue(this.userId);
 
         initiationData.setInitiationHeader(initiationHeader);
         initiationData.setUserId(userId);
 
         if (chargeDefaultPatronFee) {
             FiscalTransactionInformation fiscalTransactionInformation = getFiscalTransactionInformation();
+            fiscalTransactionInformation.setItemDetails(getItemDetails(itemId, fromAgency));
             initiationData.setFiscalTransactionInformation(fiscalTransactionInformation);
         }
 
@@ -85,6 +94,15 @@ public class CreateUserFiscalTransaction extends NCIPService implements NCIPCirc
         fiscalTransactionInformation.setFiscalActionType(new FiscalActionType(Constants.SCHEME, Constants.CHARGE_DEFAULT_PATRON_FEE));
         fiscalTransactionInformation.setFiscalTransactionType(new FiscalTransactionType(Constants.SCHEME, Constants.ILL_FEE));
         return fiscalTransactionInformation;
+    }
+
+    private static ItemDetails getItemDetails(String itemId, String fromAgency){
+        ItemDetails itemDetails = new ItemDetails();
+        ItemId itemIdObject = new ItemId();
+        itemIdObject.setAgencyId(new AgencyId(fromAgency));
+        itemIdObject.setItemIdentifierValue(itemId);
+        itemDetails.setItemId(itemIdObject);
+        return itemDetails;
     }
 
     @Override
