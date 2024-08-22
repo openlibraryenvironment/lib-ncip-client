@@ -285,9 +285,11 @@ public class AcceptItem extends NCIPService implements NCIPCircTransaction {
 
 		String itemId = acceptItem.getItemId().getItemIdentifierValue();
 		String requestId = acceptItem.getRequestId().getRequestIdentifierValue();
+		String itemUuid = acceptItem.getItemUuid() != null ? acceptItem.getItemUuid().getItemIdentifierValue() : "";
 
 		returnJson.put(Constants.ITEM_ID, itemId);
 		returnJson.put(Constants.REQUEST_ID, requestId);
+		returnJson.put(Constants.ITEM_UUID, itemUuid);
 		return returnJson;
 	}
 	

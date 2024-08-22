@@ -12,6 +12,7 @@ public class Constants {
 	public static final String ISBN = "ISBN";
 	public static final String ISSN = "ISSN";
 	public static final String ITEM_ID = "itemId";
+	public static final String ITEM_UUID= "itemUuid";
 	public static final String ITEM_DESCRIPTION = "itemDescription";
 	public static final String ITEM_USE_RESTRICTION = "Item Use Restriction Type";
 	public static final String LOANED_ITEMS = "Loaned Items";
