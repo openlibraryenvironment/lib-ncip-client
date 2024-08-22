@@ -142,6 +142,11 @@
               <enabled>false</enabled>
             </snapshots>
           </repository>
+		  <repository>
+		    <id>indexdata-repo</id>
+			<name>Indexdata reposilite</name>
+			<url>https://reposilite.reshare.indexdata.com/releases</url>
+		  </repository>
 	</repositories>
 	<build>
 		<resources>
