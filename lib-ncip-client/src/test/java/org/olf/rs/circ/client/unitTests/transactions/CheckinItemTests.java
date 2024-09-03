@@ -47,18 +47,16 @@ public class CheckinItemTests {
 		ItemId itemId = new ItemId();
 		itemId.setItemIdentifierValue("2938470293874");
 
-		UserId loanId = new UserId();
-		loanId.setUserIdentifierType(new UserIdentifierType("Scheme", "loanUuid"));
-		loanId.setUserIdentifierValue("1231231234");
+		ItemId loanId = new ItemId();
+		loanId.setItemIdentifierType(new ItemIdentifierType("Scheme", "loanUuid"));
+		loanId.setItemIdentifierValue("1231231234");
 
 		UserId userId = new UserId();
 		userId.setUserIdentifierType(new UserIdentifierType("Scheme", "userUuid"));
 		userId.setUserIdentifierValue("91231543543");
 
-		UserOptionalFields optionalFields = new UserOptionalFields();
-		optionalFields.setUserIds(Arrays.asList(loanId, userId));
-
-		checkInItemResponseData.setUserOptionalFields(optionalFields);
+		checkInItemResponseData.setLoanUuid(loanId);
+		checkInItemResponseData.setUserUuid(userId);
 		checkInItemResponseData.setItemId(itemId);
 		JSONObject jsonObject = checkinItem.constructResponseNcip2Response(checkInItemResponseData);
 		assertEquals(jsonObject.get("itemId"),"2938470293874");

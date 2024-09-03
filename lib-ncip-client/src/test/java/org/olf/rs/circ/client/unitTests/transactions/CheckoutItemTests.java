@@ -43,14 +43,12 @@ public class CheckoutItemTests {
 		itemId.setItemIdentifierValue("2938470293874");
 		UserId userId = new UserId();
 		userId.setUserIdentifierValue("5551212");
-		UserId loanId = new UserId();
-		loanId.setUserIdentifierType(new UserIdentifierType("Scheme", "loanUuid"));
-		loanId.setUserIdentifierValue("1231231234");
-		UserOptionalFields optionalFields = new UserOptionalFields();
-		optionalFields.setUserIds(Collections.singletonList(loanId));
+		ItemId loanId = new ItemId();
+		loanId.setItemIdentifierType(new ItemIdentifierType("Scheme", "loanUuid"));
+		loanId.setItemIdentifierValue("1231231234");
 		checkOutItemResponseData.setItemId(itemId);
 		checkOutItemResponseData.setUserId(userId);
-		checkOutItemResponseData.setUserOptionalFields(optionalFields);
+		checkOutItemResponseData.setLoanUuid(loanId);
 		JSONObject jsonObject = checkoutItem.constructResponseNcip2Response(checkOutItemResponseData);
 		assertEquals("2938470293874", jsonObject.get("itemId"));
 		assertEquals("5551212", jsonObject.get("userId"));
