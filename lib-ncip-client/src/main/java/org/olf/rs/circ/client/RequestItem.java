@@ -10,6 +10,7 @@ import org.jsoup.nodes.Document;
 import org.jsoup.parser.Parser;
 import org.jsoup.select.Elements;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -186,8 +187,13 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
                 Location location = requestItemResponseData.getItemOptionalFields().getLocation(0);
                 if (location.getLocationName() != null && location.getLocationName().getLocationNameInstances() != null &&
                         !location.getLocationName().getLocationNameInstances().isEmpty()) {
-                    returnJson.put("location", location.getLocationName()
-                            .getLocationNameInstance(0).getLocationNameValue());
+                    for (LocationNameInstance loc : location.getLocationName().getLocationNameInstances()){
+                        if (new BigDecimal(3).equals(loc.getLocationNameLevel())) {
+                            returnJson.put("library", loc.getLocationNameValue());
+                        } else if (new BigDecimal(4).equals(loc.getLocationNameLevel())) {
+                            returnJson.put("location", loc.getLocationNameValue());
+                        }
+                    }
                 }
             }
             if (requestItemResponseData.getItemOptionalFields().getItemDescription() != null) {

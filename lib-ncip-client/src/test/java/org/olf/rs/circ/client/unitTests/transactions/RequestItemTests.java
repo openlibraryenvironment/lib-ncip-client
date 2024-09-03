@@ -12,6 +12,7 @@ import org.olf.rs.circ.client.XCToolkitUtil;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 
@@ -68,6 +69,7 @@ public class RequestItemTests {
         RequestId requestId = new RequestId();
         requestId.setRequestIdentifierValue("RESH-99");
         LocationNameInstance locationNameInstance = new LocationNameInstance();
+        locationNameInstance.setLocationNameLevel(new BigDecimal(4));
         locationNameInstance.setLocationNameValue("Main library");
         LocationName locationName = new LocationName();
         locationName.setLocationNameInstances(Collections.singletonList(locationNameInstance));
@@ -128,7 +130,8 @@ public class RequestItemTests {
         assertEquals(jsonObject.getString("itemId"), "980001");
         assertEquals(jsonObject.getString("requestId"), "99873b27-893f-4611-98bf-72a92a9a82c8");
         assertEquals(jsonObject.getString("callNumber"), "Holdings magazine Q1");
-        assertEquals(jsonObject.getString("location"), "Main Library : Datalogisk Institut");
+        assertEquals(jsonObject.getString("location"), "Main Library");
+        assertEquals(jsonObject.getString("library"), "Datalogisk Institut");
         assertEquals(jsonObject.getString("userUuid"), "764fe3bf-e09b-4fcc-b4a9-c78aab6995f1");
     }
 }

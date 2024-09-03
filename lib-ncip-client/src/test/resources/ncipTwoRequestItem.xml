@@ -23,8 +23,12 @@
                 <ns1:LocationType ns1:Scheme="Scheme">Item</ns1:LocationType>
                 <ns1:LocationName>
                     <ns1:LocationNameInstance>
-                        <ns1:LocationNameLevel>1</ns1:LocationNameLevel>
-                        <ns1:LocationNameValue>Main Library : Datalogisk Institut</ns1:LocationNameValue>
+                        <ns1:LocationNameLevel>4</ns1:LocationNameLevel>
+                        <ns1:LocationNameValue>Main Library</ns1:LocationNameValue>
+                    </ns1:LocationNameInstance>
+                    <ns1:LocationNameInstance>
+                        <ns1:LocationNameLevel>3</ns1:LocationNameLevel>
+                        <ns1:LocationNameValue>Datalogisk Institut</ns1:LocationNameValue>
                     </ns1:LocationNameInstance>
                 </ns1:LocationName>
             </ns1:Location>
