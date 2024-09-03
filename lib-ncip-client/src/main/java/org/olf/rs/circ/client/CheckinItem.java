@@ -156,15 +156,12 @@ public class CheckinItem extends NCIPService implements NCIPCircTransaction {
 		}
 		returnJson.put(Constants.ITEM_ID, itemId);
 
-		if (checkinItemResponse.getUserOptionalFields() != null && checkinItemResponse.getUserOptionalFields().getUserIds() != null) {
-			for (UserId userId : checkinItemResponse.getUserOptionalFields().getUserIds()) {
-				if (userId.getUserIdentifierType() != null && "loanUuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
-					returnJson.put("loanUuid", userId.getUserIdentifierValue());
-				}
-				if (userId.getUserIdentifierType() != null && "userUuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
-					returnJson.put("userUuid", userId.getUserIdentifierValue());
-				}
-			}
+		if (checkinItemResponse.getUserUuid() != null) {
+			returnJson.put("userUuid", checkinItemResponse.getUserUuid().getUserIdentifierValue());
+		}
+
+		if (checkinItemResponse.getLoanUuid() != null) {
+			returnJson.put("loanUuid", checkinItemResponse.getLoanUuid().getItemIdentifierValue());
 		}
 
 		return returnJson;
