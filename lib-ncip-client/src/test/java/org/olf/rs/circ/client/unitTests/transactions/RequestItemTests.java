@@ -44,10 +44,13 @@ public class RequestItemTests {
         requestItem.setBibliographicRecordId("pn234092945");
         requestItem.setBibliographicRecordIdCode("LCOC");
         requestItem.setRequestType("Loan");
+        requestItem.setItemLocationCode("NC");
         RequestItemInitiationData initData
                 = (RequestItemInitiationData) requestItem.generateNCIP2Object();
         InitiationHeader initiationHeader = initData.getInitiationHeader();
         assertEquals("CBA", initiationHeader.getToAgencyId().getAgencyId().getValue());
+        assertEquals("NC", initData.getItemOptionalFields().getLocation(0).getLocationName()
+                .getLocationNameInstance(0).getLocationNameValue());
     }
 
     @Test
