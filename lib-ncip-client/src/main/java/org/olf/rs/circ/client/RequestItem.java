@@ -12,6 +12,8 @@ import org.jsoup.select.Elements;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class RequestItem extends NCIPService implements NCIPCircTransaction {
@@ -29,6 +31,7 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
     private String requestTypeString;
     private String requestScopeTypeString = null;
     private String pickupLocationString = null;
+    private String itemLocationCode = null;
 
     public RequestItem setRegistryId(String id) {
         this.registryId = id;
@@ -90,6 +93,11 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         return this;
     }
 
+    public RequestItem setItemLocationCode(String itemLocationCode) {
+        this.itemLocationCode = itemLocationCode;
+        return this;
+    }
+
     @Override
     public NCIPInitiationData generateNCIP2Object() {
         RequestItemInitiationData requestItemInitiationData = new RequestItemInitiationData();
@@ -145,6 +153,19 @@ public class RequestItem extends NCIPService implements NCIPCircTransaction {
         if (pickupLocationString != null) {
            PickupLocation pickupLocation = new PickupLocation(pickupLocationString);
            requestItemInitiationData.setPickupLocation(pickupLocation);
+        }
+
+        if (itemLocationCode != null) {
+            LocationNameInstance locationNameInstance = new LocationNameInstance();
+            locationNameInstance.setLocationNameLevel(BigDecimal.ONE);
+            locationNameInstance.setLocationNameValue(itemLocationCode);
+            LocationName locationName = new LocationName();
+            locationName.setLocationNameInstances(Collections.singletonList(locationNameInstance));
+            Location location = new Location();
+            location.setLocationName(locationName);
+            ItemOptionalFields itemOptionalFields = new ItemOptionalFields();
+            itemOptionalFields.setLocations(Collections.singletonList(location));
+            requestItemInitiationData.setItemOptionalFields(itemOptionalFields);
         }
 
         requestItemInitiationData.setUserId(userid);
