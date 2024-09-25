@@ -49,10 +49,17 @@ public class CheckoutItemTests {
 		checkOutItemResponseData.setItemId(itemId);
 		checkOutItemResponseData.setUserId(userId);
 		checkOutItemResponseData.setLoanUuid(loanId);
+		ItemOptionalFields itemOptionalFields = new ItemOptionalFields();
+		ItemDescription itemDescription = new ItemDescription();
+		itemDescription.setCallNumber("c123");
+		itemOptionalFields.setItemDescription(itemDescription);
+		checkOutItemResponseData.setItemOptionalFields(itemOptionalFields);
+
 		JSONObject jsonObject = checkoutItem.constructResponseNcip2Response(checkOutItemResponseData);
 		assertEquals("2938470293874", jsonObject.get("itemId"));
 		assertEquals("5551212", jsonObject.get("userId"));
 		assertEquals("1231231234", jsonObject.get("loanUuid"));
+		assertEquals("c123", jsonObject.get("callNumber"));
 	}
 
 	
