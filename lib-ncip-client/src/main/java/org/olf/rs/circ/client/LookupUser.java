@@ -233,6 +233,7 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 		returnJson.put("privileges", getPrivileges(lookupUserResponse));
 		returnJson.put("electronicAddresses", gatherElectronicAddress(lookupUserResponse));
 		returnJson.put("physicalAddresses", gatherPhysicalAddress(lookupUserResponse));
+		returnJson.put("userUuid", getUserUuidString(lookupUserResponse));
 
 		return returnJson;
 	}
@@ -366,6 +367,19 @@ public class LookupUser extends NCIPService implements NCIPCircTransaction {
 	private String getUserIdString(LookupUserResponseData lookupUserResponse,JSONObject returnJson) {
 		if (lookupUserResponse.getUserId() != null) 
 			return lookupUserResponse.getUserId().getUserIdentifierValue();
+		return "";
+	}
+
+	private String getUserUuidString(LookupUserResponseData lookupUserResponse) {
+		if (lookupUserResponse.getUserOptionalFields() != null
+				&& lookupUserResponse.getUserOptionalFields().getUserIds() != null) {
+			for (UserId userId : lookupUserResponse.getUserOptionalFields().getUserIds()){
+				if (userId.getUserIdentifierType() != null &&
+						"uuid".equalsIgnoreCase(userId.getUserIdentifierType().getValue())) {
+					return userId.getUserIdentifierValue();
+				}
+			}
+		}
 		return "";
 	}
 	
