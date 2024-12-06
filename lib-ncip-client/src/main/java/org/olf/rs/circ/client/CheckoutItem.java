@@ -122,17 +122,14 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		requestId.setAgencyId(new AgencyId(fromAgency));
 		requestId.setRequestIdentifierValue(requestIdString);
 
-		RequestId externalRef = null;
 		if (externalReferenceValue != null) {
-			externalRef = new RequestId();
-			externalRef.setAgencyId(new AgencyId(fromAgency));
+			RequestId externalRef = new RequestId();
 
+			externalRef.setAgencyId(new AgencyId(fromAgency));
 			RequestIdentifierType externalReferenceIdentifierType = new RequestIdentifierType(Constants.SCHEME_TYPE_SCHEMA, Constants.CUSTOM_EXTERNAL_REFERENCE);
 			externalRef.setRequestIdentifierType(externalReferenceIdentifierType);
 			externalRef.setRequestIdentifierValue(externalReferenceValue);
-		}
 
-		if (externalRef != null) {
 			checkoutItemInitiationData.setExternalReference(externalRef);
 		}
 		
