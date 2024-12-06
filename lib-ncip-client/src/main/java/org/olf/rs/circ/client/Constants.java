@@ -38,5 +38,7 @@ public class Constants {
 	public static final String CHARGE_DEFAULT_PATRON_FEE = "charge-default-patron-fee";
 	public static final String ILL_FEE = "ILL-fee";
 
+	public static final String CUSTOM_EXTERNAL_REFERENCE = "ExternReferenz";
 
+	public static final String SCHEME_TYPE_SCHEMA = "Schema";
 }

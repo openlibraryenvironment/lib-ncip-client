@@ -30,6 +30,8 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	private String requestIdString;
 	private String desiredDueDate;
 
+	private String externalReferenceValue;
+
 
 	public CheckoutItem() {
 		
@@ -75,7 +77,7 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	
 	/**
 	 * setRegistryId
-	 * @param string - registry ID.  Will be set as the 'AgencyId' on the 'ItemId' element
+	 * @param registryId - String.  Will be set as the 'AgencyId' on the 'ItemId' element
 	 * @return Instance object
 	 */
 	public CheckoutItem setRegistryId(String registryId) {
@@ -86,6 +88,11 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 	public JSONObject validateRequest() {
 		if (this.itemIdString == null) return constructMissingElementProblem("Item ID");
 		return null;
+	}
+
+	public CheckoutItem setExternalReferenceValue(String externalReferenceValue) {
+		this.externalReferenceValue = externalReferenceValue;
+		return this;
 	}
 
 	/**
@@ -114,6 +121,12 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		RequestId requestId = new RequestId();
 		requestId.setAgencyId(new AgencyId(fromAgency));
 		requestId.setRequestIdentifierValue(requestIdString);
+
+		RequestId externalRef = new RequestId();
+		externalRef.setAgencyId(new AgencyId(fromAgency));
+    RequestIdentifierType externalReferenceIdentifierType = new RequestIdentifierType(Constants.SCHEME_TYPE_SCHEMA, Constants.CUSTOM_EXTERNAL_REFERENCE);
+		externalRef.setRequestIdentifierType(externalReferenceIdentifierType);
+		externalRef.setRequestIdentifierValue(externalReferenceValue);
 		
 		if (desiredDueDate != null && !desiredDueDate.equalsIgnoreCase("")) {
 			DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
@@ -133,6 +146,7 @@ public class CheckoutItem extends NCIPService implements NCIPCircTransaction {
 		checkoutItemInitiationData.setItemId(itemId);
 		checkoutItemInitiationData.setUserId(userid);
 		checkoutItemInitiationData.setRequestId(requestId);
+		checkoutItemInitiationData.setExternalRefernece(externalRef);
 		checkoutItemInitiationData.setInitiationHeader(initiationHeader);
 		return checkoutItemInitiationData;
 	}
