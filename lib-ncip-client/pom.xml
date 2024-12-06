@@ -7,7 +7,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.17</java.version>
-		<org.extensiblecatalog.ncip.v2.version>4.1.2</org.extensiblecatalog.ncip.v2.version>
+		<org.extensiblecatalog.ncip.v2.version>4.1.1</org.extensiblecatalog.ncip.v2.version>
 	</properties>
 	<dependencies>
 		<dependency>
